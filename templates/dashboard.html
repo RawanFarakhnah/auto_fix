@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}AutoFixer{% endblock %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #fff;
+    }
+
+    .container {
+        display: flex;
+        height: 100vh;
+    }
+
+    /* Left Section */
+    .left-side {
+        width: 40%;
+        background-color: #000;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 30px;
+    }
+
+    .left-side img {
+        max-width: 90%;
+        border-radius: 12px;
+        border: 4px solid #ff6600;
+    }
+
+    /* Right Section */
+    .right-side {
+        flex: 1;
+        background-color: #f5f5f5;
+        padding: 30px;
+        overflow-y: auto;
+    }
+
+    .map-title {
+        font-size: 22px;
+        color: #ff6600;
+        margin-bottom: 15px;
+    }
+
+    .map-area {
+        width: 100%;
+        height: 300px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 3px solid #ff6600;
+        margin-bottom: 30px;
+    }
+
+    .map-area iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    /* Cards Section */
+    .cards-container {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .card {
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        width: calc(33.333% - 15px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s;
+    }
+
+    .card:hover {
+        transform: scale(1.03);
+    }
+
+    .card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+
+    .card .card-body {
+        padding: 15px;
+    }
+
+    .card .card-body h4 {
+        margin-bottom: 10px;
+        color: #ff6600;
+    }
+
+    .card .card-body p {
+        color: #333;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            flex-direction: column;
+        }
+
+        .left-side,
+        .right-side {
+            width: 100%;
+        }
+
+        .cards-container {
+            flex-direction: column;
+        }
+
+        .card {
+            width: 100%;
+        }
+    }
+
+    .btn-autofix {
+
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-autofix:hover {
+
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-autofix:active {
+
+        transform: translateY(0) scale(1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-orange {
+        background-color: #ff7f00;
+        border-color: #ff7f00;
+        color: #fff;
+    }
+
+    .link-orange {
+        position: relative;
+        color: #ff7f00;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    .head{
+        display: flex;
+        justify-content: space-between;
+    }
+</style>
+</head>
+
+<body>
+    <div class="head">
+    <div dir="ltr" class="map-title">Nearby Workshops</div>
+
+    <a href="#" class="link-orange">
+        update_location
+    </a>
+</div>
+
+    <div class="container">
+
+        <div class="right-side">
+            <div class="map-area">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d27087.202488883554!2d35.210004!3d31.905572!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2s!4v1700000000000"
+                    allowfullscreen="" loading="lazy">
+                </iframe>
+            </div>
+
+            <!-- Cards Section -->
+            <div class="cards-container">
+                <div class="card">
+                    {% load static %}
+                    <img src="{%static 'img/car1.jpg'%}" alt="Workshop 1">
+                    <div class="card-body">
+                        <h4>Workshop 1</h4>
+                        <p>High quality services and fast repair times. Located in Ramallah city center.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    {% load static %}
+                    <img src="{%static 'img/car2.avif'%}" alt="Workshop 2">
+                    <div class="card-body">
+                        <h4>Workshop 2</h4>
+                        <p>Specializes in engine repairs and diagnostics. Friendly team and great pricing.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    {% load static %}
+                    <img src="{%static 'img/car3.jpg'%}" alt="Workshop 3">
+                    <div class="card-body">
+                        <h4>Workshop 3</h4>
+                        <p>Offers oil change, tire replacement and quick maintenance with no appointment needed.</p>
+                    </div>
+                    <button class="btn btn-orange btn-autofix">
+                        AutoFix Chat
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+
+</html>
+
+
+{%endblock%}
