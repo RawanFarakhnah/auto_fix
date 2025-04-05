@@ -1,0 +1,170 @@
+body {
+    color: #444444;
+    font-weight: 400;
+    background: #fbf4f4;
+    font-family: 'Barlow', sans-serif;
+}
+/* this code for the top nav :  */
+h1{
+    color: #050e1c;
+    text-shadow: 1px 1px 4px black;
+    letter-spacing: 1px;
+    font-weight: bolder;
+}
+h1 span {
+    color: #e95d08;
+}
+
+.top-nav{
+   margin: 2px 0px;
+   padding: 0px 20px;
+   width: 100%;
+   display: flex;
+   align-items: end;
+   justify-content: space-between;
+   overflow: hidden;
+}
+.logo{
+    display: flex;
+    justify-content: start;
+    align-items: end;
+    width: 50%;
+}
+.logo img{
+    width: 60px;
+    border-radius: 50%;
+}
+.top-nav-text p{
+    letter-spacing: 1px;
+    color: #050e1c;
+    font-weight: bolder;
+    text-shadow: 1px 1px 2px #0a0a0a;
+}
+.top-nav-text p span{
+    color: #e95d08;
+}
+@media (max-width: 991.98px) {
+    .top-nav {
+        justify-content: center;
+    }
+    .top-nav-text{
+        display: none;
+    }
+}
+
+/* this code for the nav bar :  */
+
+.navbar {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    background-color: #050e1c; 
+    padding: 15px 30px;
+    position: sticky;
+    top: 0px;
+    z-index: 999;
+}
+.menu-icon {
+    display: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: white;
+}
+.logo h2 {
+    display: none;
+}
+.nav-links{
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+.nav-links a {
+    color: #e2dfdf;
+    text-decoration: none;
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: bold;
+}
+.nav-links a:hover {
+    background-color: #e95d08; 
+    border-radius: 5px;
+}
+#login{
+    padding: 10px 30px 12px 30px;
+    text-align: center; 
+    font-size: 16px;
+    font-weight: 700;
+    color: #002b5e;
+    background: #ffffff;
+    border: none;
+    border-radius: 60px;
+    box-shadow: inset 0 0 0 0 #050e1c;
+    transition: ease-out 0.5s;
+}
+#login:hover{
+    color: #050e1c;
+    background: #e95d08;
+    box-shadow: inset 200px 0 0 0 #e95d08;
+    cursor: pointer;
+}
+@media screen and (max-width: 768px) {
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        background-color: #050e1c;
+        width: 100%;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        text-align: center;
+    }
+    .nav-links a {
+        padding: 15px;
+        display: block;
+    }
+    .menu-icon,.logo h2 {
+        display: block;
+    }
+    .logo h2 {
+        color: #e95d08;
+    }
+    
+}
+/* this code for the btn :  */
+.btn {
+    padding: 10px 30px 12px 30px;
+    text-align: center; 
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    background: #e95d08;
+    border: none;
+    border-radius: 60px;
+    box-shadow: inset 0 0 0 0 #050e1c;
+    transition: ease-out 0.5s;
+}
+
+.btn:hover {
+    color: #e95d08;
+    background: #050e1c;
+    box-shadow: inset 200px 0 0 0 #050e1c;
+    cursor: pointer;
+}
+.btn:focus {
+    box-shadow: none;
+}
+
+
+/* the slider code :  */
+.slider{
+    padding: 30px;
+    width:100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.slide{
+    width: 70%;
+}
