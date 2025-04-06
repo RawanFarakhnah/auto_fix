@@ -1,6 +1,8 @@
 {% load static bootstrap5 %}
+
 {% bootstrap_css %}
 {% bootstrap_javascript %}
+
 <!DOCTYPE html>
 <html lang="en" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
 <head>
@@ -8,15 +10,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %} AutoFix {% endblock %}</title>
     <link rel="icon" href="{% static 'img/dark_logo.png' %}" type="image/png">
-    <!-- Font Awesome -->
+    
+    <!-- Font Awesome (for icons) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
+    
+    <!-- Google Fonts (Cairo font family) -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap" rel="stylesheet">
+    
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     
     {% block extra_css %}{% endblock %}
 </head>
+
 <body class="d-flex flex-column min-vh-100">
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #050e1c;">
@@ -73,13 +79,18 @@
         </div>
     </nav>
 
-     <!-- Main Content -->
-     <main class="flex-grow-1">
+    <!-- Main Content -->
+    <main class="flex-grow-1">
         {% block content %}
         <!-- Dynamic content goes here -->
         {% endblock %}
     </main>
- 
+
+    <!-- Footer -->
+    <footer class="text-center py-4">
+        <p>&copy; 2025 AutoFix. All Rights Reserved.</p>
+    </footer>
+
     <!-- Scripts -->
     <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}{% endblock %}
