@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Add Service{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #fff;
+        color: #333;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .container {
+        margin-top: 50px;
+        animation: slideFade 0.8s ease-in-out;
+        max-width: 600px;
+    }
+
+    h2 {
+        color: #FF6B00;
+        margin-bottom: 30px;
+        font-weight: bold;
+        animation: fadeInDown 0.8s ease-in-out;
+    }
+
+    label {
+        font-weight: 500;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        transition: border 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #FF6B00;
+        box-shadow: 0 0 5px rgba(255, 107, 0, 0.5);
+    }
+
+    .btn-orange {
+        background-color: #FF6B00;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: none;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .btn-orange:hover {
+        background-color: #e65c00;
+        transform: scale(1.05);
+    }
+
+    @keyframes slideFade {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInDown {
+        0% {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="container mt-5">
+    <h2 class="text-center">Add New Service</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Name:</label>
+            <input type="text" name="name" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Price:</label>
+            <input type="number" name="price" class="form-control" step="0.01" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Description:</label>
+            <textarea name="description" class="form-control" rows="3" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Duration:</label>
+            <input type="text" name="duration" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Workshop:</label>
+            <select name="workshop_id" class="form-control" required>
+                {% for workshop in workshops %}
+                <option value="{{ workshop.id }}">{{ workshop.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-orange">Add Service</button>
+    </form>
+</div>
+{% endblock %}

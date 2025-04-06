@@ -25,6 +25,10 @@ def list_review(request):
     return render(request,'review/list_review.html')
 def admin_review(request):
     return render(request,'review/admin_review.html')
+def add_service(request):
+    return render(request,'services/add_service.html')
+def list_service(request):
+    return render(request,'services/list_services.html')
 
 
  

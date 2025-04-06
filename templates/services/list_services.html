@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}All Services{% endblock %}
+
+{% block content %}
+<style>
+    body{
+        color:chocolate;
+    }
+    .btn-orange {
+        background-color: #FF6B00;
+        color: white;
+        transition: background-color 0.3s ease;
+    }
+</style>
+
+<div class="container mt-5">
+    <h2 class="text-center text-danger">All Services</h2>
+    <a href="{% url 'landing:add_service' %}" class="btn btn-orange mb-4">Add New Service</a>
+    <table class="table table-hover table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Description</th>
+                <th>Duration</th>
+                <th>Workshop</th>
+                <th>Updated</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service in services %}
+            <tr>
+                <td>{{ service.id }}</td>
+                <td>{{ service.name }}</td>
+                <td>${{ service.price }}</td>
+                <td>{{ service.description }}</td>
+                <td>{{ service.duration }}</td>
+                <td>{{ service.workshop_id.name }}</td>
+                <td>{{ service.updated_at }}</td>
+                <td>
+                    <a href="{% url 'edit_service' service.id %}" class="btn btn-sm btn-orange">Edit</a>
+                    <a href="{% url 'delete_service' service.id %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

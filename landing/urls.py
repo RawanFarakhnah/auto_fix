@@ -15,7 +15,8 @@ urlpatterns = [
     path('workshop/add',views.add_workshop,name='add_workshop'),
     path('review/add',views.add_review,name='add_review'),
     path('review/list',views.list_review,name='add_list'),
-    path('review/adminr',views.admin_review,name='admin_review')
-
+    path('review/adminr',views.admin_review,name='admin_review'),
+    path('service/add',views.add_service,name='add_service'),
+    path('service/list',views.list_service,name='list_services'),
     
 ]
