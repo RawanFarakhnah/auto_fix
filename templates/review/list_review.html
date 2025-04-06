@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}My Reviews{% endblock %}
+
+{% block content %}
+<style>
+    body{
+        color:chocolate;
+    }
+</style>
+<div class="container mt-5">
+    <h2 class="text-center text-warning">My Reviews</h2>
+
+    <div class="row">
+        {% for review in reviews %}
+        <div class="col-md-4">
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Rating: {{ review.rating }}</h5>
+                    <p class="card-text">{{ review.comment }}</p>
+                    <p class="card-text"><small class="text-muted">Updated: {{ review.updated_at }}</small></p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

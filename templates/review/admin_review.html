@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}All Reviews{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        color: #FF6B00;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .container {
+        margin-top: 50px;
+    }
+
+    h2.text-danger {
+        color: #FF6B00 !important;
+        margin-bottom: 30px;
+    }
+
+    table {
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        text-align: left;
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #FF6B00;
+        color: white;
+        font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .btn-orange {
+        background-color: #FF6B00;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .btn-orange:hover {
+        background-color: #e65c00;
+        transform: scale(1.05);
+    }
+
+    .btn-danger {
+        background-color:#e65c00;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .btn-danger:hover {
+        background-color:#e65c00;
+        transform: scale(1.05);
+    }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+    }
+</style>
+
+<div class="container mt-5">
+    <h2 class="text-center text-danger">All Reviews (Admin Panel)</h2>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Rating</th>
+                <th>Comment</th>
+                <th>User</th>
+                <th>Workshop</th>
+                <th>Service</th>
+                <th>Updated</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for review in reviews %}
+            <tr>
+                <td>{{ review.id }}</td>
+                <td>{{ review.rating }}</td>
+                <td>{{ review.comment }}</td>
+                <td>{{ review.user_id.username }}</td>
+                <td>{{ review.workshop_id.name }}</td>
+                <td>{{ review.service_id.name }}</td>
+                <td>{{ review.updated_at }}</td>
+                <td class="actions">
+                    <a href="{% url 'edit_review' review.id %}" class="btn btn-sm btn-orange">Edit</a>
+                    <a href="{% url 'delete_review' review.id %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

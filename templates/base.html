@@ -106,10 +106,10 @@ body, html {
       </div>
       <nav class="flex-1">
         <ul class="menu mt-4">
-          <li><a href="#" class="block px-6 py-3 hover:bg-gray-800 transition">Dashboard</a></li>
-          <li><a href="#" class="block px-6 py-3 hover:bg-gray-800 transition">Users</a></li>
-          <li><a href="#" class="block px-6 py-3 hover:bg-gray-800 transition">Bookings</a></li>
-          <li><a href="#" class="block px-6 py-3 hover:bg-gray-800 transition">Workshop</a></li>
+          <li><a href="{%url 'landing:dashboard'%}" class="block px-6 py-3 hover:bg-gray-800 transition">Dashboard</a></li>
+          <li><a href="{%url 'landing:user'%}" class="block px-6 py-3 hover:bg-gray-800 transition">Users</a></li>
+          <li><a href="{%url 'landing:update_booking'%}" class="block px-6 py-3 hover:bg-gray-800 transition">Bookings</a></li>
+          <li><a href="{%url 'landing:add_review'%}" class="block px-6 py-3 hover:bg-gray-800 transition">Workshop</a></li>
         </ul>
       </nav>
     </aside>
