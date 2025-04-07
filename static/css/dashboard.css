@@ -1,0 +1,36 @@
+.wrapper {
+  display: flex;
+  min-height: 80vh;
+}
+
+.sidebar {
+  width: 220px;
+  background-color: #343a40;
+  color: #fff;
+  border-radius: 8px;
+}
+
+.sidebar .menu a {
+  color: #ddd;
+  padding: 8px 12px;
+  display: block;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+.sidebar .menu a:hover,
+.sidebar .menu .active-link {
+  background-color: #ff6600;
+  color: #fff;
+}
+
+.main-content {
+  flex-grow: 1;
+}
+
+.stats-cards .card {
+  background: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 20px;
+}

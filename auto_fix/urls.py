@@ -18,6 +18,15 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
+   
+    # path('admin/', admin.site.urls),
     path('', include('landing.urls')),
-    path('admin/', admin.site.urls),
+    path('accounts/', include('accounts.urls')),
+    path('cars/', include('cars.urls')),
+    path('workshops/', include('workshops.urls')),
+    path('ai_diagnosis/', include('ai_diagnosis.urls')),
+    path('bookings/', include('bookings.urls')),
+    path('reviews/', include('reviews.urls')),
+    path('locations/', include('locations.urls')),
+
 ]
