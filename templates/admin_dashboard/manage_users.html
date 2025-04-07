@@ -1,0 +1,112 @@
+{% extends 'base2.html' %}
+
+{% block title %} User Dashboard {% endblock %}
+
+{% load static bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="wrapper d-flex">
+
+    <!-- Sidebar -->
+    <aside class="sidebar p-3 shadow-sm">
+        <h4 class="welcome mb-4">Welcome, {{ user.get_short_name }}</h4>
+
+        <nav class="menu d-flex flex-column gap-2">
+            <a href="{% url 'landing:admin_dashboard' %}" class="text-white text-decoration-none">Dashboard</a>
+            <a href="{% url 'landing:manage_users' %}" class="active-link text-white text-decoration-none">Manage
+                Users</a>
+            <a href="#" class="text-white text-decoration-none">Manage Workshops</a>
+            <a href="#" class="text-white text-decoration-none">Manage Services</a>
+        </nav>
+    </aside>
+
+    <main class="main-content flex-grow-1 p-4">
+        <div class="d-flex justify-content-between">
+            <h1 class="mb-4">Manage Users</h1>
+            <div>
+                <a class="btn btn-warning text-white" style="background-color: #ff6600;" 
+               href="{% url 'landing:create_user' %}">Add New User</a>
+            </div>
+        </div>
+
+        <div class="search-box mb-3">
+            <input type="text" class="form-control" placeholder="Search...">
+        </div>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            {% for user in users %}
+            <tr id="user-{{ user.id }}">
+                <td>{{ user.id }}</td>
+                <td>{{ user.first_name }} {{ user.last_name }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="updateUser({{ user.id }})">
+                        Update
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteUser({{ user.id }})">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="pagination">
+            <a href="#" class="btn btn-light">&laquo; First</a>
+            <a href="#" class="btn btn-light">1</a>
+            <a href="#" class="btn btn-light active">2</a>
+            <a href="#" class="btn btn-light">3</a>
+            <a href="#" class="btn btn-light">Next &raquo;</a>
+        </div>
+
+    </main>
+
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function deleteUser(userId) {
+        // Send AJAX request to delete the user
+        $.ajax({
+            type: "POST",
+            url: "/api/users/" + userId + "/delete/",
+            data: {
+                user_id: userId,
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+            },
+            success: function (response) {
+                if (response.success) {
+                    $("#user-" + userId).remove(); // Remove the row if successful
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log("Error deleting user: ", error);
+            },
+        });
+    }
+
+    function updateUser(userId) {
+        // Add your update logic here (can be a modal or a redirect to an update form)
+        alert("Update user " + userId); // You can open a modal or a new page for editing
+    }
+</script>
+{% endblock %}
