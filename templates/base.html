@@ -88,11 +88,10 @@
 
     <!-- Footer -->
     <footer class="text-center py-4">
-        <p>&copy; 2025 AutoFix. All Rights Reserved.</p>
+        <p>&copy; {% now "Y" %} AutoFix. All Rights Reserved.</p>
     </footer>
 
     <!-- Scripts -->
-    <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

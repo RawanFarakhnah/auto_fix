@@ -3,8 +3,12 @@ from landing import views
 
 app_name = 'landing'
 
-urlpatterns = [
+urlpatterns = [  
     path('', views.main, name='main'),
     path('contact/', views.contact, name='contact'),
     path('dashbord/', views.dashbord, name='dashbord'),
+
+    # Admin Dashboard URLs
+    path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin/manage-users/', views.manage_users, name='manage_users'),
 ]

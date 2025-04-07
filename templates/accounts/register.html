@@ -1,42 +1,82 @@
-{% extends "header.html" %}
+{% extends "base.html" %}
 {% load static %}
 {% load bootstrap5 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 
 {% block content %}
-<!-- Create Account Section -->
+<!-- Registration Form Section -->
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-lg rounded-4 p-4">
                 <h3 class="text-center mb-4" style="color: #050e1c;">Create Account</h3>
 
+                <!-- Registration Form -->
                 <form action="{% url 'accounts:register' %}" method="post">
                     {% csrf_token %}
 
+                    <!-- First Name and Last Name Fields -->
                     <div class="row g-2 mb-3">
                         <div class="col-md-6">
-                            <input type="text" name="first_name" class="form-control" placeholder="First Name" style="border-color: #ff6600;" required>
+                            <input type="text" name="first_name" value="{{ postData.first_name }}" class="form-control {% if errors.first_name %}is-invalid{% endif %}" placeholder="First Name" style="border-color: #ff6600; color: #ff6600;" required>
+                            {% if errors.first_name %}
+                                <div class="invalid-feedback">
+                                    <p>{{ errors.first_name }}</p>
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="col-md-6">
-                            <input type="text" name="last_name" class="form-control" placeholder="Last Name" style="border-color: #ff6600;" required>
+                            <input type="text" name="last_name" value="{{ postData.last_name }}" class="form-control {% if errors.last_name %}is-invalid{% endif %}" placeholder="Last Name" style="border-color: #ff6600; color: #ff6600;" required>
+                            {% if errors.last_name %}
+                                <div class="invalid-feedback">
+                                    <p>{{ errors.last_name }}</p>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
 
+                    <!-- Email Address -->
                     <div class="mb-3">
-                        <input type="email" name="email" class="form-control" placeholder="Email" style="border-color: #ff6600;" required>
+                        <input type="email" name="email" value="{{ postData.email }}" class="form-control {% if errors.email %}is-invalid{% endif %}" placeholder="Email" style="border-color: #ff6600; color: #ff6600;" required>
+                        {% if errors.email %}
+                            <div class="invalid-feedback">
+                                <p>{{ errors.email }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="mb-3">
+                        <input type="text" name="phone" value="{{ postData.phone }}" class="form-control {% if errors.phone %}is-invalid{% endif %}" placeholder="Phone Number (xxx-xxx-xxxx)" style="border-color: #ff6600; color: #ff6600;" required>
+                        {% if errors.phone %}
+                            <div class="invalid-feedback">
+                                <p>{{ errors.phone }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Password and Confirm Password -->
+                    <div class="mb-3">
+                        <input type="password" name="password" class="form-control {% if errors.password %}is-invalid{% endif %}" placeholder="Password" style="border-color: #ff6600; color: #ff6600;" required>
+                        {% if errors.password %}
+                            <div class="invalid-feedback">
+                                <p>{{ errors.password }}</p>
+                            </div>
+                        {% endif %}
                     </div>
 
                     <div class="mb-3">
-                        <input type="password" name="password" class="form-control" placeholder="Password" style="border-color: #ff6600;" required>
+                        <input type="password" name="confirm_password" class="form-control {% if errors.confirm_password %}is-invalid{% endif %}" placeholder="Confirm Password" style="border-color: #ff6600; color: #ff6600;" required>
+                        {% if errors.confirm_password %}
+                            <div class="invalid-feedback">
+                                <p>{{ errors.confirm_password }}</p>
+                            </div>
+                        {% endif %}
                     </div>
 
-                    <div class="mb-3">
-                        <input type="password" name="confirm_password" class="form-control" placeholder="Confirm Password" style="border-color: #ff6600;" required>
-                    </div>
-
-                    <button type="submit" class="btn btn-lg w-100" style="background-color: #ff6600; color: #fff; border: none; margin-bottom: 15px;">
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-lg w-100" style="background-color: #ff6600; color: #fff; border: none;">
                         Register
                     </button>
                 </form>
@@ -45,10 +85,12 @@
                     — or —
                 </div>
 
-                <a href="#" class="btn btn-outline-secandary w-100 mb-3" style="border-color: #ff6600; color: #ff6600;">
+                <!-- Google Register Option -->
+                <a href="#" class="btn btn-outline-secondary w-100 mb-3" style="border-color: #ff6600; color: #ff6600;">
                     <i class="bi bi-google me-2"></i> Register with Google
                 </a>
 
+                <!-- Login Link -->
                 <div class="text-center">
                     <small style="color: #050e1c;">
                         Already have an account? 
@@ -61,3 +103,31 @@
 </div>
 
 {% endblock %}
+
+<!-- JavaScript to Toggle Address Input Methods -->
+<script>
+    document.getElementById('enterAddressManually').addEventListener('click', function() {
+        document.getElementById('manualAddressFields').style.display = 'block';
+        document.getElementById('fetchLocationBtn').style.display = 'none';
+    });
+
+    document.getElementById('useCurrentLocation').addEventListener('click', function() {
+        document.getElementById('manualAddressFields').style.display = 'none';
+        document.getElementById('fetchLocationBtn').style.display = 'block';
+    });
+
+    // JavaScript function to get current location (example, could be more complex)
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+
+    function showPosition(position) {
+        // Here you would use position.coords.latitude and position.coords.longitude
+        alert("Latitude: " + position.coords.latitude + "\nLongitude: " + position.coords.longitude);
+        // Ideally, update the address fields based on the geolocation
+    }
+</script>

@@ -18,11 +18,10 @@ def user_register(request):
             return redirect('landing:register')
 
         user = User.objects.create(
-            first_name_en=request.POST['first_name_en'],
-            last_name_en=request.POST['last_name_en'],
-            first_name_ar=request.POST['first_name_ar'],
-            last_name_ar=request.POST['last_name_ar'],
+            first_name=request.POST['first_name'],
+            last_name=request.POST['last_name'],
             email=request.POST['email'],
+            phone=request.POST.get('phone', ''),
             password=make_password(request.POST['password']),
         )
 
@@ -54,14 +53,14 @@ def user_login(request):
 
 def user_profile(request):
     if not request.user.is_authenticated:
-        return redirect('landing:home')
+        return redirect('landing:main')
     
     #user = User.objects.get(id=request.session['user_id']) 
     return render(request, 'accounts/profile.html', {'user': request.user})
 
 def user_logout(request):
    if not request.user.is_authenticated:
-        return redirect('landing:home')
+        return redirect('landing:main')
 
    logout(request)
-   return redirect('landing:home')
+   return redirect('landing:main')
