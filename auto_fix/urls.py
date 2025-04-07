@@ -28,6 +28,6 @@ urlpatterns = [
     path('bookings/', include('bookings.urls')),
     path('reviews/', include('reviews.urls')),
     path('locations/', include('locations.urls')),
-    path('chat/', include('ai_diagnosis.urls', namespace='ai_diagnosis')),
+    path('chat/', include('ai_diagnosis.urls', namespace='autofix_chatai')),
 
 ]
