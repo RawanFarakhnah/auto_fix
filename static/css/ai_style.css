@@ -14,7 +14,6 @@
 #chat-bubble p {
     align-self: center;
     padding: 5px;
-    font-family: sans-serif;
     text-shadow: 1px 1px 3px #13133b;
     margin: 0px 15px;
 }
@@ -27,7 +26,7 @@
     width: 300px;
     height: 350px;
     background: white;
-    border: 1px solid #ddd;
+    border: 1px solid #ff6600;
     border-radius: 8px;
     position: absolute;
     bottom: 40px;
@@ -42,15 +41,15 @@
 .close-btn {
    align-self: flex-end;
    border-radius: 5px;
-   color: red;
-   background-color: #fffdfd;
-   border: 2px solid #13133b;
+   color: #fffdfd;
+   background-color: #ff6600;
+   border: 2px solid #ff6600;
    padding: 2px;
    transition: ease-out 0.3s;
 }
 .close-btn:hover{
-   background-color: red;
-   color: #fffdfd;
+   background-color:#fffdfd;
+   color: #ff6600;
 }
 .messages-box {
     flex: 1;
@@ -75,11 +74,14 @@
 .message.ai {
     align-self: flex-start;
     background-color: #ff6600;
-    color: #13133b;
+    color: #fffff7;
+    word-spacing: .5px;
 }
 #user-input {
     width: 70%;
     padding: 2.5px;
+    border-color: #ff6600;
+    color: #ff6600;
 }
 #send-btn {
     width: 25%;
@@ -94,3 +96,10 @@
     color: #6c757d;
     background-color: #bdc1c4;
 }
+/* @media (max-width: 768px){
+    #chat-container{
+        rotate: 90deg;
+        bottom: 50px;
+        
+    }
+} */

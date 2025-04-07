@@ -31,7 +31,6 @@ def ai_diagnosis_chat(request):
 
         response = requests.post(api_url, headers=headers, json=payload)
         result = response.json()
-        print('*************' , result)
         reply = result['choices'][0]['message']['content']
         return JsonResponse({
             'user': user_ask,

@@ -20,8 +20,10 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/ai_style.css' %}">
+    {% block extra_css %}
     
-    {% block extra_css %}{% endblock %}
+    {% endblock %}
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -70,6 +72,19 @@
 <main class="flex-grow-1 py-4">
     <div class="container">
         {% block content %}{% endblock %}
+        <div id="chat-container">
+            <div id="chat-box" class="hidden">
+              <button class="close-btn" onclick="clearText()">close</button>
+              <div id="messages" class="messages-box"></div>
+              <div class="user-chat">
+                <input type="text"  id="user-input" placeholder="Type a message..."  class="form-control "  >
+                <button id="send-btn">Send</button>
+              </div>
+            </div>
+            <div id="chat-bubble">
+              <p>Chat With Our AI</p>
+            </div>
+        </div>
     </div>
 </main>
 
@@ -77,8 +92,10 @@
 <footer class="text-center py-4">
     <p>&copy; {% now "Y" %} AutoFix. All Rights Reserved.</p>
 </footer>
+<script src="{% static 'js/ai_script.js' %}"></script>
+{% block extra_js %}
 
-{% block extra_js %}{% endblock %}
+{% endblock %}
 
 </body>
 </html>
