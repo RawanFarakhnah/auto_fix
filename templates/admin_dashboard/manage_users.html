@@ -104,9 +104,13 @@
         });
     }
 
-    function updateUser(userId) {
-        // Add your update logic here (can be a modal or a redirect to an update form)
-        alert("Update user " + userId); // You can open a modal or a new page for editing
-    }
+    
+  
+        function updateUser(userId) {
+    
+            window.location.href = '/update_user/' + userId + '/';
+        }
+   
+    
 </script>
 {% endblock %}

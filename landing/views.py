@@ -108,20 +108,47 @@ def create_user(request):
 
     
 
+
+User = get_user_model()
+
+def update_user_view(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        
+    except User.DoesNotExist:
+        return HttpResponse("المستخدم غير موجود", status=404)
+    return render(request, 'admin_dashboard/update_user.html', {'user_obj': user})    
+        
+
 @csrf_exempt
 def update_user_api(request, user_id):
     if request.method == "POST":
-        user = User.objects.get(id=user_id)
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'User not found'})
+
         data = request.POST
         user.first_name = data['first_name']
         user.last_name = data['last_name']
         user.email = data['email']
         user.phone = data.get('phone', '')
         user.save()
-        return JsonResponse({'success': True, 'user_id': user.id, 'full_name': user.get_full_name(), 'email': user.email})
+
+        return JsonResponse({
+            'success': True,
+            'user_id': user.id,
+            'full_name': user.get_full_name(),
+            'email': user.email
+        })
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+  
 @csrf_exempt
 def delete_user(request, user_id):
     if request.method == "POST":
         user = User.objects.get(id=user_id)
         user.delete()
         return JsonResponse({'success': True, 'user_id': user_id})
+    
+    
