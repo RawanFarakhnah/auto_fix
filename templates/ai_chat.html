@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/ai_chat-style.css' %}">
+    <script src="{% static 'js/ai_chat.js' %}"></script>
+</head>
+<body>
+    <button class="chat-button" id="chatToggle">Chat with AutoFix AI</button>
+
+    <div class="chat-container" id="chatBox">
+        <div class="message bot">Hey! , How Can I help you ?</div>
+        <form action="" method="post" class="ai-form">
+            {% csrf_token %}
+            <input type="text" name="talk" id="chatInput" placeholder="Send Message ...">
+            <button type="submit" id="sendBtn">Send</button>
+        </form>
+        {% if context %}
+        <div class="user">{{user}}</div>
+        <div class="bot">{{bot}}</div>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -5,4 +5,5 @@ app_name = 'landing'
 
 urlpatterns = [
     path('', views.root, name='root'),
+    path('ai',views.ai)
 ]
