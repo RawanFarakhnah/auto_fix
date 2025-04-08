@@ -11,6 +11,25 @@
 {% endblock %}
 
 {% block content %}
+<style>
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .pagination .btn {
+        margin: 0 5px;
+        background-color: chocolate;
+        color: white;
+    }
+
+    .pagination .btn-primary {
+        background-color: darkorange;
+        color: white;
+    }
+</style>
+
 <div class="wrapper d-flex">
 
     <!-- Sidebar -->
@@ -54,10 +73,10 @@
                 <td>{{ user.first_name }} {{ user.last_name }}</td>
                 <td>{{ user.email }}</td>
                 <td>
-                    <button class="btn btn-warning btn-sm" onclick="updateUser({{ user.id }})">
+                    <button class="btn btn-warning btn-sm"style="background-color: #ff6600; color:white;" onclick="updateUser({{ user.id }})">
                         Update
                     </button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteUser({{ user.id }})">
+                    <button class="btn btn-dark btn-sm" onclick="deleteUser({{ user.id }})">
                         Delete
                     </button>
                 </td>
@@ -66,14 +85,28 @@
             </tbody>
         </table>
 
-        <div class="pagination">
-            <a href="#" class="btn btn-light">&laquo; First</a>
-            <a href="#" class="btn btn-light">1</a>
-            <a href="#" class="btn btn-light active">2</a>
-            <a href="#" class="btn btn-light">3</a>
-            <a href="#" class="btn btn-light">Next &raquo;</a>
+        
+        
+        
+     
+        
+        <div class="pagination" style="margin-top: 20px; text-align: center;">
+            {% if page_obj.has_previous %}
+                <a href="?page=1" class="btn btn-light">&laquo; First</a>
+                <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-light">Previous</a>
+            {% endif %}
+        
+            <span class="btn btn-secondary disabled">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+        
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="btn btn-light">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-light">Last &raquo;</a>
+            {% endif %}
         </div>
-
+        
+        
     </main>
 
 </div>

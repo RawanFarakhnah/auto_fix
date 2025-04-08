@@ -8,7 +8,7 @@
 
 {% block content %}
 <div class="wrapper d-flex">
-  <!-- Sidebar -->
+  
   <aside class="sidebar p-3 shadow-sm">
     <h4 class="welcome mb-4">Welcome, {{ user.get_short_name }}</h4>
 
@@ -28,12 +28,12 @@
     </nav>
   </aside>
 
-  <!-- Main Content -->
+  
   <main class="main-content flex-grow-1 p-4">
     <form action="{% url 'landing:create_user' %}" method="post">
       {% csrf_token %}
 
-      <!-- First Name and Last Name Fields -->
+      
       <div class="row g-2 mb-3">
         <div class="col-md-6">
           <input
@@ -69,7 +69,7 @@
         </div>
       </div>
 
-      <!-- Email Address -->
+      
       <div class="mb-3">
         <input
           type="email"
@@ -87,7 +87,7 @@
         {% endif %}
       </div>
 
-      <!-- Phone Number -->
+      
       <div class="mb-3">
         <input
           type="text"
@@ -105,7 +105,7 @@
         {% endif %}
       </div>
 
-      <!-- Password and Confirm Password -->
+      
       <div class="mb-3">
         <input
           type="password"
@@ -138,7 +138,7 @@
         {% endif %}
       </div>
 
-      <!-- Submit Button -->
+      
       <button
         type="submit"
         class="btn btn-lg w-100"

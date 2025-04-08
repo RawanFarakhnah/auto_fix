@@ -11,6 +11,9 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+
 
 # Create your views here.
 User = get_user_model()
@@ -76,6 +79,7 @@ def get_users_api(request):
             'phone': user.phone,
         })
     return JsonResponse({'users': user_data})
+    
 
 def create_user(request):
     if request.method == 'POST':
@@ -86,6 +90,7 @@ def create_user(request):
         if errors:
             # Pass POST data back to the form to retain user input after validation failure
             return render(request, 'admin_dashboard/create_user.html', {'errors': errors, 'postData': request.POST})
+            return redirect('landing:dashbord')
         
         # If no errors, create the new user
         user = User.objects.create(
@@ -96,11 +101,11 @@ def create_user(request):
             password=make_password(request.POST['password']),
         )
         
-        # Show a success message
+        
         messages.success(request, "User created successfully")
         
-        # Redirect to the dashboard or a different page
-        return redirect('landing:dashbord')  # Make sure this URL is correct in your urls.py
+    
+        return redirect('landing:dashbord') 
     
     # If the request method is GET, render the form (no errors)
     return render(request, 'admin_dashboard/create_user.html')
@@ -141,6 +146,7 @@ def update_user_api(request, user_id):
             'full_name': user.get_full_name(),
             'email': user.email
         })
+    
 
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
   
@@ -151,4 +157,42 @@ def delete_user(request, user_id):
         user.delete()
         return JsonResponse({'success': True, 'user_id': user_id})
     
+
+
+
+
+
+
+
+def manage_users(request):
+    users = User.objects.all().order_by('-id')
     
+    data = [
+        {'name': f'User {i}', 'description': f'Description {i}'} for i in range(1, 21)
+    ]
+    paginator = Paginator(data, 5)  
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    context = {
+        'users': users,
+        'page_obj': page_obj
+    }
+
+
+    return render(request, 'admin_dashboard/manage_users.html',context)
+def manage_users(request):
+    users = User.objects.all().order_by('-id')
+    
+    data = [
+        {'name': f'User {i}', 'description': f'Description {i}'} for i in range(1, 21)
+    ]
+    paginator = Paginator(data, 5)  
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'users': users,
+        'page_obj': page_obj
+    }
+
+    return render(request, 'admin_dashboard/manage_users.html', context)
