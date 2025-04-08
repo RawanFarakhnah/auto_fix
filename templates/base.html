@@ -47,9 +47,11 @@
             
             <div class="collapse navbar-collapse" id="navbarMain">
                 <ul class="navbar-nav me-auto">
+                    {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'workshops:list' %}" style="color: #ff6600;">Workshops</a>
+                        <a class="nav-link" href="{% url 'landing:dashbord' %}" style="color: #ff6600;">Dashboard</a>
                     </li>
+                    {% endif %}
                 </ul>
                 
                 <!-- User authentication links -->

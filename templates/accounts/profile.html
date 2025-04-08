@@ -4,6 +4,21 @@
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 
+{% block extra_head %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=places&callback=initMap" async defer></script>
+
+<script>
+    var googleMapsLoaded = false;
+
+   // Callback function when API loads
+   function initMap() {
+    googleMapsLoaded = true;
+    console.log("Google Maps API loaded and ready");
+   }
+</script>
+
+{% endblock %}
+
 {% block content %}
 <div class="container py-5">
     <div class="row">
@@ -256,24 +271,74 @@
 </div>
 
 <script>
-    // Function to get current location
+    let geocoder;
+    
+    // Enhanced getLocation function with API ready check
     function getLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    document.querySelector('input[name="latitude"]').value = position.coords.latitude.toFixed(6);
-                    document.querySelector('input[name="longitude"]').value = position.coords.longitude.toFixed(6);
-                    
-                    // You could add reverse geocoding here to fill in the address fields
-                    // This would require an API like Google Maps or similar
-                },
-                function(error) {
-                    alert("Error getting location: " + error.message);
-                }
-            );
-        } else {
-            alert("Geolocation is not supported by this browser.");
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported by your browser.");
+            return;
         }
+    
+        // Check if Google Maps API is loaded
+        if (!googleMapsLoaded) {
+            alert("Please wait, Google Maps services are still loading...");
+            return;
+        }
+    
+        // Initialize geocoder if not already done
+        if (!geocoder) {
+            geocoder = new google.maps.Geocoder();
+        }
+    
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude.toFixed(6);
+                const lng = position.coords.longitude.toFixed(6);
+                
+                // Fill coordinates
+                document.querySelector('input[name="latitude"]').value = lat;
+                document.querySelector('input[name="longitude"]').value = lng;
+                
+                // Reverse geocode to get address
+                reverseGeocode(lat, lng);
+            },
+            function(error) {
+                console.error("Error getting location:", error);
+                alert("Could not get your location. Please enable location services.");
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
     }
-</script>
+    
+    // Reverse geocoding function
+    function reverseGeocode(lat, lng) {
+        const latlng = { lat: parseFloat(lat), lng: parseFloat(lng) };
+        
+        geocoder.geocode({ location: latlng }, (results, status) => {
+            if (status === "OK" && results[0]) {
+                const components = results[0].address_components;
+                
+                // Update form fields with geocoded data
+                document.querySelector('input[name="street"]').value = 
+                    results[0].formatted_address.split(',')[0] || '';
+                
+                document.querySelector('input[name="city"]').value = 
+                    components.find(c => c.types.includes('locality'))?.long_name || '';
+                    
+                document.querySelector('input[name="region"]').value = 
+                    components.find(c => c.types.includes('administrative_area_level_1'))?.short_name || '';
+                    
+                document.querySelector('input[name="country"]').value = 
+                    components.find(c => c.types.includes('country'))?.long_name || '';
+                    
+                document.querySelector('input[name="postal_code"]').value = 
+                    components.find(c => c.types.includes('postal_code'))?.long_name || '';
+            } else {
+                console.warn("Geocoding failed:", status);
+                alert("We got your location but couldn't determine the address details.");
+            }
+        });
+    }
+    </script>
 {% endblock %}

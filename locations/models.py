@@ -8,8 +8,8 @@ class Address(models.Model):
     region = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
     postal_code = models.CharField(max_length=20)
-    latitude = models.FloatField()
-    longitude = models.FloatField()
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
 
     class Meta:
         verbose_name_plural = "Addresses"
