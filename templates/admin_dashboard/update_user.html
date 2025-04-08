@@ -23,6 +23,15 @@
   </aside>
 
   <main class="main-content flex-grow-1 p-4">
+    <h6 class="mb-4">
+      <a
+        href="{% url 'landing:manage_users' %}"
+        class="active-link text-decoration-none"
+        style="border-color: #ff6600; color: #ff6600"
+       > << Back to Manage Users</a
+      >
+    </h6>
+  
     <form id="updateUserForm" data-user-id="{{ user_obj.id }}" action="{% url 'landing:update_user_api' user_obj.id %}">
 
       {% csrf_token %}
@@ -66,7 +75,7 @@
 
 {% block extra_js %}
 <script>
-  document.getElementById('updateUserForm').addEventListener('submit', function(e) {
+ document.getElementById('updateUserForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
     const form = e.target;
@@ -75,19 +84,24 @@
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
     fetch(`/update_user_api/${userId}/`, {
-      method: 'POST',
-      headers: {
-        'X-CSRFToken': csrfToken
-      },
-      body: formData
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken
+        },
+        body: formData
     })
     .then(response => response.json())
     .then(data => {
-      if (data.success) {
-        document.getElementById('successMessage').style.display = 'block';
-      }
+        if (data.success) {
+            // Redirect after 1.5 sec
+            setTimeout(() => {
+                window.location.href = data.redirect_url;
+            }, 1500);
+        } else {
+            alert(data.error || 'Something went wrong');
+        }
     })
     .catch(error => console.error('Error:', error));
-  });
+});
 </script>
 {% endblock %}

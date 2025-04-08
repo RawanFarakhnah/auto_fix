@@ -1,6 +1,7 @@
 from django.db.models import Count, Q
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 from workshops.models import Workshop, Service
 from reviews.models import Review
 from bookings.models import Booking
@@ -90,8 +91,7 @@ def create_user(request):
         if errors:
             # Pass POST data back to the form to retain user input after validation failure
             return render(request, 'admin_dashboard/create_user.html', {'errors': errors, 'postData': request.POST})
-            return redirect('landing:dashbord')
-        
+           
         # If no errors, create the new user
         user = User.objects.create(
             first_name=request.POST['first_name'],
@@ -101,27 +101,17 @@ def create_user(request):
             password=make_password(request.POST['password']),
         )
         
-        
         messages.success(request, "User created successfully")
-        
-    
         return redirect('landing:dashbord') 
     
     # If the request method is GET, render the form (no errors)
     return render(request, 'admin_dashboard/create_user.html')
 
-
-    
-
-
-User = get_user_model()
-
 def update_user_view(request, user_id):
     try:
         user = User.objects.get(id=user_id)
-        
     except User.DoesNotExist:
-        return HttpResponse("المستخدم غير موجود", status=404)
+        return HttpResponse("User Not Found", status=404)
     return render(request, 'admin_dashboard/update_user.html', {'user_obj': user})    
         
 
@@ -144,11 +134,15 @@ def update_user_api(request, user_id):
             'success': True,
             'user_id': user.id,
             'full_name': user.get_full_name(),
-            'email': user.email
+            'email': user.email,
+            'redirect_url': reverse('landing:dashbord')
         })
     
-
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+    return JsonResponse({
+       'success': True,
+       'message': "User updated successfully",
+       'redirect_url': reverse('landing:dashbord')
+    })
   
 @csrf_exempt
 def delete_user(request, user_id):
@@ -156,14 +150,7 @@ def delete_user(request, user_id):
         user = User.objects.get(id=user_id)
         user.delete()
         return JsonResponse({'success': True, 'user_id': user_id})
-    
-
-
-
-
-
-
-
+   
 def manage_users(request):
     users = User.objects.all().order_by('-id')
     
@@ -178,8 +165,8 @@ def manage_users(request):
         'page_obj': page_obj
     }
 
-
     return render(request, 'admin_dashboard/manage_users.html',context)
+
 def manage_users(request):
     users = User.objects.all().order_by('-id')
     
