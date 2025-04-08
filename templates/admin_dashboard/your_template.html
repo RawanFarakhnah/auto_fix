@@ -1,0 +1,32 @@
+<style>
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination .btn {
+    margin: 0 5px;
+    background-color:chocolate;
+}
+</style>
+<div id="object-list">
+    {% for obj in page_obj %}
+        <div>
+            <h3>{{ obj.name }}</h3>
+            <p>{{ obj.description }}</p>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page=1" class="btn btn-light">&laquo; الأول</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-light">السابق</a>
+    {% endif %}
+    <span>الصفحة {{ page_obj.number }} من {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-light">التالي</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-light">الأخير &raquo;</a>
+    {% endif %}
+</div>

@@ -51,16 +51,25 @@ def user_login(request):
 
     return render(request, 'accounts/login.html')
 
-def user_profile(request):
-    if not request.user.is_authenticated:
-        return redirect('landing:main')
-    
-    #user = User.objects.get(id=request.session['user_id']) 
-    return render(request, 'accounts/profile.html', {'user': request.user})
-
 def user_logout(request):
    if not request.user.is_authenticated:
         return redirect('landing:main')
 
    logout(request)
    return redirect('landing:main')
+
+#Profile Region
+def profile(request):
+    if not request.user.is_authenticated:
+        return redirect('landing:main')
+    
+    return render(request, 'accounts/profile.html', {'user': request.user})
+
+def profile_update(request):
+    pass
+
+def update_address(request):
+    pass
+
+def change_password(request):
+    pass
