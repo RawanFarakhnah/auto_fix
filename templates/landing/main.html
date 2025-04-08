@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome to AutoFix{% endblock %}
+
+{% load static bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% block content %}
+    <!-- Hero Section with Simplified Carousel -->
+    <div class="slider">
+        <div id="carouselExampleFade" class="carousel slide carousel-fade" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="{% static 'img/slider/welcome-autofix.png' %}" class="d-block w-100" alt="Smart Car Maintenance Platform AI-Powered & Location-Based">
+                </div>
+                <div class="carousel-item">
+                    <img src="{% static 'img/slider/slider-img-1.png' %}" class="d-block w-100" alt="Let our AI guide you through car issues with smart conversation.">
+                </div>
+                <div class="carousel-item">
+                    <img src="{% static 'img/slider/slider-img-2.png' %}" class="d-block w-100" alt="Stay on top of your car's health with automatic reminders">
+                </div>
+            </div>
+            <!-- Simplified Carousel Controls -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Key Features Section -->
+    <section class="features py-5 text-center">
+        <div class="container">
+            <h2 class="mb-4 text-dark">Why Choose AutoFix?</h2>
+            <div class="row justify-content-center">
+                <!-- Feature 1 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm border-0">
+                        <img src="{% static 'img/feature-1.png' %}" class="card-img-top" alt="AI Guided Service">
+                        <div class="card-body">
+                            <h5 class="card-title text-dark">AI-Powered Assistance</h5>
+                            <p class="card-text">Let our AI guide you through car issues with smart conversation and troubleshooting.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Feature 2 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm border-0">
+                        <img src="{% static 'img/feature-2.png' %}" class="card-img-top" alt="Health Reminders">
+                        <div class="card-body">
+                            <h5 class="card-title text-dark">Automatic Health Reminders</h5>
+                            <p class="card-text">Stay on top of your car's health with automatic maintenance reminders based on real-time data.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Feature 3 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm border-0">
+                        <img src="{% static 'img/feature-3.png' %}" class="card-img-top" alt="Location-Based Services">
+                        <div class="card-body">
+                            <h5 class="card-title text-dark">Location-Based Services</h5>
+                            <p class="card-text">Get recommendations and services based on your location and specific car issues.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section with Brand Colors -->
+    <section class="cta py-5 bg-dark text-white" style="background-color: #050e1c;">
+        <div class="container text-center">
+            <h2 class="mb-4">Get Started with AutoFix Today!</h2>
+            <p class="mb-4">Sign up now to enjoy smart, efficient, and AI-powered car maintenance services. Don’t miss out!</p>
+            <a href="{% url 'accounts:register' %}" class="btn btn-warning btn-lg" style="background-color: #ff6600;">Sign Up Now</a>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials py-5 bg-light">
+        <div class="container text-center">
+            <h2 class="mb-4 text-dark">What Our Users Say</h2>
+            <div class="row justify-content-center">
+                <!-- Testimonial 1 -->
+                <div class="col-md-4">
+                    <div class="testimonial-card p-4 bg-white shadow-sm">
+                        <p class="mb-3">"AutoFix made it easy for me to keep track of my car's health, and the AI really helped in solving issues quickly!"</p>
+                        <p><strong>John Doe</strong></p>
+                        <p>Car Owner</p>
+                    </div>
+                </div>
+                <!-- Testimonial 2 -->
+                <div class="col-md-4">
+                    <div class="testimonial-card p-4 bg-white shadow-sm">
+                        <p class="mb-3">"The automatic reminders are incredibly useful! I never forget my car’s maintenance anymore."</p>
+                        <p><strong>Jane Smith</strong></p>
+                        <p>Car Enthusiast</p>
+                    </div>
+                </div>
+                <!-- Testimonial 3 -->
+                <div class="col-md-4">
+                    <div class="testimonial-card p-4 bg-white shadow-sm">
+                        <p class="mb-3">"The location-based service is perfect for finding nearby workshops when I need a repair."</p>
+                        <p><strong>Michael Lee</strong></p>
+                        <p>Frequent Traveler</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

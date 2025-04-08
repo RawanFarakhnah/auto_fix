@@ -40,7 +40,17 @@ INSTALLED_APPS = [
 
     # Custom apps
     'landing',
+    'accounts',
+    'ai_diagnosis',
+    'bookings',
+    'cars',
+    'locations',
+    'reviews',
+    'workshops',
+    'bootstrap5'
 ]
+
+AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -119,7 +129,12 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
+LOGIN_URL = 'landing:login'
+LOGIN_REDIRECT_URL = 'landing:dashbord'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Google Maps API key field
+GOOGLE_MAPS_API_KEY = 'your_google_key'

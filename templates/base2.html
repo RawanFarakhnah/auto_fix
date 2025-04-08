@@ -1,0 +1,101 @@
+{% load static bootstrap5 %}
+
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+<!DOCTYPE html>
+<html lang="en" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AutoFix{% endblock %}</title>
+    
+    <link rel="icon" href="{% static 'img/dark_logo.png' %}" type="image/png">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/ai_style.css' %}">
+    {% block extra_css %}
+    
+    {% endblock %}
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container">
+
+        <a class="navbar-brand d-flex align-items-center gap-2" href="{% if user.is_authenticated %}{% url 'landing:dashbord' %}{% else %}{% url 'landing:main' %}{% endif %}">
+            <img src="{% static 'img/dark_logo.png' %}" alt="AutoFix" width="30" height="30">
+            AutoFix
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i> {{ user.get_short_name }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">Logout</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item me-2">
+                        <a class="btn btn-warning text-white" style="background-color: #ff6600;" href="{% url 'accounts:login' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-secondary" href="{% url 'accounts:register' %}">Sign Up</a>
+                    </li>
+                {% endif %}
+            </ul>
+
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="flex-grow-1 py-4">
+    <div class="container">
+        {% block content %}{% endblock %}
+        <div id="chat-container">
+            <div id="chat-box" class="hidden">
+              <button class="close-btn" onclick="clearText()">close</button>
+              <div id="messages" class="messages-box"></div>
+              <div class="user-chat">
+                <input type="text"  id="user-input" placeholder="Type a message..."  class="form-control "  >
+                <button id="send-btn">Send</button>
+              </div>
+            </div>
+            <div id="chat-bubble">
+              <p>Chat With Our AI</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="text-center py-4">
+    <p>&copy; {% now "Y" %} AutoFix. All Rights Reserved.</p>
+</footer>
+<script src="{% static 'js/ai_script.js' %}"></script>
+{% block extra_js %}
+
+{% endblock %}
+
+</body>
+</html>
