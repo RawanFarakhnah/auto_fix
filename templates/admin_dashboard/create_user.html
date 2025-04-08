@@ -1,0 +1,162 @@
+{% extends 'base2.html' %} 
+{% block title %} Admin Dashboard {% endblock %} 
+{%load static bootstrap5 %} {% bootstrap_css %} 
+{% bootstrap_javascript %} 
+{%block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}" />
+{% endblock %} 
+
+{% block content %}
+<div class="wrapper d-flex">
+  
+  <aside class="sidebar p-3 shadow-sm">
+    <h4 class="welcome mb-4">Welcome, {{ user.get_short_name }}</h4>
+
+    <nav class="menu d-flex flex-column gap-2">
+      <a
+        href="{% url 'landing:admin_dashboard' %}"
+        class="text-white text-decoration-none"
+        >Dashboard</a
+      >
+      <a
+        href="{% url 'landing:manage_users' %}"
+        class="active-link text-white text-decoration-none"
+        >Manage Users</a
+      >
+      <a href="#" class="text-white text-decoration-none">Manage Workshops</a>
+      <a href="#" class="text-white text-decoration-none">Manage Services</a>
+    </nav>
+  </aside>
+
+  
+  <main class="main-content flex-grow-1 p-4">
+    <h6>
+      <a
+      href="{% url 'landing:manage_users' %}"
+      class="active-link text-white text-decoration-none"
+      style="border-color: #ff6600; color: #ff6600"
+      > << Back to Manage Users</a
+    >
+   </h6>
+
+    <form action="{% url 'landing:create_user' %}" method="post">
+      {% csrf_token %}
+      
+      <div class="row g-2 mb-3">
+        <div class="col-md-6">
+          <input
+            type="text"
+            name="first_name"
+            value="{{ postData.first_name }}"
+            class="form-control {% if errors.first_name %}is-invalid{% endif %}"
+            placeholder="First Name"
+            style="border-color: #ff6600; color: #ff6600"
+            required
+          />
+          {% if errors.first_name %}
+          <div class="invalid-feedback">
+            <p>{{ errors.first_name }}</p>
+          </div>
+          {% endif %}
+        </div>
+        <div class="col-md-6">
+          <input
+            type="text"
+            name="last_name"
+            value="{{ postData.last_name }}"
+            class="form-control {% if errors.last_name %}is-invalid{% endif %}"
+            placeholder="Last Name"
+            style="border-color: #ff6600; color: #ff6600"
+            required
+          />
+          {% if errors.last_name %}
+          <div class="invalid-feedback">
+            <p>{{ errors.last_name }}</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      
+      <div class="mb-3">
+        <input
+          type="email"
+          name="email"
+          value="{{ postData.email }}"
+          class="form-control {% if errors.email %}is-invalid{% endif %}"
+          placeholder="Email"
+          style="border-color: #ff6600; color: #ff6600"
+          required
+        />
+        {% if errors.email %}
+        <div class="invalid-feedback">
+          <p>{{ errors.email }}</p>
+        </div>
+        {% endif %}
+      </div>
+
+      
+      <div class="mb-3">
+        <input
+          type="text"
+          name="phone"
+          value="{{ postData.phone }}"
+          class="form-control {% if errors.phone %}is-invalid{% endif %}"
+          placeholder="Phone Number (xxx-xxx-xxxx)"
+          style="border-color: #ff6600; color: #ff6600"
+          required
+        />
+        {% if errors.phone %}
+        <div class="invalid-feedback">
+          <p>{{ errors.phone }}</p>
+        </div>
+        {% endif %}
+      </div>
+
+      
+      <div class="mb-3">
+        <input
+          type="password"
+          name="password"
+          class="form-control {% if errors.password %}is-invalid{% endif %}"
+          placeholder="Password"
+          style="border-color: #ff6600; color: #ff6600"
+          required
+        />
+        {% if errors.password %}
+        <div class="invalid-feedback">
+          <p>{{ errors.password }}</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <input
+          type="password"
+          name="confirm_password"
+          class="form-control {% if errors.confirm_password %}is-invalid{% endif %}"
+          placeholder="Confirm Password"
+          style="border-color: #ff6600; color: #ff6600"
+          required
+        />
+        {% if errors.confirm_password %}
+        <div class="invalid-feedback">
+          <p>{{ errors.confirm_password }}</p>
+        </div>
+        {% endif %}
+      </div>
+
+      
+      <button
+        type="submit"
+        class="btn btn-lg w-100"
+        style="background-color: #ff6600; color: #fff; border: none"
+      >
+        Save
+      </button>
+    </form>
+  </main>
+</div>
+{% endblock %} {% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}
