@@ -24,3 +24,17 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"Booking by {self.user} at {self.workshop} for {self.service} on {self.appointment_date}"
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.CharField(max_length=255)  # Short message for the notification
+    is_read = models.BooleanField(default=False)  # Whether the user has read the notification
+    created_at = models.DateTimeField(auto_now_add=True)  # Timestamp when created   
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='notifications')  # Link to a booking
+
+
+    class Meta:
+        ordering = ['-created_at']  # Order by newest first
+
+    def __str__(self):
+        return f"Notification for {self.user} - {self.message[:50]}"  # Displaying first 50 chars of message

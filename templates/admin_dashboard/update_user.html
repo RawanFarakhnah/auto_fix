@@ -23,14 +23,7 @@
   </aside>
 
   <main class="main-content flex-grow-1 p-4">
-    <h6 class="mb-4">
-      <a
-        href="{% url 'landing:manage_users' %}"
-        class="active-link text-decoration-none"
-        style="border-color: #ff6600; color: #ff6600"
-       > << Back to Manage Users</a
-      >
-    </h6>
+  
   
     <form id="updateUserForm" data-user-id="{{ user_obj.id }}" action="{% url 'landing:update_user_api' user_obj.id %}">
 
