@@ -135,3 +135,6 @@ LOGIN_REDIRECT_URL = 'landing:dashbord'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Google Maps API key field
+GOOGLE_MAPS_API_KEY = 'your_google_key'
