@@ -30,9 +30,17 @@
 
   
   <main class="main-content flex-grow-1 p-4">
+    <h6>
+      <a
+      href="{% url 'landing:manage_users' %}"
+      class="active-link text-white text-decoration-none"
+      style="border-color: #ff6600; color: #ff6600"
+      > << Back to Manage Users</a
+    >
+   </h6>
+
     <form action="{% url 'landing:create_user' %}" method="post">
       {% csrf_token %}
-
       
       <div class="row g-2 mb-3">
         <div class="col-md-6">
