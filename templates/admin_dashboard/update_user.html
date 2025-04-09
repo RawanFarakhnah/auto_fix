@@ -1,4 +1,4 @@
-{% extends 'base2.html' %}
+{% extends 'base.html' %}
 
 {% block title %} Update User {% endblock %}
 
@@ -17,7 +17,7 @@
     <nav class="menu d-flex flex-column gap-2">
       <a href="{% url 'landing:admin_dashboard' %}" class="text-white text-decoration-none">Dashboard</a>
       <a href="{% url 'landing:manage_users' %}" class="active-link text-white text-decoration-none">Manage Users</a>
-      <a href="#" class="text-white text-decoration-none">Manage Workshops</a>
+      <a href="{%url 'landing:workshop_list'%}" class="text-white text-decoration-none">Manage Workshops</a>
       <a href="#" class="text-white text-decoration-none">Manage Services</a>
     </nav>
   </aside>

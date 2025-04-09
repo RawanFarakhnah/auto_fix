@@ -6,6 +6,7 @@ class Workshop(models.Model):
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
     phone = models.CharField(max_length=15)
     description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='workshops_images/', null=True, blank=True)
     
     def __str__(self):
         return self.name

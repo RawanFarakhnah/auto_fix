@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h2>Services</h2>
+
+<div>
+    <input type="text" id="name" placeholder="Service Name">
+    <input type="number" id="price" placeholder="Price">
+    <input type="text" id="description" placeholder="Description">
+    <input type="number" id="duration" placeholder="Duration (min)">
+    <input type="number" id="workshop_id" placeholder="Workshop ID">
+    <button onclick="createService()">Add Service</button>
+</div>
+
+<hr>
+
+<div id="service-list">
+    {% for service in services %}
+        <div id="service-{{ service.id }}">
+            <p contenteditable="true" class="name">{{ service.name }}</p>
+            <p contenteditable="true" class="price">{{ service.price }}</p>
+            <p contenteditable="true" class="description">{{ service.description }}</p>
+            <p contenteditable="true" class="duration">{{ service.duration }}</p>
+            <button onclick="updateService({{ service.id }})">Update</button>
+            <button onclick="deleteService({{ service.id }})">Delete</button>
+        </div>
+        <hr>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function createService() {
+    let name = document.getElementById("name").value;
+    let price = document.getElementById("price").value;
+    let description = document.getElementById("description").value;
+    let duration = document.getElementById("duration").value;
+    let workshop_id = document.getElementById("workshop_id").value;
+
+    $.ajax({
+        url: "{% url 'landing:service_create' %}",
+        method: "POST",
+        data: {
+            name: name,
+            price: price,
+            description: description,
+            duration: duration,
+            workshop_id: workshop_id,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(response) {
+            alert("Service added!");
+            $('#service-list').append(
+                `<div id="service-${response.id}">
+                    <p contenteditable="true" class="name">${response.name}</p>
+                    <p contenteditable="true" class="price">${response.price}</p>
+                    <p contenteditable="true" class="description">${response.description}</p>
+                    <p contenteditable="true" class="duration">${response.duration}</p>
+                    <button onclick="updateService(${response.id})">Update</button>
+                    <button onclick="deleteService(${response.id})">Delete</button>
+                </div><hr>`
+            );
+        },
+        error: function(xhr, status, error) {
+            alert("Failed to add service!");
+        }
+    });
+}
+
+function updateService(id) {
+    let container = document.getElementById(`service-${id}`);
+    let name = container.querySelector(".name").innerText;
+    let price = container.querySelector(".price").innerText;
+    let description = container.querySelector(".description").innerText;
+    let duration = container.querySelector(".duration").innerText;
+
+    $.ajax({
+        url: `/landing/services/update/${id}/`,
+        method: "POST",
+        data: {
+            name: name,
+            price: price,
+            description: description,
+            duration: duration,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(response) {
+            alert("Service updated!");
+        },
+        error: function(xhr, status, error) {
+            alert("Failed to update service!");
+        }
+    });
+}
+
+function deleteService(id) {
+    $.ajax({
+        url: `/landing/services/delete/${id}/`,
+        method: "POST",
+        data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(response) {
+            alert("Service deleted!");
+            document.getElementById(`service-${id}`).remove();
+        },
+        error: function(xhr, status, error) {
+            alert("Failed to delete service!");
+        }
+    });
+}
+</script>
+{% endblock %}

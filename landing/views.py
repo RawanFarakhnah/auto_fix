@@ -14,6 +14,8 @@ from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
+from workshops.models import Address,Service
+
 
 
 # Create your views here.
@@ -183,3 +185,146 @@ def manage_users(request):
     }
 
     return render(request, 'admin_dashboard/manage_users.html', context)
+from django.shortcuts import render, HttpResponse
+
+
+def workshop_list(request):
+    workshops = Workshop.objects.all()
+    return render(request, 'admin_dashboard/manage_workshops.html', {'workshops': workshops})
+@csrf_exempt    
+def workshop_create(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        phone = request.POST.get('phone')
+        address_id = request.POST.get('address_id')
+        image = request.FILES.get('image')
+
+        if address_id:  
+            Workshop.objects.create(
+                name=name,
+                phone=phone,
+                address_id=address_id,
+                image=image
+            )
+            return redirect('landing:workshop_list')
+        else:
+            return HttpResponse("Address is required", status=400)
+  
+    addresses = Address.objects.all()
+    return render(request, 'admin_dashboard/create.html', {'addresses': addresses})
+
+      
+
+
+
+
+def edith(request):
+    workshop = Workshop.objects.first()  
+    addresses = Address.objects.all()
+    return render(request, 'admin_dashboard/update_workshop.html', {
+        'workshop': workshop,
+        'addresses': addresses,
+    })
+
+
+@csrf_exempt
+def workshop_update(request, id):
+    if request.method == 'POST':
+        try:
+            workshop = Workshop.objects.get(id=id)
+        except Workshop.DoesNotExist:
+            return JsonResponse({'error': 'Workshop not found'}, status=404)
+
+        name = request.POST.get('name')
+        phone = request.POST.get('phone')
+        address_id = request.POST.get('address_id')
+        image = request.FILES.get('image')
+
+       
+        workshop.name = name
+        workshop.phone = phone
+        workshop.address_id = address_id
+        workshop.image = image
+
+        workshop.save()
+
+        return JsonResponse({'status': 'updated'})
+
+
+@csrf_exempt
+def delete(request, id):
+    if request.method == 'POST':
+        try:
+            workshop = Workshop.objects.get(id=id)
+        except Workshop.DoesNotExist:
+            return JsonResponse({'error': 'Workshop not found'}, status=404)
+
+        workshop.delete()
+        return JsonResponse({'status': 'deleted'})
+def service_list(request):
+    services = Service.objects.all()
+    return render(request, 'admin_dashboard/service_list.html', {'services': services}) 
+
+@csrf_exempt
+def service_create(request):
+    # إذا كان الطلب GET، يرجع صفحة HTML (النموذج)
+    if request.method == 'GET':
+        # يمكنك هنا إعادة نفس الصفحة أو نموذج جديد
+        workshops = Workshop.objects.all()
+        return render(request, 'admin_dashboard/create_service.html', {'workshops': workshops})
+
+    # إذا كان الطلب POST، إضافة الخدمة الجديدة
+    if request.method == 'POST':
+        name = request.POST['name']
+        price = request.POST['price']
+        description = request.POST['description']
+        duration = request.POST['duration']
+        workshop_id = request.POST['workshop_id']
+
+        workshop = Workshop.objects.get(id=workshop_id)
+
+        service = Service.objects.create(
+            name=name,
+            price=price,
+            description=description,
+            duration=duration,
+            workshop=workshop
+        )
+
+        return JsonResponse({
+            'id': service.id,
+            'name': service.name,
+            'price': service.price,
+            'description': service.description,
+            'duration': service.duration
+        })
+        
+@csrf_exempt
+def service_delete(request, service_id):
+    service = get_object_or_404(Service, id=service_id)
+    
+    if request.method == 'POST':
+        service.delete()
+        return JsonResponse({'status': 'deleted'})
+def service_update(request, service_id):
+    service = get_object_or_404(Service, id=service_id)
+
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        price = request.POST.get('price')
+        description = request.POST.get('description')
+        duration = request.POST.get('duration')
+
+        service.name = name
+        service.price = price
+        service.description = description
+        service.duration = duration
+        service.save()
+
+        return JsonResponse({
+            'id': service.id,
+            'name': service.name,
+            'price': service.price,
+            'description': service.description,
+            'duration': service.duration
+        })        
