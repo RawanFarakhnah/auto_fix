@@ -1,5 +1,5 @@
 from django.db import models
-from accounts.models import Address
+from accounts.models import Address, User
 
 class Workshop(models.Model):
     name = models.CharField(max_length=255)
@@ -7,7 +7,8 @@ class Workshop(models.Model):
     phone = models.CharField(max_length=15)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='workshops_images/', null=True, blank=True)
-    
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name="workshop", null=True)
+
     def __str__(self):
         return self.name
 
