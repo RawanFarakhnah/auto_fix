@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}Service List{% endblock %}
-
+ 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 <style>
@@ -9,48 +9,48 @@
         width: 100%;
         border-collapse: collapse;
     }
-
+ 
     th, td {
         text-align: center;
         padding: 12px;
         border-bottom: 1px solid #ddd;
     }
-
+ 
     .editable {
         border-bottom: 1px dashed gray;
         cursor: text;
     }
-
+ 
     .btn-update, .btn-delete {
         margin: 0 5px;
         padding: 5px 12px;
         border: none;
         border-radius: 5px;
     }
-
+ 
     .btn-update {
         background-color: #ff6600;
         color: white;
     }
-
+ 
     .btn-delete {
         background-color: #343a40;
         color: white;
     }
-
+ 
     .btn-update:hover {
         background-color: #e65c00;
     }
-
+ 
     .btn-delete:hover {
         background-color: #23272b;
     }
-
+ 
     .main {
         color: #ddd;
         background-color: #ff6600;
     }
-
+ 
     .top-actions {
         display: flex;
         justify-content: space-between;
@@ -58,16 +58,16 @@
     }
 </style>
 {% endblock %}
-
+ 
 {% block content %}
 <div class="container mt-5">
     <h2 class="text-center mb-4">Service List</h2>
-
+ 
     <div class="top-actions">
         <a href="{% url 'admin_dashboard:dashboard' %}" class="btn btn-delete">Back to Dashboard</a>
-        <a href="{% url 'admin_dashboard:service_create' %}" class="btn btn-update">Create New Service</a>
+        <a href="{% url 'admin_dashboard:edit_service' service.id %}" class="btn btn-update">Create New Service</a>
     </div>
-
+ 
     <table class="table table-bordered">
         <thead>
             <tr class="main">
@@ -97,15 +97,15 @@
     </table>
 </div>
 {% endblock %}
-
+ 
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
+ 
 <script>
     $('.btn-delete').click(function () {
         const id = $(this).data('id');
         const url = `/admin_dashboard/services/delete/${id}/`;
-
+ 
         if (confirm("Are you sure you want to delete this service?")) {
             $.ajax({
                 url: url,
@@ -125,3 +125,5 @@
     });
 </script>
 {% endblock %}
+ 
+ 

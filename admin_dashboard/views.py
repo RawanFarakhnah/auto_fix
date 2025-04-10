@@ -111,7 +111,7 @@ def edit_user(request, user_id):
 
 
 
-@csrf_exempt
+
 @csrf_exempt
 def update_user(request, user_id):
     if request.method == "POST":
@@ -284,7 +284,6 @@ def service_create(request):
         workshops = Workshop.objects.all()
         return render(request, 'admin_dashboard/create_service.html', {'workshops': workshops})
 
-    # إذا كان الطلب POST، إضافة الخدمة الجديدة
     if request.method == 'POST':
         name = request.POST['name']
         price = request.POST['price']
@@ -317,31 +316,24 @@ def delete_service(request, service_id):
         service.delete()
         return JsonResponse({'status': 'deleted'})
     return JsonResponse({'status': 'error'}, status=400)
-
-# def update_service(request, service_id):
-#     service = get_object_or_404(Service, id=service_id)
-
-#     if request.method == 'POST':
-#         name = request.POST.get('name')
-#         price = request.POST.get('price')
-#         description = request.POST.get('description')
-#         duration = request.POST.get('duration')
-
-#         service.name = name
-#         service.price = price
-#         service.description = description
-#         service.duration = duration
-#         service.save()
-
-#         return JsonResponse({
-#             'id': service.id,
-#             'name': service.name,
-#             'price': service.price,
-#             'description': service.description,
-#             'duration': service.duration
-#         })        
+def edit_service(request, id):
+    service = get_object_or_404(Service, id=id)
+    return JsonResponse({
+        'name': service.name,
+        'price': service.price,
+        'description': service.description,
+        'duration': service.duration
+    })
 
 
+def update_service(request, id):
+    if request.method == 'POST':
+        service = get_object_or_404(Service, id=id)
+        service.name = request.POST.get('name')
+        service.price = request.POST.get('price')
+        service.description = request.POST.get('description')
+        service.duration = request.POST.get('duration')
+        service.save()
 
-
-                
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})

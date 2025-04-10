@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h2>Service List</h2>
+
+<div id="service-list">
+    {% for service in services %}
+        <div id="service-{{ service.id }}" class="service-item">
+            <p>{{ service.name }}</p>
+            <p>{{ service.price }}</p>
+            <p>{{ service.description }}</p>
+            <p>{{ service.duration }}</p>
+            <button class="btn btn-custom" onclick="editService({{ service.id }})">Edit</button>
+        </div>
+        <hr>
+    {% endfor %}
+</div>
+
+<div id="edit-service-modal" style="display:none;">
+    <h2>Edit Service</h2>
+    <form id="edit-service-form">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Service Name:</label>
+            <input type="text" id="edit-name" name="name" class="form-control" placeholder="Service Name">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Price:</label>
+            <input type="number" id="edit-price" name="price" class="form-control" placeholder="Price">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Description:</label>
+            <input type="text" id="edit-description" name="description" class="form-control" placeholder="Description">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Duration (min):</label>
+            <input type="number" id="edit-duration" name="duration" class="form-control" placeholder="Duration (min)">
+        </div>
+        <button type="button" id="update-service-btn" class="btn btn-custom">Update Service</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function editService(id) {
+    // Show the edit modal
+    $('#edit-service-modal').show();
+
+    // Fetch service details using AJAX
+    $.ajax({
+        url: `/admin_dashboard/service/${id}/edit/`,
+        method: 'GET',
+        success: function(response) {
+            // Populate the modal with service data
+            $('#edit-name').val(response.name);
+            $('#edit-price').val(response.price);
+            $('#edit-description').val(response.description);
+            $('#edit-duration').val(response.duration);
+            
+            // Store the service ID to use later when updating
+            $('#update-service-btn').data('service-id', id);
+        }
+    });
+}
+
+// Update service on button click
+$('#update-service-btn').click(function() {
+    const id = $(this).data('service-id');
+    const name = $('#edit-name').val();
+    const price = $('#edit-price').val();
+    const description = $('#edit-description').val();
+    const duration = $('#edit-duration').val();
+
+    $.ajax({
+        url: `/admin_dashboard/service/${id}/update/`,  // Update URL
+        method: 'POST',
+        data: {
+            'name': name,
+            'price': price,
+            'description': description,
+            'duration': duration,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                alert("Service updated successfully!");
+                // Hide the edit modal
+                $('#edit-service-modal').hide();
+                // Optionally reload the page to reflect the updated service
+                location.reload();
+            } else {

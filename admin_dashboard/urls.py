@@ -19,9 +19,9 @@ urlpatterns = [
     path('delete/<int:id>/', views.delete_workshop, name='delete_workshop'),
     path('manage_services/', views.manage_services, name='manage_services'),    
     path('manage_services/create/', views.service_create, name='service_create'),
-    # path('admin/manage_service/edit/', views.edit_service, name='edit_service'),
+    path('manage_services/edit/<int:id>/', views.edit_service, name='edit_service'),
     # path('admin/manage_service/update/<int:id>/', views.update_service, name='update_service'),
-path('services/delete/<int:service_id>/', views.delete_service, name='delete_service'),
+    path('services/delete/<int:service_id>/', views.delete_service, name='delete_service'),
 ]
    
 
