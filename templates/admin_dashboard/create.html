@@ -39,7 +39,7 @@
     <div class="form-container">
         <h1>Create Workshop</h1>
 
-        <form action="{% url 'landing:workshop_create' %}" method="post" enctype="multipart/form-data">
+        <form action="{% url 'admin_dashboard:create_workshop' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="mb-3">
                 <label class="form-label">Name:</label>

@@ -195,81 +195,83 @@ def manage_users(request):
 
     return render(request, 'admin_dashboard/manage_users.html', context)
 
-# def manage_workshops(request):
-#     workshops = Workshop.objects.all()
-#     return render(request, 'admin_dashboard/manage_workshops.html', {'workshops': workshops})
-# @csrf_exempt    
-# def create_workshop(request):
-#     if request.method == 'POST':
-#         name = request.POST.get('name')
-#         phone = request.POST.get('phone')
-#         address_id = request.POST.get('address_id')
-#         image = request.FILES.get('image')
+def manage_workshops(request):
+    workshops = Workshop.objects.all()
+    return render(request, 'admin_dashboard/manage_workshops.html', {'workshops': workshops})
+@csrf_exempt    
+def create_workshop(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        phone = request.POST.get('phone')
+        address_id = request.POST.get('address_id')
+        image = request.FILES.get('image')
 
-#         if address_id:  
-#             Workshop.objects.create(
-#                 name=name,
-#                 phone=phone,
-#                 address_id=address_id,
-#                 image=image
-#             )
-#             return redirect('landing:workshop_list')
-#         else:
-#             return HttpResponse("Address is required", status=400)
+        if address_id:  
+            Workshop.objects.create(
+                name=name,
+                phone=phone,
+                address_id=address_id,
+                image=image
+            )
+            return redirect('admin_dashboard:manage_workshops')
+        else:
+            return HttpResponse("Address is required", status=400)
   
-#     addresses = Address.objects.all()
-#     return render(request, 'admin_dashboard/create.html', {'addresses': addresses})
+    addresses = Address.objects.all()
+    return render(request, 'admin_dashboard/create.html', {'addresses': addresses})
 
       
 
 
 
 
-# def edit_workshop(request):
-#     workshop = Workshop.objects.first()  
-#     addresses = Address.objects.all()
-#     return render(request, 'admin_dashboard/update_workshop.html', {
-#         'workshop': workshop,
-#         'addresses': addresses,
-#     })
+def edit_workshop(request, id):
+    workshop = Workshop.objects.get(id=id)
+    addresses = Address.objects.all()
+    return render(request, 'admin_dashboard/update_workshop.html', {
+        'workshop': workshop,
+        'addresses': addresses,
+    })
 
 
-# @csrf_exempt
-# def update_workshop(request, id):
-#     if request.method == 'POST':
-#         try:
-#             workshop = Workshop.objects.get(id=id)
-#         except Workshop.DoesNotExist:
-#             return JsonResponse({'error': 'Workshop not found'}, status=404)
+@csrf_exempt
+def workshop_update(request, id):
+    if request.method == 'POST':
+        try:
+            workshop = Workshop.objects.get(id=id)
+        except Workshop.DoesNotExist:
+            return JsonResponse({'error': 'Workshop not found'}, status=404)
 
-#         name = request.POST.get('name')
-#         phone = request.POST.get('phone')
-#         address_id = request.POST.get('address_id')
-#         image = request.FILES.get('image')
+        name = request.POST.get('name')
+        phone = request.POST.get('phone')
+        address_id = request.POST['address_id']
+        image = request.FILES.get('image')  # استخدام FILES لرفع الصور
 
-       
-#         workshop.name = name
-#         workshop.phone = phone
-#         workshop.address_id = address_id
-#         workshop.image = image
+        if name:
+            workshop.name = name
+        if phone:
+            workshop.phone = phone
+        if address_id:
+            workshop.address_id = address_id
+        if image:
+            workshop.image = image
 
-#         workshop.save()
+        workshop.save()
+        return JsonResponse({'status': 'updated', 'name': name, 'phone': phone})
 
-#         return JsonResponse({'status': 'updated'})
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
-# @csrf_exempt
-# def delete_workshop(request, id):
-#     if request.method == 'POST':
-#         try:
-#             workshop = Workshop.objects.get(id=id)
-#         except Workshop.DoesNotExist:
-#             return JsonResponse({'error': 'Workshop not found'}, status=404)
-
-#         workshop.delete()
-#         return JsonResponse({'status': 'deleted'})
-
-# def manage_services(request):
+@csrf_exempt
+def delete_workshop(request, id):
+    if request.method == 'POST':
+        try:
+            workshop = Workshop.objects.get(id=id)
+            workshop.delete() 
+            return JsonResponse({'status': 'deleted'})
+        except Workshop.DoesNotExist:
+            return JsonResponse({'error': 'Workshop not found'}, status=404)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 #     services = Service.objects.all()
 #     return render(request, 'admin_dashboard/service_list.html', {'services': services}) 
 

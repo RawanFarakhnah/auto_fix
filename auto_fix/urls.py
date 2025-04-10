@@ -31,7 +31,7 @@ urlpatterns = [
     path('reviews/', include('reviews.urls')),
     path('locations/', include('locations.urls')),
     path('chat/', include('ai_diagnosis.urls')),
-    path('admin_dashboard/', include('admin_dashboard.urls')),
+    path('admin_dashboard/', include('admin_dashboard.urls', namespace='admin_dashboard')),
     path('owner_dashboard/', include('owner_dashboard.urls')),
     path('user_dashboard/', include('user_dashboard.urls')),
 ]
