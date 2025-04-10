@@ -15,6 +15,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from workshops.models import Address,Service
+from django.shortcuts import get_object_or_404
 
 # get user model
 User = get_user_model()
@@ -272,50 +273,51 @@ def delete_workshop(request, id):
         except Workshop.DoesNotExist:
             return JsonResponse({'error': 'Workshop not found'}, status=404)
     return JsonResponse({'error': 'Invalid request'}, status=400)
-#     services = Service.objects.all()
-#     return render(request, 'admin_dashboard/service_list.html', {'services': services}) 
+def manage_services(request):
+    services = Service.objects.all()
+    return render(request, 'admin_dashboard/service_list.html', {'services': services}) 
 
-# @csrf_exempt
-# def create_service(request):
-#     # إذا كان الطلب GET، يرجع صفحة HTML (النموذج)
-#     if request.method == 'GET':
-#         # يمكنك هنا إعادة نفس الصفحة أو نموذج جديد
-#         workshops = Workshop.objects.all()
-#         return render(request, 'admin_dashboard/create_service.html', {'workshops': workshops})
+@csrf_exempt
+def service_create(request):
+  
+    if request.method == 'GET':
+        workshops = Workshop.objects.all()
+        return render(request, 'admin_dashboard/create_service.html', {'workshops': workshops})
 
-#     # إذا كان الطلب POST، إضافة الخدمة الجديدة
-#     if request.method == 'POST':
-#         name = request.POST['name']
-#         price = request.POST['price']
-#         description = request.POST['description']
-#         duration = request.POST['duration']
-#         workshop_id = request.POST['workshop_id']
+    # إذا كان الطلب POST، إضافة الخدمة الجديدة
+    if request.method == 'POST':
+        name = request.POST['name']
+        price = request.POST['price']
+        description = request.POST['description']
+        duration = request.POST['duration']
+        workshop_id = request.POST['workshop_id']
 
-#         workshop = Workshop.objects.get(id=workshop_id)
+        workshop = Workshop.objects.get(id=workshop_id)
 
-#         service = Service.objects.create(
-#             name=name,
-#             price=price,
-#             description=description,
-#             duration=duration,
-#             workshop=workshop
-#         )
+        service = Service.objects.create(
+            name=name,
+            price=price,
+            description=description,
+            duration=duration,
+            workshop=workshop
+        )
 
-#         return JsonResponse({
-#             'id': service.id,
-#             'name': service.name,
-#             'price': service.price,
-#             'description': service.description,
-#             'duration': service.duration
-#         })
+        return JsonResponse({
+            'id': service.id,
+            'name': service.name,
+            'price': service.price,
+            'description': service.description,
+            'duration': service.duration
+        })
         
-# @csrf_exempt
-# def delete_service(request, service_id):
-#     service = get_object_or_404(Service, id=service_id)
-    
-#     if request.method == 'POST':
-#         service.delete()
-#         return JsonResponse({'status': 'deleted'})
+@csrf_exempt
+def delete_service(request, service_id):
+    if request.method == 'POST':
+        service = get_object_or_404(Service, id=service_id)
+        service.delete()
+        return JsonResponse({'status': 'deleted'})
+    return JsonResponse({'status': 'error'}, status=400)
+
 # def update_service(request, service_id):
 #     service = get_object_or_404(Service, id=service_id)
 

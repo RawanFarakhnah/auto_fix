@@ -17,14 +17,11 @@ urlpatterns = [
     path('manage_workshop/edit/<int:id>', views.edit_workshop, name='edit_workshop'),
     path('manage_workshop/update/<int:id>/', views.workshop_update, name='workshop_update'),
     path('delete/<int:id>/', views.delete_workshop, name='delete_workshop'),
-    
-    # path('admin/manage_service/', views.manage_services, name='manage_services'),
-    
-    # path('admin/manage_service/create/', views.create_service, name='create_service'),
+    path('manage_services/', views.manage_services, name='manage_services'),    
+    path('manage_services/create/', views.service_create, name='service_create'),
     # path('admin/manage_service/edit/', views.edit_service, name='edit_service'),
     # path('admin/manage_service/update/<int:id>/', views.update_service, name='update_service'),
-    # path('admin/manage_service/delete/<int:id>/', views.delete_service, name='delete_service'),
-
+path('services/delete/<int:service_id>/', views.delete_service, name='delete_service'),
 ]
    
 
