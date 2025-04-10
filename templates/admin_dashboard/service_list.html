@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% load static %}
 {% block title %}Service List{% endblock %}
 
@@ -46,22 +45,29 @@
     .btn-delete:hover {
         background-color: #23272b;
     }
-    .main{
-        color:#ddd;
+
+    .main {
+        color: #ddd;
         background-color: #ff6600;
     }
-   
+
+    .top-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container mt-5">
     <h2 class="text-center mb-4">Service List</h2>
-    <div class="text-end mb-4 "></div>
-    
-    
-        <a href="{% url 'landing:service_create' %}" class="btn btn-update">Create New Workshop</a>
+
+    <div class="top-actions">
+        <a href="{% url 'admin_dashboard:dashboard' %}" class="btn btn-delete">Back to Dashboard</a>
+        <a href="{% url 'admin_dashboard:service_create' %}" class="btn btn-update">Create New Service</a>
     </div>
+
     <table class="table table-bordered">
         <thead>
             <tr class="main">
@@ -93,44 +99,20 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
-    // Update Service
-    $('.btn-update').click(function () {
-        const id = $(this).data('id');
-        const row = $(`#service-${id}`);
-        const name = row.find("[data-field='name']").text();
-        const price = row.find("[data-field='price']").text();
-        const description = row.find("[data-field='description']").text();
-        const duration = row.find("[data-field='duration']").text();
-
-        $.ajax({
-            url: `/landing/services/update/${id}/`,
-            type: 'POST',
-            headers: { 'X-CSRFToken': '{{ csrf_token }}' },
-            data: {
-                name: name,
-                price: price,
-                description: description,
-                duration: duration
-            },
-            success: function () {
-                alert("Service updated successfully!");
-            },
-            error: function () {
-                alert("Failed to update service.");
-            }
-        });
-    });
-
-    // Delete Service
     $('.btn-delete').click(function () {
         const id = $(this).data('id');
+        const url = `/admin_dashboard/services/delete/${id}/`;
 
         if (confirm("Are you sure you want to delete this service?")) {
             $.ajax({
-                url: `/landing/services/delete/${id}/`,
+                url: url,
                 type: 'POST',
-                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
                 success: function () {
                     $(`#service-${id}`).remove();
                     alert("Service deleted successfully!");
