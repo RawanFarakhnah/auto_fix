@@ -70,21 +70,21 @@
 
 <div class="wrapper d-flex">
     <aside class="sidebar p-3 shadow-sm">
-        <h4 class="welcome mb-4">Welcome, {{ request.user.get_short_name }}</h4>
+        <h4 class="welcome mb-4">Welcome, {{ user.get_short_name }}</h4>
+        
         <nav class="menu d-flex flex-column gap-2">
-          <a href="{% url 'admin_dashboard:dashboard' %}" class="text-white text-decoration-none">Dashboard</a>
-          <a href="{% url 'admin_dashboard:manage_users' %}" class="text-white text-decoration-none">Manage Users</a>
-          <a href="{% url 'admin_dashboard:manage_workshops'%}" class="active-link text-white text-decoration-none" >Manage Workshops</a>
-          <a href="{% url 'admin_dashboard:manage_services' %}" class="text-white text-decoration-none">Manage Services</a>
+            <a href="{% url 'owner_dashboard:dashboard' %}" class="text-white text-decoration-none" >Dashboard</a>
+            <a href="{%url 'owner_dashboard:manage_workshops'%}" class="active-link text-white text-decoration-none" >Manage Workshops</a>
+         
         </nav>
-      </aside>
+     </aside>
      <!-- Main Content -->
      <main class="main-content flex-grow-1 p-4">
         <div class="d-flex justify-content-between">
             <h1 class="mb-4">Manage Workshops</h1>
             <div>
                 <a class="btn btn-warning text-white" style="background-color: #ff6600;" 
-               href="{% url 'admin_dashboard:create_workshop' %}">Create New Workshop</a>
+               href="{% url 'owner_dashboard:create_workshop' %}">Create New Workshop</a>
             </div>
         </div>
     
@@ -102,7 +102,7 @@
                     <p class="card-text editable" contenteditable="true" data-id="{{ workshop.id }}" data-field="phone">{{ workshop.phone }}</p>
     
                     <div class="d-flex justify-content-center mt-3">
-                        <a href="{% url 'admin_dashboard:edit_workshop' workshop.id %}" class="btn btn-update btn-sm">Update</a>
+                        <a href="{% url 'owner_dashboard:edit_workshop' workshop.id %}" class="btn btn-update btn-sm">Update</a>
     
                         <button class="btn btn-delete btn-sm ms-2" data-id="{{ workshop.id }}">Delete</button>
                     </div>
@@ -123,7 +123,7 @@
             let id = $(this).data('id');
             if (confirm('Are you sure you want to delete this workshop?')) {
                 $.ajax({
-                    url: `/admin_dashboard/admin/manage_workshop/delete/${id}/`,
+                    url: `/owner_dashboard/owner/manage_workshop/delete/${id}/`,
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': '{{ csrf_token }}'

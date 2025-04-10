@@ -110,8 +110,6 @@ def edit_user(request, user_id):
     return redirect('landing:main')
 
 
-
-@csrf_exempt
 @csrf_exempt
 def update_user(request, user_id):
     if request.method == "POST":
@@ -181,7 +179,6 @@ def delete_user(request, user_id):
 def manage_users(request):
     users = User.objects.all().order_by('-id')
     
-    
     data = [
         {'name': f'User {i}', 'description': f'Description {i}'} for i in range(1, 21)
     ]
@@ -199,9 +196,10 @@ def manage_users(request):
 def manage_workshops(request):
     workshops = Workshop.objects.all()
     return render(request, 'admin_dashboard/manage_workshops.html', {'workshops': workshops})
-@csrf_exempt    
+  
 def create_workshop(request):
     if request.method == 'POST':
+        #TODO: Back Validation 
         name = request.POST.get('name')
         phone = request.POST.get('phone')
         address_id = request.POST.get('address_id')
@@ -212,18 +210,14 @@ def create_workshop(request):
                 name=name,
                 phone=phone,
                 address_id=address_id,
-                image=image
-            )
+                image=image)
+            
             return redirect('admin_dashboard:manage_workshops')
         else:
             return HttpResponse("Address is required", status=400)
   
     addresses = Address.objects.all()
-    return render(request, 'admin_dashboard/create.html', {'addresses': addresses})
-
-      
-
-
+    return render(request, 'admin_dashboard/create_workshop.html', {'addresses': addresses})
 
 
 def edit_workshop(request, id):
@@ -273,9 +267,10 @@ def delete_workshop(request, id):
         except Workshop.DoesNotExist:
             return JsonResponse({'error': 'Workshop not found'}, status=404)
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
 def manage_services(request):
     services = Service.objects.all()
-    return render(request, 'admin_dashboard/service_list.html', {'services': services}) 
+    return render(request, 'admin_dashboard/mange_services.html', {'services': services}) 
 
 @csrf_exempt
 def service_create(request):

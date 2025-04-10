@@ -18,7 +18,9 @@
         <h4 class="welcome mb-4">Welcome, {{ user.get_short_name }}</h4>
         
         <nav class="menu d-flex flex-column gap-2">
-            <a href="#" class="active-link"><i class="fas fa-chart-line me-2"></i>Dashboard</a>
+            <a href="{% url 'owner_dashboard:dashboard' %}" class="active-link text-white text-decoration-none" >Dashboard</a>
+            <a href="{%url 'owner_dashboard:manage_workshops'%}" class="text-white text-decoration-none" >Manage Workshops</a>
+         
         </nav>
     </aside>
 

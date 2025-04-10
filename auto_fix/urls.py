@@ -30,7 +30,7 @@ urlpatterns = [
     path('bookings/', include('bookings.urls')),
     path('reviews/', include('reviews.urls')),
     path('locations/', include('locations.urls')),
-    path('chat/', include('ai_diagnosis.urls')),
+    path('chat/', include('ai_diagnosis.urls', namespace='chat_ai')),
     path('admin_dashboard/', include('admin_dashboard.urls', namespace='admin_dashboard')),
     path('owner_dashboard/', include('owner_dashboard.urls')),
     path('user_dashboard/', include('user_dashboard.urls')),

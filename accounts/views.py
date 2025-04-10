@@ -46,7 +46,7 @@ def user_login(request):
 
         if user is None:
             messages.error(request, "Email or Password is incorrect", extra_tags="login")
-            return redirect('landing:login')
+            return render(request, 'accounts/login.html')
 
         login(request, user)
         messages.success(request, "Logged in Successfully")

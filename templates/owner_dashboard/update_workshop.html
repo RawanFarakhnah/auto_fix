@@ -10,22 +10,20 @@
 
 {% block content %}
 <div class="wrapper d-flex">
-  <!-- Sidebar -->
   <aside class="sidebar p-3 shadow-sm">
-    <h4 class="welcome mb-4">Welcome, {{ request.user.get_short_name }}</h4>
+    <h4 class="welcome mb-4">Welcome, {{ user.get_short_name }}</h4>
+    
     <nav class="menu d-flex flex-column gap-2">
-      <a href="{% url 'admin_dashboard:dashboard' %}" class="text-white text-decoration-none">Dashboard</a>
-      <a href="{% url 'admin_dashboard:manage_users' %}" class="text-white text-decoration-none">Manage Users</a>
-      <a href="{% url 'admin_dashboard:manage_workshops'%}" class="active-link text-white text-decoration-none" >Manage Workshops</a>
-      <a href="{% url 'admin_dashboard:manage_services' %}" class="text-white text-decoration-none">Manage Services</a>
+        <a href="{% url 'owner_dashboard:dashboard' %}" class="text-white text-decoration-none" >Dashboard</a>
+        <a href="{%url 'owner_dashboard:manage_workshops'%}" class="active-link text-white text-decoration-none" >Manage Workshops</a>
+     
     </nav>
-  </aside>
-  
+ </aside>
   <!-- Main Content -->
   <main class="main-content flex-grow-1 p-4">
     <h6>
       <a
-        href="{% url 'admin_dashboard:manage_workshops' %}"
+        href="{% url 'owner_dashboard:manage_workshops' %}"
         class="active-link text-decoration-none"
         style="border-color: #ff6600; color: #ff6600"
       >
@@ -34,7 +32,7 @@
     </h6>
 
     <div class="form-container">
-        <form id="workshopForm" action="{% url 'admin_dashboard:workshop_update' workshop.id %}" method="post" enctype="multipart/form-data">
+        <form id="workshopForm" action="{% url 'owner_dashboard:workshop_update' workshop.id %}" method="post" enctype="multipart/form-data">
 
             {% csrf_token %}
             <div class="mb-3">
