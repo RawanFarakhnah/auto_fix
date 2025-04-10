@@ -18,8 +18,8 @@
         <h4 class="welcome mb-4">Welcome, {{ user.get_short_name }}</h4>
         
         <nav class="menu d-flex flex-column gap-2">
-            <a href="{% url 'landing:admin_dashboard' %}" class="active-link text-white text-decoration-none" >Dashboard</a>
-            <a href="{% url 'landing:manage_users' %}" class="text-white text-decoration-none" >Manage Users</a>
+            <a href="{% url 'admin_dashboard:dashboard' %}" class="active-link text-white text-decoration-none" >Dashboard</a>
+            <a href="{% url 'admin_dashboard:manage_users' %}" class="text-white text-decoration-none" >Manage Users</a>
             <a href="#" class="text-white text-decoration-none" >Manage Workshops</a>
             <a href="#" class="text-white text-decoration-none" >Manage Services</a>
         </nav>
@@ -66,8 +66,8 @@
         <div class="mt-4">
             <h3>Quick Links</h3>
             <div class="list-group">
-                <a href="{% url 'landing:manage_users' %}" class="list-group-item list-group-item-action">Manage Users</a>
-                <a href="{% url 'landing:workshop_list'%}" class="list-group-item list-group-item-action">Manage Workshops</a>
+                <a href="{% url 'admin_dashboard:manage_users' %}" class="list-group-item list-group-item-action">Manage Users</a>
+                <a href="#" class="list-group-item list-group-item-action">Manage Workshops</a>
                 <a href="#" class="list-group-item list-group-item-action">Manage Services</a>
             </div>
         </div>
@@ -78,6 +78,4 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<script src="{% static 'js/dashboard.js' %}"></script>
-{% endblock %}
+{% block extra_js %} {% endblock %}

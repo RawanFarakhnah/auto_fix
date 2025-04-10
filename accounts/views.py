@@ -10,7 +10,7 @@ from django.conf import settings
 
 def user_register(request):
     if request.user.is_authenticated:
-        return redirect('landing:dashbord')
+        return redirect('landing:dashboard')
     
     if request.method == 'POST':
         errors = User.objects.register_validator(request.POST)
@@ -30,13 +30,13 @@ def user_register(request):
 
         login(request, user)  # automatically saves user in session
         messages.success(request, "Registered Successfully")
-        return redirect('landing:dashbord')
+        return redirect('landing:dashboard')
 
     return render(request, 'accounts/register.html')
 
 def user_login(request):
     if request.user.is_authenticated:
-        return redirect('landing:dashbord')
+        return redirect('landing:dashboard')
 
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -50,7 +50,7 @@ def user_login(request):
 
         login(request, user)
         messages.success(request, "Logged in Successfully")
-        return redirect('landing:dashbord')
+        return redirect('landing:dashboard')
 
     return render(request, 'accounts/login.html')
 
