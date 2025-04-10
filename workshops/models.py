@@ -1,6 +1,10 @@
 from django.db import models
 from accounts.models import Address, User
 
+class WorkshopManager(models.Manager):
+
+    pass
+
 class Workshop(models.Model):
     name = models.CharField(max_length=255)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
@@ -8,7 +12,7 @@ class Workshop(models.Model):
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='workshops_images/', null=True, blank=True)
     owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name="workshop", null=True)
-
+    objects = WorkshopManager()
     def __str__(self):
         return self.name
 

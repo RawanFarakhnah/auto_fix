@@ -80,36 +80,27 @@
      </aside>
      <!-- Main Content -->
      <main class="main-content flex-grow-1 p-4">
-        <div class="d-flex justify-content-between">
             <h1 class="mb-4">Manage Workshops</h1>
-            <div>
-                <a class="btn btn-warning text-white" style="background-color: #ff6600;" 
-               href="{% url 'owner_dashboard:create_workshop' %}">Create New Workshop</a>
-            </div>
-        </div>
-    
-        <div class="card-container">
             {% for workshop in workshops %}
-            <div class="card" id="workshop-{{ workshop.id }}">
-                {% if workshop.image %}
-                    <img src="{{ workshop.image.url }}" class="card-img-top" alt="Workshop Image">
-                {% else %}
-                    <img src="{% static 'images/default-workshop.png' %}" class="card-img-top" alt="Default Image">
-                {% endif %}
-    
-                <div class="card-body">
-                    <h5 class="card-title editable" contenteditable="true" data-id="{{ workshop.id }}" data-field="name">{{ workshop.name }}</h5>
-                    <p class="card-text editable" contenteditable="true" data-id="{{ workshop.id }}" data-field="phone">{{ workshop.phone }}</p>
-    
-                    <div class="d-flex justify-content-center mt-3">
-                        <a href="{% url 'owner_dashboard:edit_workshop' workshop.id %}" class="btn btn-update btn-sm">Update</a>
-    
-                        <button class="btn btn-delete btn-sm ms-2" data-id="{{ workshop.id }}">Delete</button>
+            <div class="card-container">
+                <div class="card" id="workshop-{{ workshop.id }}">
+                    {% if workshop.image %}
+                        <img src="{{ workshop.image.url }}" class="card-img-top" alt="Workshop Image">
+                    {% else %}
+                        <img src="{% static 'images/default-workshop.png' %}" class="card-img-top" alt="Default Image">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title editable" contenteditable="true" data-id="{{ workshop.id }}" data-field="name">{{ workshop.name }}</h5>
+                        <p class="card-text editable" contenteditable="true" data-id="{{ workshop.id }}" data-field="phone">{{ workshop.phone }}</p>
+                        <div class="d-flex justify-content-center mt-3">
+                            <a href="{% url 'owner_dashboard:edit_workshop' workshop.id %}" class="btn btn-update btn-sm">Update</a>
+        
+                            <button class="btn btn-delete btn-sm ms-2" data-id="{{ workshop.id }}">Delete</button>
+                        </div>
                     </div>
                 </div>
             </div>
             {% endfor %}
-        </div>
 
      </main>
 </div>   
