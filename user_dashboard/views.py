@@ -16,25 +16,12 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from workshops.models import Address,Service
 
-# Create your views here.
+# get user model
 User = get_user_model()
 
-def main(request):
-    if request.user.is_authenticated:
-        return redirect('landing:dashboard')
+#user Dashbord
+def user_dashboard(request):
+    if request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser ):        
+        return render(request, 'user_dashboard/dashboard.html')
 
-    return render(request, 'landing\main.html')
-
-def contact(request):
-    return render(request, 'landing\contact.html')
-
-def dashboard(request):
-    if request.user.is_authenticated:
-        if request.user.is_superuser:
-            return redirect('admin_dashboard:dashboard')
-        elif request.user.is_workshop_owner:
-            return redirect('owner_dashboard:dashboard')
-        else:
-            return redirect('user_dashboard:dashboard')
-    else:
-        return redirect('landing:main')
+    return redirect('landing:main')

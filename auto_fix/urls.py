@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
    
@@ -28,6 +30,12 @@ urlpatterns = [
     path('bookings/', include('bookings.urls')),
     path('reviews/', include('reviews.urls')),
     path('locations/', include('locations.urls')),
-    path('chat/', include('ai_diagnosis.urls', namespace='autofix_chatai')),
-
+    path('chat/', include('ai_diagnosis.urls')),
+    path('admin_dashboard/', include('admin_dashboard.urls', namespace='admin_dashboard')),
+    path('owner_dashboard/', include('owner_dashboard.urls')),
+    path('user_dashboard/', include('user_dashboard.urls')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

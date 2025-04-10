@@ -1,0 +1,345 @@
+from django.db.models import Count, Q
+from django.shortcuts import render, redirect, HttpResponse
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+from workshops.models import Workshop, Service
+from reviews.models import Review
+from bookings.models import Booking
+from locations.models import Address
+from cars.models import Car
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from django.contrib.auth.hashers import make_password
+from django.contrib import messages
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+from workshops.models import Address,Service
+
+# get user model
+User = get_user_model()
+
+#Admin Dashboard
+def admin_dashboard(request):
+    if request.user.is_authenticated and request.user.is_superuser:
+        context = {
+        
+        'users_count': User.objects.count(),
+        'pending_bookings': Booking.objects.filter(status='Pending').count(),
+        'completed_bookings': Booking.objects.filter(status='Completed').count(),
+        }
+        return render(request, 'admin_dashboard/dashboard.html', context)
+
+    return redirect('landing:main')
+
+
+@csrf_exempt
+def users_list(request):
+    if request.user.is_authenticated and request.user.is_superuser:
+        users = User.objects.all()
+        user_data = []
+        for user in users:
+            user_data.append({
+                'id': user.id,
+                'full_name': user.get_full_name(),
+                'email': user.email,
+                'phone': user.phone,
+                'is_superuser':user.is_superuser,
+                'is_workshop_owner':user.is_workshop_owner
+            })
+        return JsonResponse({'users': user_data})
+    else:
+        return JsonResponse({
+        'success': False,
+        'message': "Unautorized User",
+        'redirect_url': reverse('landing:main')
+        }) 
+
+def create_user(request):
+    if request.user.is_authenticated and request.user.is_superuser:    
+        if request.method == 'POST':
+            errors = User.objects.register_validator(request.POST)          
+            
+            if errors:
+                return render(request, 'admin_dashboard/create_user.html', {'errors': errors, 'postData': request.POST})
+                        
+            role = request.POST.get('role')
+            is_superuser = False
+            is_workshop_owner = False
+
+            if role == 'admin':
+              is_superuser = True
+            elif role == 'workshop':
+              is_workshop_owner = True
+              # else: regular user — no extra flags
+
+            user = User.objects.create(
+                first_name=request.POST['first_name'],
+                last_name=request.POST['last_name'],
+                email=request.POST['email'],
+                phone=request.POST.get('phone', ''),
+                password=make_password(request.POST['password']),
+                is_superuser=is_superuser,
+                is_workshop_owner=is_workshop_owner,
+            )
+            
+            messages.success(request, "User created successfully")
+            return redirect('landing:dashboard') 
+        
+        return render(request, 'admin_dashboard/create_user.html')
+
+def edit_user(request, user_id):
+    if request.user.is_authenticated and request.user.is_superuser:
+        try:
+            user = User.objects.get(id=user_id)
+            # Pass role data to the template
+
+            role = 'user'
+            if user.is_superuser:
+                role = 'admin'
+            elif user.is_workshop_owner:
+                role = 'workshop'
+            
+            return render(request, 'admin_dashboard/update_user.html', {
+                'user_obj': user,
+                'role': role,  # Ensure this is passed for role selection in the form
+            })
+        except User.DoesNotExist:
+            return redirect('landing:dashboard')
+    return redirect('landing:main')
+
+
+
+@csrf_exempt
+@csrf_exempt
+def update_user(request, user_id):
+    if request.method == "POST":
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'User not found'})
+        
+        role = request.POST.get('role')
+        is_superuser = False
+        is_workshop_owner = False
+
+        if role == 'admin':
+            is_superuser = True
+        elif role == 'workshop':
+            is_workshop_owner = True
+
+        # Update user attributes
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+        user.email = request.POST.get('email')
+        user.phone = request.POST.get('phone', '')  # Default to empty string if no phone provided
+        
+        # Set role-related flags
+        user.is_superuser = is_superuser
+        user.is_workshop_owner = is_workshop_owner
+        
+        user.save()
+
+        return JsonResponse({
+            'success': True,
+            'user_id': user.id,
+            'full_name': user.get_full_name(),
+            'email': user.email,
+            'redirect_url': reverse('admin_dashboard:manage_users')
+        })
+
+    return JsonResponse({
+       'success': True,
+       'message': "User updated successfully",
+       'redirect_url': reverse('landing:dashboard')
+    })
+
+@csrf_exempt
+def delete_user(request, user_id):
+    if request.user.is_authenticated and request.user.is_superuser:
+ 
+        if request.method == "POST":
+            user = User.objects.get(id=user_id)
+            user.delete()
+            
+            return JsonResponse({
+             'success': True,
+            })
+        
+        return JsonResponse({
+        'success': False,
+        'error':"User Delete Faild"
+        })
+
+    return JsonResponse({
+        'success': False,
+        'error': "Unautorized User",
+        'redirect_url': reverse('landing:main')
+        })
+
+def manage_users(request):
+    users = User.objects.all().order_by('-id')
+    
+    
+    data = [
+        {'name': f'User {i}', 'description': f'Description {i}'} for i in range(1, 21)
+    ]
+    paginator = Paginator(data, 5)  
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'users': users,
+        'page_obj': page_obj
+    }
+
+    return render(request, 'admin_dashboard/manage_users.html', context)
+
+def manage_workshops(request):
+    workshops = Workshop.objects.all()
+    return render(request, 'admin_dashboard/manage_workshops.html', {'workshops': workshops})
+@csrf_exempt    
+def create_workshop(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        phone = request.POST.get('phone')
+        address_id = request.POST.get('address_id')
+        image = request.FILES.get('image')
+
+        if address_id:  
+            Workshop.objects.create(
+                name=name,
+                phone=phone,
+                address_id=address_id,
+                image=image
+            )
+            return redirect('admin_dashboard:manage_workshops')
+        else:
+            return HttpResponse("Address is required", status=400)
+  
+    addresses = Address.objects.all()
+    return render(request, 'admin_dashboard/create.html', {'addresses': addresses})
+
+      
+
+
+
+
+def edit_workshop(request, id):
+    workshop = Workshop.objects.get(id=id)
+    addresses = Address.objects.all()
+    return render(request, 'admin_dashboard/update_workshop.html', {
+        'workshop': workshop,
+        'addresses': addresses,
+    })
+
+
+@csrf_exempt
+def workshop_update(request, id):
+    if request.method == 'POST':
+        try:
+            workshop = Workshop.objects.get(id=id)
+        except Workshop.DoesNotExist:
+            return JsonResponse({'error': 'Workshop not found'}, status=404)
+
+        name = request.POST.get('name')
+        phone = request.POST.get('phone')
+        address_id = request.POST['address_id']
+        image = request.FILES.get('image')  # استخدام FILES لرفع الصور
+
+        if name:
+            workshop.name = name
+        if phone:
+            workshop.phone = phone
+        if address_id:
+            workshop.address_id = address_id
+        if image:
+            workshop.image = image
+
+        workshop.save()
+        return JsonResponse({'status': 'updated', 'name': name, 'phone': phone})
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+@csrf_exempt
+def delete_workshop(request, id):
+    if request.method == 'POST':
+        try:
+            workshop = Workshop.objects.get(id=id)
+            workshop.delete() 
+            return JsonResponse({'status': 'deleted'})
+        except Workshop.DoesNotExist:
+            return JsonResponse({'error': 'Workshop not found'}, status=404)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+#     services = Service.objects.all()
+#     return render(request, 'admin_dashboard/service_list.html', {'services': services}) 
+
+# @csrf_exempt
+# def create_service(request):
+#     # إذا كان الطلب GET، يرجع صفحة HTML (النموذج)
+#     if request.method == 'GET':
+#         # يمكنك هنا إعادة نفس الصفحة أو نموذج جديد
+#         workshops = Workshop.objects.all()
+#         return render(request, 'admin_dashboard/create_service.html', {'workshops': workshops})
+
+#     # إذا كان الطلب POST، إضافة الخدمة الجديدة
+#     if request.method == 'POST':
+#         name = request.POST['name']
+#         price = request.POST['price']
+#         description = request.POST['description']
+#         duration = request.POST['duration']
+#         workshop_id = request.POST['workshop_id']
+
+#         workshop = Workshop.objects.get(id=workshop_id)
+
+#         service = Service.objects.create(
+#             name=name,
+#             price=price,
+#             description=description,
+#             duration=duration,
+#             workshop=workshop
+#         )
+
+#         return JsonResponse({
+#             'id': service.id,
+#             'name': service.name,
+#             'price': service.price,
+#             'description': service.description,
+#             'duration': service.duration
+#         })
+        
+# @csrf_exempt
+# def delete_service(request, service_id):
+#     service = get_object_or_404(Service, id=service_id)
+    
+#     if request.method == 'POST':
+#         service.delete()
+#         return JsonResponse({'status': 'deleted'})
+# def update_service(request, service_id):
+#     service = get_object_or_404(Service, id=service_id)
+
+#     if request.method == 'POST':
+#         name = request.POST.get('name')
+#         price = request.POST.get('price')
+#         description = request.POST.get('description')
+#         duration = request.POST.get('duration')
+
+#         service.name = name
+#         service.price = price
+#         service.description = description
+#         service.duration = duration
+#         service.save()
+
+#         return JsonResponse({
+#             'id': service.id,
+#             'name': service.name,
+#             'price': service.price,
+#             'description': service.description,
+#             'duration': service.duration
+#         })        
+
+
+
+
+                

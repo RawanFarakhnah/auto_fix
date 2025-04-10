@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block title %}Service List{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        text-align: center;
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .editable {
+        border-bottom: 1px dashed gray;
+        cursor: text;
+    }
+
+    .btn-update, .btn-delete {
+        margin: 0 5px;
+        padding: 5px 12px;
+        border: none;
+        border-radius: 5px;
+    }
+
+    .btn-update {
+        background-color: #ff6600;
+        color: white;
+    }
+
+    .btn-delete {
+        background-color: #343a40;
+        color: white;
+    }
+
+    .btn-update:hover {
+        background-color: #e65c00;
+    }
+
+    .btn-delete:hover {
+        background-color: #23272b;
+    }
+    .main{
+        color:#ddd;
+        background-color: #ff6600;
+    }
+   
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Service List</h2>
+    <div class="text-end mb-4 "></div>
+    
+    
+        <a href="{% url 'landing:service_create' %}" class="btn btn-update">Create New Workshop</a>
+    </div>
+    <table class="table table-bordered">
+        <thead>
+            <tr class="main">
+                <th>Workshop</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Description</th>
+                <th>Duration (min)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service in services %}
+            <tr id="service-{{ service.id }}">
+                <td>{{ service.workshop.name }}</td>
+                <td contenteditable="true" class="editable" data-id="{{ service.id }}" data-field="name">{{ service.name }}</td>
+                <td contenteditable="true" class="editable" data-id="{{ service.id }}" data-field="price">{{ service.price }}</td>
+                <td contenteditable="true" class="editable" data-id="{{ service.id }}" data-field="description">{{ service.description }}</td>
+                <td contenteditable="true" class="editable" data-id="{{ service.id }}" data-field="duration">{{ service.duration }}</td>
+                <td>
+                    <button class="btn-update" data-id="{{ service.id }}">Update</button>
+                    <button class="btn-delete" data-id="{{ service.id }}">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update Service
+    $('.btn-update').click(function () {
+        const id = $(this).data('id');
+        const row = $(`#service-${id}`);
+        const name = row.find("[data-field='name']").text();
+        const price = row.find("[data-field='price']").text();
+        const description = row.find("[data-field='description']").text();
+        const duration = row.find("[data-field='duration']").text();
+
+        $.ajax({
+            url: `/landing/services/update/${id}/`,
+            type: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+            data: {
+                name: name,
+                price: price,
+                description: description,
+                duration: duration
+            },
+            success: function () {
+                alert("Service updated successfully!");
+            },
+            error: function () {
+                alert("Failed to update service.");
+            }
+        });
+    });
+
+    // Delete Service
+    $('.btn-delete').click(function () {
+        const id = $(this).data('id');
+
+        if (confirm("Are you sure you want to delete this service?")) {
+            $.ajax({
+                url: `/landing/services/delete/${id}/`,
+                type: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                success: function () {
+                    $(`#service-${id}`).remove();
+                    alert("Service deleted successfully!");
+                },
+                error: function () {
+                    alert("Failed to delete service.");
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

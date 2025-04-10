@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Update Workshop{% endblock %}
+
+{% block content %}
+    <style>
+        body {
+            background-color: #fff;
+            color: #000;
+            padding: 50px;
+        }
+        .form-container {
+            background-color: #f8f9fa; 
+            border: 2px solid #ff6600;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #ff6600;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .btn-custom {
+            background-color: #ff6600;
+            color: #fff;
+            border: none;
+        }
+        .btn-custom:hover {
+            background-color: #e65c00;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Update Workshop</h1>
+
+        <form id="workshopForm" action="{% url 'admin_dashboard:workshop_update' workshop.id %}" method="post" enctype="multipart/form-data">
+
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Name:</label>
+                <input type="text" name="name" class="form-control" value="{{ workshop.name }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Phone:</label>
+                <input type="text" name="phone" class="form-control" value="{{ workshop.phone }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Address:</label>
+                <select name="address_id" class="form-select">
+                    {% for address in addresses %}
+                        <option value="{{ address.id }}" {% if address.id == workshop.address_id %}selected{% endif %}>
+                            {{ address.city }} - {{ address.street }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Image:</label>
+                <input type="file" name="image" class="form-control">
+                {% if workshop.image %}
+                    <div class="mt-2">
+                        <img src="{{ workshop.image.url }}" alt="Current Image" class="img-fluid rounded" style="max-height: 150px;">
+                    </div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-custom">Update</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#workshopForm").on("submit", function (e) {
+                e.preventDefault();  // يمنع الإرسال التقليدي للنموذج
+
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        alert("Workshop updated successfully!");
+                        console.log(response);
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Error: " + xhr.responseText);
+                    }
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>
+{%endblock%}
