@@ -1,6 +1,6 @@
 {% extends 'base2.html' %}
 
-{% block title %} User Dashboard {% endblock %}
+{% block title %} Admin Dashboard {% endblock %}
 
 {% load static bootstrap5 %}
 {% bootstrap_css %}
@@ -8,29 +8,50 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<style>
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .pagination .btn {
+        margin: 0 5px;
+        background-color: chocolate;
+        color: white;
+    }
+
+    .pagination .btn-primary {
+        background-color: darkorange;
+        color: white;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="wrapper d-flex">
-    
+
     <!-- Sidebar -->
     <aside class="sidebar p-3 shadow-sm">
         <h4 class="welcome mb-4">Welcome, {{ user.get_short_name }}</h4>
-        
-        <nav class="menu d-flex flex-column gap-2">
-            <a href="{% url 'landing:admin_dashboard' %}" class="text-white text-decoration-none" >Dashboard</a>
-            <a href="{% url 'landing:manage_users' %}" class="active-link text-white text-decoration-none" >Manage Users</a>
-            <a href="{%url 'admin_dashboard:manage_workshops'%}" class="text-white text-decoration-none" >Manage Workshops</a>
-            <a href="{% url 'admin_dashboard:manage_services' %}" class="text-white text-decoration-none">Manage Services</a>
 
+        <nav class="menu d-flex flex-column gap-2">
+            <a href="{% url 'admin_dashboard:dashboard' %}" class="text-white text-decoration-none">Dashboard</a>
+            <a href="{% url 'admin_dashboard:manage_users' %}" class="text-white text-decoration-none">Manage
+                Users</a>
+            <a href="{%url 'admin_dashboard:manage_workshops'%}" class="text-white text-decoration-none" >Manage Workshops</a>
+            <a href="{% url 'admin_dashboard:manage_services' %}" class="active-link text-white text-decoration-none">Manage Services</a>
         </nav>
     </aside>
 
     <main class="main-content flex-grow-1 p-4">
-        <h1 class="mb-4">Manage Users</h1>
-        <h2>Users List</h2>
-
-        <a href="{% url 'landing:add_user' %}" class="btn btn-primary mb-3">Add New User</a>
+        <div class="d-flex justify-content-between">
+            <h1 class="mb-4">Manage Services</h1>
+            <div>
+                <a class="btn btn-warning text-white" style="background-color: #ff6600;" 
+               href="{% url 'admin_dashboard:create_service' %}">Add New Service</a>
+            </div>
+        </div>
 
         <div class="search-box mb-3">
             <input type="text" class="form-control" placeholder="Search...">
@@ -38,42 +59,36 @@
 
         <table class="table table-striped">
             <thead>
-                <tr>
-                    <th>#</th>
+                <tr class="main">
+                    <th>Workshop</th>
                     <th>Name</th>
-                    <th>Email</th>
-                    <th>Action</th>
+                    <th>Price</th>
+                    <th>Description</th>
+                    <th>Duration (min)</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>John Doe</td>
-                    <td>john@example.com</td>
-                    <td class="actions">
-                        <a href="#" class="btn btn-warning btn-sm">Update</a>
-                        <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                {% for service in services %}
+                <tr id="service-{{ service.id }}">
+                    <td>{{ service.workshop.name }}</td>
+                    <td contenteditable="true" class="editable" data-id="{{ service.id }}" data-field="name">{{ service.name }}</td>
+                    <td contenteditable="true" class="editable" data-id="{{ service.id }}" data-field="price">{{ service.price }}</td>
+                    <td contenteditable="true" class="editable" data-id="{{ service.id }}" data-field="description">{{ service.description }}</td>
+                    <td contenteditable="true" class="editable" data-id="{{ service.id }}" data-field="duration">{{ service.duration }}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" 
+                        style="background-color: #ff6600; color:white;" 
+                        data-id="{{ service.id }}"
+                        onclick="window.location.href='{% url 'admin_dashboard:edit_service' service.id %}'">
+                    Update
+                </button>
+                        <button class="btn btn-dark btn-sm"  data-id="{{ service.id }}">Delete</button>
                     </td>
                 </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Jane Smith</td>
-                    <td>jane@example.com</td>
-                    <td class="actions">
-                        <a href="#" class="btn btn-warning btn-sm">Update</a>
-                        <a href="#" class="btn btn-danger btn-sm">Delete</a>
-                    </td>
-                </tr>
+                {% endfor %}
             </tbody>
-        </table>
-
-        <div class="pagination">
-            <a href="#" class="btn btn-light">&laquo; First</a>
-            <a href="#" class="btn btn-light">1</a>
-            <a href="#" class="btn btn-light active">2</a>
-            <a href="#" class="btn btn-light">3</a>
-            <a href="#" class="btn btn-light">Next &raquo;</a>
-        </div>
+        </table>      
         
     </main>
 
@@ -82,5 +97,29 @@
 
 
 {% block extra_js %}
-<script src="{% static 'js/dashboard.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $('.btn-delete').click(function () {
+        const id = $(this).data('id');
+        const url = `/admin_dashboard/admin/manage_services/delete/${id}/`;
+
+        if (confirm("Are you sure you want to delete this service?")) {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                success: function () {
+                    $(`#service-${id}`).remove();
+                    alert("Service deleted successfully!");
+                },
+                error: function () {
+                    alert("Failed to delete service.");
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

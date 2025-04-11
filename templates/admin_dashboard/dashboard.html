@@ -12,70 +12,143 @@
 
 {% block content %}
 <div class="wrapper d-flex">
-    
     <!-- Sidebar -->
     <aside class="sidebar p-3 shadow-sm">
         <h4 class="welcome mb-4">Welcome, {{ user.get_short_name }}</h4>
-        
         <nav class="menu d-flex flex-column gap-2">
-            <a href="{% url 'admin_dashboard:dashboard' %}" class="active-link text-white text-decoration-none" >Dashboard</a>
-            <a href="{% url 'admin_dashboard:manage_users' %}" class="text-white text-decoration-none" >Manage Users</a>
-            <a href="{% url 'admin_dashboard:manage_workshops'%}" class="text-white text-decoration-none" >Manage Workshops</a>
+            <a href="{% url 'admin_dashboard:dashboard' %}" class="active-link text-white text-decoration-none">Dashboard</a>
+            <a href="{% url 'admin_dashboard:manage_users' %}" class="text-white text-decoration-none">Manage Users</a>
+            <a href="{% url 'admin_dashboard:manage_workshops' %}" class="text-white text-decoration-none">Manage Workshops</a>
             <a href="{% url 'admin_dashboard:manage_services' %}" class="text-white text-decoration-none">Manage Services</a>
         </nav>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content flex-grow-1 p-4">
-        <h1 class="mb-4">Dashboard Overview</h1>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="card-title">Users Count</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">{{ users_count }}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="card-title">Pending Bookings</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">{{ pending_bookings }}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-warning text-white">
-                        <h5 class="card-title">Completed Bookings</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">{{ completed_bookings }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    
-        <div class="mt-4">
-            <h3>Quick Links</h3>
-            <div class="list-group">
-                <a href="{% url 'admin_dashboard:manage_users' %}" class="list-group-item list-group-item-action">Manage Users</a>
-                <a href="{%url 'admin_dashboard:manage_workshops'%}" class="list-group-item list-group-item-action">Manage Workshops</a>
-                <a href="{%url 'admin_dashboard:manage_services'%}" class="list-group-item list-group-item-action">Manage Services</a>
-            </div>
-        </div>
-    </div>
+        <h1 class="mb-5  text-center fw-bold" style="color: #fd7e14;">Dashboard Overview</h1>
 
+        <!-- Cards Row -->
+        <div class="row g-4 mb-5">
+            <!-- Users Card -->
+            <div class="col-md-4">
+                <div class="card stat-card shadow-sm border-0 text-center">
+                    <div class="card-body p-4 d-flex flex-column align-items-center">
+                        <img src="{% static 'img/users.jpg' %}" alt="Users" class="card-icon-clear mb-3">
+                        <h5 class="text-dark fw-bold">Users Count</h5>
+                        <p class="display-6 text-dark fw-semibold mb-0">{{ users_count }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Card -->
+            <div class="col-md-4">
+                <div class="card stat-card shadow-sm border-0 text-center">
+                    <div class="card-body p-4 d-flex flex-column align-items-center">
+                        <img src="{% static 'img/pending.png' %}" alt="Pending" class="card-icon-clear mb-3">
+                        <h5 class="text-dark fw-bold">Pending Bookings</h5>
+                        <p class="display-6 text-secondary fw-semibold mb-0">{{ pending_bookings }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completed Card -->
+            <div class="col-md-4">
+                <div class="card stat-card shadow-sm border-0 text-center">
+                    <div class="card-body p-4 d-flex flex-column align-items-center">
+                        <img src="{% static 'img/complate.png' %}" alt="Completed" class="card-icon-clear mb-3">
+                        <h5 class="text-dark fw-bold">Completed Bookings</h5>
+                        <p class="display-6 text-success fw-semibold mb-0">{{ completed_bookings }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="w-100 d-flex justify-content-center">
+            <div style="max-width: 700px; width: 100%;">
+                <h3 class="text-orange mb-3 text-center">Bookings Statistics</h3>
+                <canvas id="bookingChart" height="250"></canvas>
+            </div>
+        </div>
     </main>
-
 </div>
-{% endblock %}
 
-{% block extra_js %} {% endblock %}
+<!-- Custom Styles -->
+<style>
+    .text-orange {
+        color: #fd7e14;
+    }
+
+    .sidebar {
+        width: 300px;
+        height: 100vh;
+        background-color: #343a40;
+        position: fixed;
+        top: 0;
+        left: 0;
+    }
+
+    .main-content {
+        margin-left: 320px;
+        background-color: #f8f9fa;
+        padding: 20px;
+    }
+
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 12px;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-icon-clear {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        opacity: 1;
+    }
+    #bookingChart {
+        max-height: 200px;
+        width: 100% !important;
+    }
+    
+</style>
+<!-- Chart Section -->
+<div class="w-100 d-flex justify-content-center">
+    <div style="max-width: 500px; width: 100%;">
+        <h3 class="text-orange mb-3 text-center">Bookings Statistics</h3>
+        <canvas id="bookingChart" style="height: 200px;"></canvas>
+    </div>
+</div>
+
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var ctx = document.getElementById('bookingChart').getContext('2d');
+    var bookingChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [...Array(30).keys()].map(x => x + 1),
+            datasets: [{
+                label: 'عدد الحجوزات',
+                data: [12, 19, 3, 5, 2, 3, 13, 8, 7, 10, 11, 15, 17, 14, 9, 6, 4, 10, 9, 8, 12, 13, 11, 10, 5, 3, 2, 7, 6, 8],
+                borderColor: '#fd7e14',
+                backgroundColor: 'rgba(253, 126, 20, 0.2)',
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { beginAtZero: true },
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+{% endblock %}

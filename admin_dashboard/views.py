@@ -240,7 +240,7 @@ def workshop_update(request, id):
         name = request.POST.get('name')
         phone = request.POST.get('phone')
         address_id = request.POST['address_id']
-        image = request.FILES.get('image')  # استخدام FILES لرفع الصور
+        image = request.FILES.get('image') 
 
         if name:
             workshop.name = name
@@ -270,16 +270,13 @@ def delete_workshop(request, id):
 
 def manage_services(request):
     services = Service.objects.all()
-    return render(request, 'admin_dashboard/mange_services.html', {'services': services}) 
+    return render(request, 'admin_dashboard/manage_services.html', {'services': services}) 
 
-@csrf_exempt
-def service_create(request):
-  
+def create_service(request):
     if request.method == 'GET':
         workshops = Workshop.objects.all()
         return render(request, 'admin_dashboard/create_service.html', {'workshops': workshops})
 
-    # إذا كان الطلب POST، إضافة الخدمة الجديدة
     if request.method == 'POST':
         name = request.POST['name']
         price = request.POST['price']
@@ -287,23 +284,24 @@ def service_create(request):
         duration = request.POST['duration']
         workshop_id = request.POST['workshop_id']
 
-        workshop = Workshop.objects.get(id=workshop_id)
+        try:
+            workshop = Workshop.objects.get(id=workshop_id)
+            Service.objects.create(
+                name=name,
+                price=price,
+                description=description,
+                duration=duration,
+                workshop=workshop
+            )
+        except Workshop.DoesNotExist:
+            
+            return render(request, 'admin_dashboard/create_service.html', {
+                'workshops': Workshop.objects.all(),
+                'error': 'Workshop not found.'
+            })
 
-        service = Service.objects.create(
-            name=name,
-            price=price,
-            description=description,
-            duration=duration,
-            workshop=workshop
-        )
-
-        return JsonResponse({
-            'id': service.id,
-            'name': service.name,
-            'price': service.price,
-            'description': service.description,
-            'duration': service.duration
-        })
+        return redirect('admin_dashboard:manage_services') 
+      
         
 @csrf_exempt
 def delete_service(request, service_id):
@@ -313,30 +311,31 @@ def delete_service(request, service_id):
         return JsonResponse({'status': 'deleted'})
     return JsonResponse({'status': 'error'}, status=400)
 
-# def update_service(request, service_id):
-#     service = get_object_or_404(Service, id=service_id)
 
-#     if request.method == 'POST':
-#         name = request.POST.get('name')
-#         price = request.POST.get('price')
-#         description = request.POST.get('description')
-#         duration = request.POST.get('duration')
-
-#         service.name = name
-#         service.price = price
-#         service.description = description
-#         service.duration = duration
-#         service.save()
-
-#         return JsonResponse({
-#             'id': service.id,
-#             'name': service.name,
-#             'price': service.price,
-#             'description': service.description,
-#             'duration': service.duration
-#         })        
+def edit_service(request, id):
+    service = get_object_or_404(Service, id=id)
+    return render(request, 'admin_dashboard/update_service.html', {'service': service})
 
 
+def update_service(request, service_id):
+    if request.method == 'POST':
+        try:
+            # Retrieve the service object
+            service = Service.objects.get(id=service_id)
+            
+            # Update service fields
+            service.name = request.POST.get('name')
+            service.price = request.POST.get('price')
+            service.description = request.POST.get('description')
+            service.duration = request.POST.get('duration')
+            service.save()
+            
+            # Respond with a success message
+            return JsonResponse({
+                'success': True,
+                'message': 'Service updated successfully!'
+            })
+        except Service.DoesNotExist:
+            return JsonResponse({'error': 'Service not found'}, status=404)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
-
-                
