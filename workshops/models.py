@@ -2,8 +2,15 @@ from django.db import models
 from accounts.models import Address, User
 
 class WorkshopManager(models.Manager):
-
-    pass
+    def validation(self,data):
+        errors= {}
+        if len(data['name']) < 5 or not data['name'].isalpha():
+            errors['name'] ='The name of the workshop must be more than five characters , and must contian only characters!'
+        if not data['description']:
+            errors['description'] = 'You should fill the discription of your workshop !'
+        if not data['phone']:
+            errors['phone'] = ' You should insert phone number !'
+        return errors
 
 class Workshop(models.Model):
     name = models.CharField(max_length=255)

@@ -44,7 +44,11 @@ def manage_workshops(request):
 def create_workshop(request):
     if request.user.is_authenticated and request.user.is_workshop_owner:
         if request.method == 'POST':
-            #TODO: Back Validation 
+            errors = Workshop.objects.validation(request.POST)
+            if len(errors) > 0 :
+                for key,value in errors.items():
+                    messages.error(request,value)
+                return render(request,'owner_dashboard/create_workshop.html')
             name = request.POST.get('name')
             phone = request.POST.get('phone')
             address_id = request.POST.get('address_id')
