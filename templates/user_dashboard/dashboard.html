@@ -1,39 +1,331 @@
 {% extends 'base2.html' %}
 
-{% block title %} User Dashboard {% endblock %}
+{% block title %} Dashboard {% endblock %}
 
 {% load static bootstrap5 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-
+<link rel="stylesheet" href="{% static 'css/user_dashboard.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="wrapper d-flex">
-    
     <!-- Sidebar -->
     <aside class="sidebar p-3 shadow-sm">
-        <h4 class="welcome mb-4">Welcome, {{ user.get_short_name }}</h4>
+        <div class="user-profile mb-4 text-center">
+            <div class="avatar mb-2">
+                <i class="fas fa-user-circle fa-3x"></i>
+            </div>
+            <h5 class="welcome mb-1">Welcome, {{ user.get_short_name }}</h5>
+            <small class="text-muted">{{ user.email }}</small>
+        </div>
         
         <nav class="menu d-flex flex-column gap-2">
-            <a href="#" class="active-link"><i class="fas fa-chart-line me-2"></i>Dashboard</a>
+            <a href="{% url 'user_dashboard:dashboard' %}" class="active-link">
+                <i class="fas fa-chart-line me-2"></i>Dashboard
+            </a>
+            <a href="{% url 'user_dashboard:profile' %}">
+                <i class="fas fa-user me-2"></i>My Profile
+            </a>
+            <a href="{% url 'user_dashboard:vehicles' %}">
+                <i class="fas fa-car me-2"></i>My Vehicles
+            </a>
+            <a href="{% url 'user_dashboard:appointments' %}">
+                <i class="fas fa-calendar-check me-2"></i>Appointments
+            </a>
+            <a href="{% url 'user_dashboard:services' %}">
+                <i class="fas fa-wrench me-2"></i>Services
+            </a>
+            <a href="{% url 'user_dashboard:notifications' %}">
+                <i class="fas fa-bell me-2"></i>Notifications
+            </a>
+            <a href="{% url 'user_dashboard:reviews' %}">
+                <i class="fas fa-star me-2"></i>Reviews
+            </a>
+            <a href="{% url 'accounts:logout' %}" class="text-danger">
+                <i class="fas fa-sign-out-alt me-2"></i>Logout
+            </a>
         </nav>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content flex-grow-1 p-4">
-        <h1 class="mb-4">User Dashboard Overview</h1>
+        <div class="dashboard-header mb-4">
+            <h1>Dashboard Overview</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                </ol>
+            </nav>
+        </div>
 
+        <!-- Stats Cards -->
+        <div class="row stats-cards mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Upcoming Appointments</h6>
+                                <h3 class="mb-0">{{ stats.upcoming_appointments }}</h3>
+                            </div>
+                            <div class="bg-primary bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-calendar text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Active Vehicles</h6>
+                                <h3 class="mb-0">{{ stats.active_vehicles }}</h3>
+                            </div>
+                            <div class="bg-success bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-car text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Pending Services</h6>
+                                <h3 class="mb-0">{{ stats.pending_services }}</h3>
+                            </div>
+                            <div class="bg-warning bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-wrench text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Unread Notifications</h6>
+                                <h3 class="mb-0">{{ stats.unread_notifications }}</h3>
+                            </div>
+                            <div class="bg-info bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-bell text-info"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Sections -->
+        <div class="row">
+            <!-- Upcoming Appointments -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0">Upcoming Appointments</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if upcoming_appointments %}
+                            <div class="list-group">
+                                {% for appointment in upcoming_appointments %}
+                                <div class="list-group-item border-0 py-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">{{ appointment.service.name }}</h6>
+                                            <small class="text-muted">{{ appointment.appointment_date|date:"F j, Y H:i" }}</small>
+                                        </div>
+                                        <span class="badge 
+                                            {% if appointment.status == 'confirmed' %}bg-primary
+                                            {% elif appointment.status == 'pending' %}bg-warning text-dark
+                                            {% elif appointment.status == 'completed' %}bg-secondary
+                                            {% else %}bg-danger{% endif %}">
+                                            {{ appointment.get_status_display }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">{{ appointment.workshop.name }}</small>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <a href="{% url 'user_dashboard:appointments' %}" class="btn btn-outline-primary mt-3">View All Appointments</a>
+                        {% else %}
+                            <div class="text-center py-3">
+                                <i class="fas fa-calendar fa-3x text-muted mb-3"></i>
+                                <h5>No upcoming appointments</h5>
+                                <p class="text-muted">You don't have any scheduled appointments</p>
+                                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bookAppointmentModal">
+                                    <i class="fas fa-plus me-2"></i>Book Appointment
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Notifications -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0">Recent Notifications</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_notifications %}
+                            <div class="list-group">
+                                {% for notification in recent_notifications %}
+                                <div class="list-group-item border-0 py-3 {% if not notification.is_read %}bg-light{% endif %}">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                                            <p class="mb-1">{{ notification.message }}</p>
+                                        </div>
+                                        {% if not notification.is_read %}
+                                        <span class="badge bg-primary rounded-pill">New</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <a href="{% url 'user_dashboard:notifications' %}" class="btn btn-outline-primary mt-3">View All Notifications</a>
+                        {% else %}
+                            <div class="text-center py-3">
+                                <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                                <h5>No notifications</h5>
+                                <p class="text-muted">You don't have any notifications yet</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Sections -->
+        <div class="row">
+            <!-- My Vehicles -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0">My Vehicles</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if user_cars %}
+                            <div class="row">
+                                {% for car in user_cars %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card h-100 shadow-sm">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ car.make }} {{ car.model }}</h5>
+                                            <p class="card-text text-muted mb-1">Year: {{ car.year }}</p>
+                                            <p class="card-text text-muted">VIN: {{ car.vin|truncatechars:10 }}</p>
+                                            <a href="{% url 'user_dashboard:vehicles' %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <a href="{% url 'user_dashboard:vehicles' %}" class="btn btn-outline-primary mt-3">Manage Vehicles</a>
+                        {% else %}
+                            <div class="text-center py-3">
+                                <i class="fas fa-car fa-3x text-muted mb-3"></i>
+                                <h5>No vehicles added</h5>
+                                <p class="text-muted">Add your first vehicle to get started</p>
+                                <a href="{% url 'user_dashboard:vehicles' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Add Vehicle
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nearby Workshops -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0">Nearby Workshops</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if nearby_workshops %}
+                            <div class="list-group">
+                                {% for workshop in nearby_workshops %}
+                                <div class="list-group-item border-0 py-3">
+                                    <div class="d-flex">
+                                        {% if workshop.image %}
+                                        <img src="{{ workshop.image.url }}" class="rounded me-3" width="60" height="60" alt="{{ workshop.name }}">
+                                        {% else %}
+                                        <div class="rounded me-3 bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                            <i class="fas fa-wrench fa-2x"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <h6 class="mb-1">{{ workshop.name }}</h6>
+                                            <small class="text-muted">{{ workshop.address.city }}, {{ workshop.address.region }}</small>
+                                            <div class="mt-2">
+                                                <a href="#" class="btn btn-sm btn-outline-primary me-2">View</a>
+                                                <a href="#" class="btn btn-sm btn-primary">Book Now</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <a href="#" class="btn btn-outline-primary mt-3">View All Workshops</a>
+                        {% else %}
+                            <div class="text-center py-3">
+                                <i class="fas fa-wrench fa-3x text-muted mb-3"></i>
+                                <h5>No nearby workshops</h5>
+                                <p class="text-muted">We couldn't find any workshops near you</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
-
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/dashboard.js' %}"></script>
-
+<script>
+$(document).ready(function() {
+    // Initialize tooltips
+    $('[data-bs-toggle="tooltip"]').tooltip();
+    
+    // Sidebar active link management
+    $('.menu a').on('click', function() {
+        $('.menu a').removeClass('active-link');
+        $(this).addClass('active-link');
+    });
+    
+    // Mark notification as read when clicked
+    $('.list-group-item').on('click', function() {
+        if ($(this).hasClass('bg-light')) {
+            const notificationId = $(this).data('notification-id');
+            if (notificationId) {
+                // AJAX call to mark notification as read
+                $.ajax({
+                    url: '/user_dashboard/user/notifications//mark-as-read/' + notificationId + '/',
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $(this).removeClass('bg-light');
+                            $(this).find('.badge').remove();
+                        }
+                    }.bind(this)
+                });
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

@@ -21,6 +21,10 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/ai_style.css' %}">
+    
+     <!-- jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     {% block extra_css %}
     
     {% endblock %}
@@ -89,9 +93,9 @@
 </main>
 
 <!-- Footer -->
-<footer class="text-center py-4">
+<!-- <footer class="text-center py-4 base-footer">
     <p>&copy; {% now "Y" %} AutoFix. All Rights Reserved.</p>
-</footer>
+</footer> -->
 <script src="{% static 'js/ai_script.js' %}"></script>
 {% block extra_js %}
 

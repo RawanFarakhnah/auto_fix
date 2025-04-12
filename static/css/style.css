@@ -85,3 +85,8 @@
       padding-right: 10px;
     }
   }
+
+  .base-footer {
+   position: fixed;
+   bottom: 0px;
+  }

@@ -1,0 +1,235 @@
+/* Base Styles */
+.wrapper {
+    display: flex;
+    min-height: 80vh;
+    background-color: #f8f9fa;
+  }
+  
+  .sidebar {
+    width: 250px;
+    background-color: #343a40;
+    color: #fff;
+    border-radius: 8px;
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+  }
+  
+  .sidebar .menu a {
+    color: #ddd;
+    padding: 10px 15px;
+    display: block;
+    border-radius: 4px;
+    transition: all 0.3s;
+    text-decoration: none;
+    margin-bottom: 5px;
+  }
+  
+  .sidebar .menu a:hover,
+  .sidebar .menu .active-link {
+    background-color: #ff6600;
+    color: #fff;
+    transform: translateX(5px);
+  }
+  
+  .sidebar .menu a i {
+    width: 20px;
+    text-align: center;
+  }
+  
+  .main-content {
+    flex-grow: 1;
+    padding-left: 20px;
+  }
+  
+  /* User Profile */
+  .user-profile {
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  
+  .user-profile .avatar {
+    color: #ff6600;
+  }
+  
+  /* Stats Cards */
+  .stats-cards .card {
+    background: #fff;
+    border: none;
+    border-radius: 8px;
+    transition: transform 0.3s;
+  }
+  
+  .stats-cards .card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .stats-cards .card-body {
+    padding: 20px;
+  }
+  
+  /* Timeline */
+  .timeline {
+    position: relative;
+    padding-left: 30px;
+  }
+  
+  .timeline-item {
+    position: relative;
+    padding-bottom: 20px;
+  }
+  
+  .timeline-item:last-child {
+    padding-bottom: 0;
+  }
+  
+  .timeline-icon {
+    position: absolute;
+    left: -30px;
+    top: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 10px;
+  }
+  
+  .timeline-content {
+    padding-left: 20px;
+  }
+  
+  /* Notification Icons */
+  .icon-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+  
+  /* Star Rating */
+  .star-rating {
+    color: #ffc107;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .wrapper {
+      flex-direction: column;
+    }
+    
+    .sidebar {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    
+    .main-content {
+      padding-left: 0;
+    }
+  }
+  
+  /* Breadcrumb */
+  .breadcrumb {
+    background-color: transparent;
+    padding: 0;
+    margin-bottom: 0;
+  }
+  
+  /* Card Headers */
+  .card-header {
+    background-color: white;
+    border-bottom: 1px solid rgba(0,0,0,0.125);
+  }
+  
+  /* List Group Items */
+  .list-group-item {
+    border-left: 0;
+    border-right: 0;
+  }
+  
+  .list-group-item:first-child {
+    border-top: 0;
+  }
+  
+  /* Badges */
+  .badge {
+    font-weight: 500;
+    padding: 5px 8px;
+  }
+  
+  /* Alerts */
+  .alert {
+    border-radius: 8px;
+  }
+  
+  /* Buttons */
+  .btn {
+    border-radius: 8px;
+    font-weight: 500;
+  }
+  
+  .btn-outline-primary {
+    border-color: #ff6600;
+    color: #ff6600;
+  }
+  
+  .btn-outline-primary:hover {
+    background-color: #ff6600;
+    border-color: #ff6600;
+    color: white;
+  }
+  
+  /* Tables */
+  .table {
+    margin-bottom: 0;
+  }
+  
+  .table th {
+    border-top: 0;
+  }
+  
+  /* Dropdowns */
+  .dropdown-menu {
+    border-radius: 8px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Forms */
+  .form-control, .form-select {
+    border-radius: 8px;
+    padding: 10px 15px;
+  }
+  
+  /* Modal */
+  .modal-content {
+    border-radius: 12px;
+  }
+  
+  /* Pagination */
+  .pagination .page-item .page-link {
+    border-radius: 8px;
+    margin: 0 3px;
+  }
+  
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
