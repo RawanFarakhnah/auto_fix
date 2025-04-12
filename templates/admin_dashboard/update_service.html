@@ -29,7 +29,8 @@
     </h6>
 
     <div class="form-container">
-      <form id="update-service-form" data-service-id="{{ service.id }}">
+        <form id="updateServiceForm" action="{% url 'admin_dashboard:update_service' service.id %}" method="POST">
+
 
         {% csrf_token %}
         <div class="row g-2 mb-3">
@@ -66,39 +67,45 @@
 {% endblock %}
 
 {% block extra_js %}
-$(document).ready(function() {
-    $('#update-service-btn').on('click', function() {
-        console.log("Update button clicked");  // Debugging log
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#update-service-btn').on('click', function() {
+            console.log("Update button clicked");
 
-        var serviceId = {{ service.id }};  // Service ID from context
-        var name = $('#name').val();
-        var price = $('#price').val();
-        var description = $('#description').val();
-        var duration = $('#duration').val();
+            // نلتقط المعرف من بيانات الفورم مباشرةً
+            var serviceId = "{{ service.id }}"; // يمكن الحصول عليها من السياق المرسل من الفيو
+            var name = $('#name').val();
+            var price = $('#price').val();
+            var description = $('#description').val();
+            var duration = $('#duration').val();
+            var csrftoken = $('input[name=csrfmiddlewaretoken]').val(); // جلب CSRF من الفورم
 
-        $.ajax({
-            url: '/update-service/' + serviceId + '/',  // The URL for updating the service
-            type: 'POST',
-            data: {
-                name: name,
-                price: price,
-                description: description,
-                duration: duration,
-                csrfmiddlewaretoken: '{{ csrf_token }}'  // CSRF token for security
-            },
-            success: function(response) {
-                console.log("Success:", response);  // Debugging log
-                if (response.success) {
-                    $('#successMessage').show(); // Show success message
+            $.ajax({
+                url: '{% url "admin_dashboard:update_service" service.id %}', // التأكد من إرسال المعرف الصحيح في الرابط
+                type: 'POST',
+                data: {
+                    name: name,
+                    price: price,
+                    description: description,
+                    duration: duration,
+                    csrfmiddlewaretoken: csrftoken
+                },
+                success: function(response) {
+                    console.log("Success:", response);
+                    if (response.success) {
+                        $('#successMessage').fadeIn().delay(2000).fadeOut(); // عرض رسالة النجاح
+                        // يمكن توجيه المستخدم للصفحة الرئيسية للمساعدة في التحديث
+                        window.location.href = "{% url 'admin_dashboard:manage_services' %}";
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error: ", error);
+                    alert('An error occurred while updating the service.');
                 }
-            },
-            error: function(xhr, status, error) {
-                console.error("Error: ", error);  // Debugging log
-                alert('An error occurred while updating the service.');
-            }
+            });
         });
     });
-});
-
-
-{%endblock%}
+</script>
+{% endblock %}
+  

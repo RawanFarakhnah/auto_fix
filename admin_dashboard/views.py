@@ -177,6 +177,7 @@ def delete_user(request, user_id):
         })
 
 def manage_users(request):
+    
     users = User.objects.all().order_by('-id')
     
     data = [
@@ -259,15 +260,20 @@ def workshop_update(request, id):
 
 @csrf_exempt
 def delete_workshop(request, id):
-    if request.method == 'POST':
-        try:
-            workshop = Workshop.objects.get(id=id)
-            workshop.delete() 
-            return JsonResponse({'status': 'deleted'})
-        except Workshop.DoesNotExist:
-            return JsonResponse({'error': 'Workshop not found'}, status=404)
-    return JsonResponse({'error': 'Invalid request'}, status=400)
-
+    if request.user.is_authenticated and request.user.is_superuser:
+        if request.method == 'POST':
+            try:
+                workshop = Workshop.objects.get(id=id)
+                workshop.delete() 
+                return JsonResponse({'status': 'deleted'})
+            except Workshop.DoesNotExist:
+                return JsonResponse({'error': 'Workshop not found'}, status=404)
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+    return JsonResponse({
+            'success': False,
+            'error': "Unautorized User",
+            'redirect_url': reverse('landing:main')
+            })
 def manage_services(request):
     services = Service.objects.all()
     return render(request, 'admin_dashboard/manage_services.html', {'services': services}) 
@@ -302,40 +308,59 @@ def create_service(request):
 
         return redirect('admin_dashboard:manage_services') 
       
-        
 @csrf_exempt
 def delete_service(request, service_id):
-    if request.method == 'POST':
+    if request.user.is_authenticated and request.user.is_superuser:
+        if request.method == 'POST':
+            service = get_object_or_404(Service, id=service_id)
+            service.delete()
+            return JsonResponse({'status': 'deleted'})
+        return JsonResponse({'status': 'error'}, status=400)
+    return JsonResponse({
+            'success': False,
+            'error': "Unautorized User",
+            'redirect_url': reverse('landing:main')
+            })
+
+def edit_service(request, service_id):
+    
+    if request.user.is_authenticated and request.user.is_superuser:
         service = get_object_or_404(Service, id=service_id)
-        service.delete()
-        return JsonResponse({'status': 'deleted'})
-    return JsonResponse({'status': 'error'}, status=400)
+        context = {
+            'service': service
+        }
+        return render(request, 'admin_dashboard/update_service.html', context)
+    return JsonResponse({
+            'success': False,
+            'error': "Unautorized User",
+            'redirect_url': reverse('landing:main')
+            })     
 
 
-def edit_service(request, id):
-    service = get_object_or_404(Service, id=id)
-    return render(request, 'admin_dashboard/update_service.html', {'service': service})
-
-
+@csrf_exempt
 def update_service(request, service_id):
-    if request.method == 'POST':
-        try:
-            # Retrieve the service object
-            service = Service.objects.get(id=service_id)
-            
-            # Update service fields
+    print("Entered update_service view")
+    print("Request method:", request.method)
+    print("User:", request.user)
+
+    if request.user.is_authenticated and request.user.is_superuser:
+        if request.method == 'POST':
+            service = get_object_or_404(Service, id=service_id)
             service.name = request.POST.get('name')
             service.price = request.POST.get('price')
             service.description = request.POST.get('description')
             service.duration = request.POST.get('duration')
             service.save()
-            
-            # Respond with a success message
-            return JsonResponse({
-                'success': True,
-                'message': 'Service updated successfully!'
-            })
-        except Service.DoesNotExist:
-            return JsonResponse({'error': 'Service not found'}, status=404)
-    return JsonResponse({'error': 'Invalid request'}, status=400)
 
+            print("Service updated successfully")
+            return JsonResponse({'success': True})
+
+        print("Request method is not POST")
+        return JsonResponse({'success': False, 'error': 'Request method must be POST'}, status=400)
+
+    print("User is not authorized")
+    return JsonResponse({
+        'success': False,
+        'error': "Unauthorized user",
+        'redirect_url': reverse('landing:main')
+    }, status=403)
