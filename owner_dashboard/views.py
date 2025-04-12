@@ -199,7 +199,14 @@ def update_booking(request):
         booking = Booking.objects.get(id=booking_id)
         booking.status = new_status
         booking.save()
-        
+        Notification.objects.create(
+            user=booking.user,
+            booking=booking,
+            message=f"booking have been updated to {new_status}"
+        )
         return JsonResponse({"message": "Booking updated successfully", "status": new_status})
 
     return redirect('landing:main')
+
+
+

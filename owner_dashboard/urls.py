@@ -20,4 +20,6 @@ urlpatterns = [
     path('owner/bookings',views.bookings,name='bookings'),
     path('owner/bookings/update/', views.update_booking, name='update_booking'),
 
+    
+
 ]
