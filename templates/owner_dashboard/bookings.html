@@ -1,0 +1,147 @@
+{% extends 'base2.html' %}
+
+{% block title %} User Dashboard {% endblock %}
+
+{% load static bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<style>
+    table {
+        width: 90%;
+        margin: auto;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    th, td {
+        border: 2px solid #ddd;
+        padding: 14px;
+        font-size: 16px;
+        text-align: center;
+    }
+    th {
+        background-color: #ff6600;
+        color: white;
+    }
+    tr:nth-child(even) {
+        background-color: #f1f3f5;
+    }
+    .btn {
+        padding: 10px 18px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    .confirm { background-color: #28a745; color: white; }
+    .complete { background-color: #17a2b8; color: white; }
+    .cancel { background-color: #dc3545; color: white; }
+    .btn:hover {
+        opacity: 0.85;
+    }
+    .message {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ff6600;
+    }
+    h2 {
+        color: #ff6600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wrapper d-flex">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar p-3 shadow-sm">
+        <h4 class="welcome mb-4">Welcome, {{ user.get_short_name }}</h4>
+        
+        <nav class="menu d-flex flex-column gap-2">
+            <a href="{% url 'owner_dashboard:dashboard' %}" class=" text-white text-decoration-none" >Dashboard</a>
+            <a href="{%url 'owner_dashboard:manage_workshops'%}" class="text-white text-decoration-none" >Manage Workshops</a>
+            <a href="{% url 'owner_dashboard:services' %}" class="text-white text-decoration-none">Services</a>
+            <a href="{% url 'owner_dashboard:bookings' %}" class="active-link text-white text-decoration-none">Bookings</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content flex-grow-1 p-4">
+        <h1 class="mb-4">bookings for {{workshop.name}}</h1>
+        {% if bookings %}
+        {% for booking in bookings %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Booking Number</th>
+                    <th>Name</th>
+                    <th>Service</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-id="1">
+                    <td>{{booking.id}}</td>
+                    <td>{{booking.user.get_full_name}}</td>
+                    <td>{{booking.service.name}}</td>
+                    <td>{{booking.created_at}}</td>
+                    <td class="status">{{booking.status}}</td>
+                    <td>
+                        <button class="btn confirm" data-status="Confirmed">Confirm</button>
+                        <button class="btn complete" data-status="Completed">Complete</button>
+                        <button class="btn cancel" data-status="Canceled">Cancel</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        {% endfor %}
+        {% endif %}
+        {% if not bookings %}
+        <div class="message">
+            <h2>You Don't have any Bookings yet ! 🚫 </h2>
+        </div>
+        {% endif %}
+    </main>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        $(".btn").click(function() {
+            let statusText = $(this).data("status");
+            let row = $(this).closest("tr");
+            let bookingId = row.find("td:first").text().trim();
+
+            row.find(".status").text(statusText);
+            $.ajax({
+                url: "{% url 'owner_dashboard:update_booking' %}",
+                type: "POST",
+                data: {
+                    id: bookingId,
+                    status: statusText,
+                    csrfmiddlewaretoken: "{{ csrf_token }}"
+                },
+                success: function(response) {
+                    console.log("تم تحديث الحجز:", response);
+                },
+                error: function() {
+                    console.error("حدث خطأ أثناء تحديث الحجز");
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

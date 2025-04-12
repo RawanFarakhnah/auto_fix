@@ -17,6 +17,7 @@ from django.http import JsonResponse
 from workshops.models import Address,Service
 
 
+
 # get user model
 User = get_user_model()
 
@@ -56,14 +57,15 @@ def create_workshop(request):
                 phone = request.POST.get('phone')
                 address_id = request.POST.get('address_id')
                 image = request.FILES.get('image')
-
+                description = request.POST['description']
                 if address_id:  
                     Workshop.objects.create(
                         name=name,
                         phone=phone,
                         address_id=address_id,
                         image=image,
-                        owner = request.user
+                        owner = request.user,
+                        description= description
                         )
                     
                     return redirect('owner_dashboard:manage_workshops')
@@ -161,6 +163,8 @@ def service_create(request):
             return redirect('owner_dashboard:services')
         return render(request, 'owner_dashboard/create_service.html', {'workshops': workshops})
     return redirect('landing:main')
+
+
 @csrf_exempt
 def delete_service(request, service_id):
     if request.user.is_authenticated and request.user.is_workshop_owner:
@@ -172,5 +176,30 @@ def delete_service(request, service_id):
 
 def bookings(request):
     if request.user.is_authenticated and request.user.is_workshop_owner:
-        workshop = Workshop.objects.filter(owner = request.user)
-        pass
+        try:
+            workshop = Workshop.objects.get(owner = request.user.id)
+            bookings = Booking.objects.get(workshop = workshop)
+            context= {
+                'bookings':bookings,
+                'workshop':workshop
+            }
+            return render(request,'owner_dashboard/bookings.html',context)
+        except:
+            context ={
+                'workshop':False
+            }
+            return render(request,'owner_dashboard/bookings.html',context)
+    return redirect('landing:main')
+
+def update_booking(request):
+    if request.method == "POST" and request.user.is_authenticated:
+        booking_id = request.POST.get('id')
+        new_status = request.POST.get('status')
+        
+        booking = Booking.objects.get(id=booking_id)
+        booking.status = new_status
+        booking.save()
+        
+        return JsonResponse({"message": "Booking updated successfully", "status": new_status})
+
+    return redirect('landing:main')

@@ -75,6 +75,7 @@
         </nav>
     </aside>
     <main class="main-content flex-grow-1 p-4">
+        <h2 class="text-center mb-4">Service List</h2>
     {% if not services %}
         <div class="container mt-5" style="color: #ccc;">
             <div class="d-flex justify-content-center">
@@ -95,7 +96,6 @@
     {% endif %}
     {% if services %}
         <div>
-            <h2 class="text-center mb-4">Service List</h2>
             <div class="top-actions">
                 <a href="{% url 'owner_dashboard:dashboard' %}" class="btn btn-delete">Back to Dashboard</a>
                 <a href="{% url 'owner_dashboard:service_create' %}" class="btn btn-update">Create New Service</a>
