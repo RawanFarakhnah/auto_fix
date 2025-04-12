@@ -4,8 +4,9 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from workshops.models import Workshop, Service
 from reviews.models import Review
-from bookings.models import Booking
+from bookings.models import Booking, Notification
 from locations.models import Address
+from reviews.models import Review
 from cars.models import Car
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -15,23 +16,182 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from workshops.models import Address,Service
-
-
+from django.db.models import Count, Avg, Sum
+from datetime import date, timedelta
 
 # get user model
 User = get_user_model()
 
 #owner Dashbord
-def owner_dashboard(request):
-    if request.user.is_authenticated and request.user.is_workshop_owner:
-        workshop = Workshop.objects.filter(owner = request.user.id)
+def dashboard(request):
+    if not request.user.is_workshop_owner:
+        return redirect('landing:main')
+    
+    workshop = Workshop.objects.filter(owner=request.user).first()
+    
+    if not workshop:
+        return render(request, 'owner_dashboard/dashboard.html', {'workshops': []})
+
+    today = date.today()
+    
+    # Bookings stats
+    bookings = Booking.objects.filter(workshop=workshop)
+    total_bookings = bookings.count()
+    today_bookings = bookings.filter(appointment_date__date=today).count()
+    pending_bookings = bookings.filter(status='pending').count()
+    
+    # Revenue calculation
+    monthly_revenue = bookings.filter(
+        status='completed',
+        appointment_date__month=today.month,
+        appointment_date__year=today.year
+    ).aggregate(total=Sum('service__price'))['total'] or 0
+    
+    # Review stats
+    reviews = Review.objects.filter(service__workshop=workshop)
+    average_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or 0
+    
+    # Recent data
+    recent_bookings = bookings.select_related(
+        'user', 'service'  # Removed 'vehicle' as it doesn't exist in your model
+    ).order_by('-appointment_date')[:5]
+    
+    # Get services with booking counts
+    popular_services = Service.objects.filter(
+        workshop=workshop
+    ).annotate(
+        booking_count=Count('booking'),  # Using default related_name
+        avg_rating=Avg('review__rating')
+    ).order_by('-booking_count')[:4]
+    
+    recent_reviews = reviews.select_related(
+        'user', 'service'
+    ).order_by('-created_at')[:4]
+
+    context = {
+        'workshops': [workshop],
+        'stats': {
+            'total_bookings': total_bookings,
+            'today_bookings': today_bookings,
+            'pending_bookings': pending_bookings,
+            'monthly_revenue': monthly_revenue,
+            'average_rating': round(average_rating, 1),
+        },
+        'recent_bookings': recent_bookings,
+        'popular_services': popular_services,
+        'recent_reviews': recent_reviews,
+    }
+    return render(request, 'owner_dashboard/dashboard.html', context)
+
+def workshop_management(request):
+    # Workshop management view logic
+    if not request.user.is_workshop_owner:
+        return redirect('landing:main')
+    
+    try:
+        workshop = Workshop.objects.get(owner=request.user)
+        total_services = workshop.services.count()
+        total_bookings = workshop.booking_set.count()
+        
+        # Calculate average rating
+        reviews = workshop.review_set.all()
+        avg_rating = None
+
         context = {
-            'workshops':workshop
+            'workshop': workshop,
+            'total_services': total_services,
+            'total_bookings': total_bookings,
+            'avg_rating': round(avg_rating, 1) if avg_rating else None
         }
-        return render(request, 'owner_dashboard/dashboard.html',context)
+    except Workshop.DoesNotExist:
+        context = {'workshop': None}
+    
+    return render(request, 'owner_dashboard/workshop.html', context)
+    
 
-    return redirect('landing:main')
+def delete_workshop(request):
+    # Delete workshop view logic
+    pass
 
+def edit_workshop(request):
+    # Edit workshop view logic
+    pass
+
+def register_workshop(request):
+    # register workshop view logic
+    pass
+
+def services_management(request):
+    try:
+        workshop = request.user.workshop
+        services = Service.objects.filter(workshop=workshop)
+        
+        context = {
+            'services': services,
+        }
+    except Workshop.DoesNotExist:
+        messages.warning(request, "You need to register a workshop first")
+        return redirect('owner_dashboard:workshop')
+    
+    return render(request, 'owner_dashboard/services.html', context)
+
+def add_service(request):
+    # Add service view logic
+    pass
+
+def edit_service(request, service_id):
+    # Edit service view logic
+    pass
+
+def delete_service(request, service_id):
+    # Delete service view logic
+    pass
+
+def bookings_management(request):
+    # Bookings management view logic
+    pass
+
+def update_booking_status(request, booking_id):
+    # Update booking status view logic
+    pass
+
+def reviews_management(request):
+    try:
+        workshop = request.user.workshop
+    except AttributeError:
+        return redirect('owner_dashboard:workshop')
+    
+    reviews = Review.objects.filter(workshop=workshop).order_by('-created_at')
+    avg_rating = reviews.aggregate(Avg('rating'))['rating__avg']
+    total_reviews = reviews.count()
+    
+    context = {
+        'reviews': reviews,
+        'avg_rating': round(avg_rating, 1) if avg_rating else None,
+        'total_reviews': total_reviews,
+    }
+    
+    return render(request, 'owner_dashboard/reviews.html', context)
+   
+
+def reply_review(request, review_id):
+    # Reply to review view logic
+    pass
+
+##-----------------------------------------------------------------------###
+
+def owner_dashboard(request):
+    if not request.user.is_authenticated or not request.user.is_workshop_owner:
+        return redirect('landing:main')
+    
+    workshop = Workshop.objects.filter(owner=request.user).first()
+    recent_bookings = Booking.objects.filter(workshop=workshop).order_by('-appointment_date')[:5] if workshop else []
+    
+    context = {
+        'workshops': [workshop] if workshop else [],
+        'recent_bookings': recent_bookings,
+    }
+    return render(request, 'owner_dashboard/dashboard.html', context)
 
 def manage_workshops(request):
     if request.user.is_authenticated and request.user.is_workshop_owner:
@@ -76,7 +236,7 @@ def create_workshop(request):
         return render(request, 'owner_dashboard/create_workshop.html', {'addresses': addresses})
     return redirect('landing:main')
 
-def edit_workshop(request, id):
+def edit_workshop1(request, id):
     if request.user.is_authenticated and request.user.is_workshop_owner:
         workshop = Workshop.objects.get(id=id)
         addresses = Address.objects.all()
@@ -116,7 +276,7 @@ def workshop_update(request, id):
     return redirect('landing:main')
 
 @csrf_exempt
-def delete_workshop(request, id):
+def delete_workshop1(request, id):
     if request.user.is_authenticated and request.user.is_workshop_owner:
         if request.method == 'POST':
             try:
