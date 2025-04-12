@@ -16,13 +16,14 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from workshops.models import Address,Service
 
+
 # get user model
 User = get_user_model()
 
 #owner Dashbord
 def owner_dashboard(request):
     if request.user.is_authenticated and request.user.is_workshop_owner:
-        workshop = Workshop.objects.filter(owner = request.user)
+        workshop = Workshop.objects.filter(owner = request.user.id)
         context = {
             'workshops':workshop
         }
@@ -33,7 +34,7 @@ def owner_dashboard(request):
 
 def manage_workshops(request):
     if request.user.is_authenticated and request.user.is_workshop_owner:
-        user_id = request.user
+        user_id = request.user.id
         try:
             workshops = Workshop.objects.filter(owner = user_id)
             return render(request, 'owner_dashboard/manage_workshops.html', {'workshops': workshops})
@@ -43,31 +44,33 @@ def manage_workshops(request):
   
 def create_workshop(request):
     if request.user.is_authenticated and request.user.is_workshop_owner:
+        addresses = Address.objects.all()
         if request.method == 'POST':
             errors = Workshop.objects.validation(request.POST)
             if len(errors) > 0 :
                 for key,value in errors.items():
                     messages.error(request,value)
-                return render(request,'owner_dashboard/create_workshop.html')
-            name = request.POST.get('name')
-            phone = request.POST.get('phone')
-            address_id = request.POST.get('address_id')
-            image = request.FILES.get('image')
-
-            if address_id:  
-                Workshop.objects.create(
-                    name=name,
-                    phone=phone,
-                    address_id=address_id,
-                    image=image,
-                    owner = request.user
-                    )
-                
-                return redirect('owner_dashboard:manage_workshops')
+                return render(request,'owner_dashboard/create_workshop.html',{'addresses': addresses})
             else:
-                return HttpResponse("Address is required", status=400)
-    
-        addresses = Address.objects.all()
+                name = request.POST.get('name')
+                phone = request.POST.get('phone')
+                address_id = request.POST.get('address_id')
+                image = request.FILES.get('image')
+
+                if address_id:  
+                    Workshop.objects.create(
+                        name=name,
+                        phone=phone,
+                        address_id=address_id,
+                        image=image,
+                        owner = request.user
+                        )
+                    
+                    return redirect('owner_dashboard:manage_workshops')
+                else:
+                    return HttpResponse("Address is required", status=400)
+        
+       
         return render(request, 'owner_dashboard/create_workshop.html', {'addresses': addresses})
     return redirect('landing:main')
 
@@ -122,3 +125,52 @@ def delete_workshop(request, id):
                 return JsonResponse({'error': 'Workshop not found'}, status=404)
         return JsonResponse({'error': 'Invalid request'}, status=400)
     return redirect('landing:main')
+
+def services(request):
+    if request.user.is_authenticated and request.user.is_workshop_owner:
+        try:
+            workshop = Workshop.objects.get(owner = request.user.id)
+            services = Service.objects.filter(workshop = workshop)
+            context = {
+                'services': services
+            }
+            return render(request, 'owner_dashboard/mange_services.html', context)
+        except:
+            return redirect('owner_dashboard:dashboard') 
+    return redirect('landing:main')
+
+@csrf_exempt
+def service_create(request):
+    if request.user.is_authenticated and request.user.is_workshop_owner:
+        workshops = Workshop.objects.filter(owner = request.user.id)
+        if request.method == 'POST':
+            name = request.POST['name']
+            price = request.POST['price']
+            description = request.POST['description']
+            duration = request.POST['duration']
+            workshop = Workshop.objects.get(owner = request.user.id)
+
+            service = Service.objects.create(
+                name=name,
+                price=price,
+                description=description,
+                duration=duration,
+                workshop=workshop
+            )
+
+            return redirect('owner_dashboard:services')
+        return render(request, 'owner_dashboard/create_service.html', {'workshops': workshops})
+    return redirect('landing:main')
+@csrf_exempt
+def delete_service(request, service_id):
+    if request.user.is_authenticated and request.user.is_workshop_owner:
+        service = Service.objects.get(id = service_id)
+        service.delete()
+        return redirect('owner_dashboard:services')
+    return redirect('landing:main')
+
+
+def bookings(request):
+    if request.user.is_authenticated and request.user.is_workshop_owner:
+        workshop = Workshop.objects.filter(owner = request.user)
+        pass

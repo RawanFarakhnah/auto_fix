@@ -10,4 +10,12 @@ urlpatterns = [
     path('owner/manage_workshop/edit/<int:id>', views.edit_workshop, name='edit_workshop'),
     path('owner/manage_workshop/update/<int:id>/', views.workshop_update, name='workshop_update'),
     path('owner/manage_workshop/delete/<int:id>/', views.delete_workshop, name='delete_workshop'),
+
+
+    path('owner/services',views.services,name='services'),
+    path('owner/manage_services/create/', views.service_create, name='service_create'),
+    path('owner/manage_services/delete/<int:service_id>/', views.delete_service, name='delete_service'),
+
+
+    path('owner/bookings',views.bookings,name='bookings')
 ]
