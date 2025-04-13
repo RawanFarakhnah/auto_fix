@@ -35,21 +35,21 @@
         {% csrf_token %}
         <div class="row g-2 mb-3">
           <div class="col-md-6">
-            <input type="text" id="name" value="{{ service.name }}" class="form-control" placeholder="اسم الخدمة"
+            <input type="text" id="name" value="{{ service.name }}" class="form-control" placeholder="service"
                    style="border-color: #ff6600; color: #ff6600" required />
           </div>
           <div class="col-md-6">
-            <input type="text" id="price" value="{{ service.price }}" class="form-control" placeholder="السعر"
+            <input type="text" id="price" value="{{ service.price }}" class="form-control" placeholder="price"
                    style="border-color: #ff6600; color: #ff6600" required />
           </div>
         </div>
 
         <div class="mb-3">
-          <textarea id="description" class="form-control" placeholder="الوصف" style="border-color: #ff6600; color: #ff6600" required>{{ service.description }}</textarea>
+          <textarea id="description" class="form-control" placeholder="description" style="border-color: #ff6600; color: #ff6600" required>{{ service.description }}</textarea>
         </div>
 
         <div class="mb-3">
-          <input type="text" id="duration" value="{{ service.duration }}" class="form-control" placeholder="المدة"
+          <input type="text" id="duration" value="{{ service.duration }}" class="form-control" placeholder="duration"
                  style="border-color: #ff6600; color: #ff6600" required />
         </div>
 
@@ -73,16 +73,16 @@
         $('#update-service-btn').on('click', function() {
             console.log("Update button clicked");
 
-            // نلتقط المعرف من بيانات الفورم مباشرةً
-            var serviceId = "{{ service.id }}"; // يمكن الحصول عليها من السياق المرسل من الفيو
+            
+            var serviceId = "{{ service.id }}"; 
             var name = $('#name').val();
             var price = $('#price').val();
             var description = $('#description').val();
             var duration = $('#duration').val();
-            var csrftoken = $('input[name=csrfmiddlewaretoken]').val(); // جلب CSRF من الفورم
+            var csrftoken = $('input[name=csrfmiddlewaretoken]').val(); 
 
             $.ajax({
-                url: '{% url "admin_dashboard:update_service" service.id %}', // التأكد من إرسال المعرف الصحيح في الرابط
+                url: '{% url "admin_dashboard:update_service" service.id %}', 
                 type: 'POST',
                 data: {
                     name: name,
@@ -94,8 +94,8 @@
                 success: function(response) {
                     console.log("Success:", response);
                     if (response.success) {
-                        $('#successMessage').fadeIn().delay(2000).fadeOut(); // عرض رسالة النجاح
-                        // يمكن توجيه المستخدم للصفحة الرئيسية للمساعدة في التحديث
+                        $('#successMessage').fadeIn().delay(2000).fadeOut(); 
+                        
                         window.location.href = "{% url 'admin_dashboard:manage_services' %}";
                     }
                 },

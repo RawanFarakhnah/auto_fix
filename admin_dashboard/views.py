@@ -16,6 +16,9 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from workshops.models import Address,Service
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Count
 
 # get user model
 User = get_user_model()
@@ -221,15 +224,25 @@ def create_workshop(request):
     return render(request, 'admin_dashboard/create_workshop.html', {'addresses': addresses})
 
 
+from django.db.models import Q
+
 def edit_workshop(request, id):
     workshop = Workshop.objects.get(id=id)
     addresses = Address.objects.all()
+    
+    owners = User.objects.filter(
+        is_workshop_owner=True,
+        workshop__isnull=True  
+    )
+
     return render(request, 'admin_dashboard/update_workshop.html', {
         'workshop': workshop,
         'addresses': addresses,
+        'owners': owners 
     })
 
 
+@csrf_exempt
 @csrf_exempt
 def workshop_update(request, id):
     if request.method == 'POST':
@@ -240,8 +253,9 @@ def workshop_update(request, id):
 
         name = request.POST.get('name')
         phone = request.POST.get('phone')
-        address_id = request.POST['address_id']
-        image = request.FILES.get('image') 
+        address_id = request.POST.get('address_id')
+        owner_id = request.POST.get('owner_id')  # إضافة السطر الخاص بالمالك
+        image = request.FILES.get('image')
 
         if name:
             workshop.name = name
@@ -251,9 +265,20 @@ def workshop_update(request, id):
             workshop.address_id = address_id
         if image:
             workshop.image = image
+        if owner_id:
+            try:
+                owner = User.objects.get(id=owner_id)
+                workshop.owner = owner
+            except User.DoesNotExist:
+                return JsonResponse({'error': 'Owner not found'}, status=404)
 
         workshop.save()
-        return JsonResponse({'status': 'updated', 'name': name, 'phone': phone})
+        return JsonResponse({
+            'status': 'updated',
+            'name': name,
+            'phone': phone,
+            'owner_id': owner_id
+        })
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
@@ -364,3 +389,24 @@ def update_service(request, service_id):
         'error': "Unauthorized user",
         'redirect_url': reverse('landing:main')
     }, status=403)
+def dashboard(request):
+    
+    last_30_days = timezone.now() - timedelta(days=30)
+
+    
+    bookings_by_day = Booking.objects.filter(appointment_date__gte=last_30_days) \
+    .values('appointment_date__date') \
+    .annotate(count=Count('id')) \
+    .order_by('appointment_date__date')
+
+
+    
+    dates = [b['appointment_date__date'].strftime('%Y-%m-%d') for b in bookings_by_day]  # تحويل التاريخ إلى صيغة قابلة للاستخدام
+    counts = [b['count'] for b in bookings_by_day]  
+
+    
+    context = {
+        'dates': dates,
+        'counts': counts
+    }
+    return render(request, 'admin_dashboard/dashboard.html', context)
