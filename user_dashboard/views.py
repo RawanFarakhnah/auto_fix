@@ -1,5 +1,5 @@
 from django.db.models import Count, Q
-from django.shortcuts import render, redirect, HttpResponse
+from django.shortcuts import get_object_or_404, render, redirect, HttpResponse
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from workshops.models import Workshop, Service
@@ -14,8 +14,8 @@ from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from workshops.models import Address,Service
 import datetime
+from django import forms
 
 # get user model
 User = get_user_model()
@@ -76,42 +76,83 @@ def profile(request):
     return redirect('landing:main')
 
 def vehicles(request):
-    if request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser ):        
+    if request.user.is_authenticated and not (request.user.is_workshop_owner or request.user.is_superuser):
         context = {
-            'cars': Car.objects.filter(user=request.user) 
+            'cars': Car.objects.filter(user=request.user),
+            'errors': request.session.pop('errors', None),
+            'form_data': request.session.pop('form_data', None),
+            'open_modal': request.session.pop('open_modal', False)
         }
         return render(request, 'user_dashboard/my_vehicles.html', context)
-
     return redirect('landing:main')
 
 def add_vehicle(request):
-    if request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser ):        
-       if request.method == "POST":
-        make = request.POST.get("make")
-        model = request.POST.get("model")
-        year = request.POST.get("year")
-        vin = request.POST.get("vin")
+    if not request.user.is_authenticated or (request.user.is_workshop_owner or request.user.is_superuser):
+        return redirect('landing:main')
+    
+    if request.method == 'POST':
+        errors = Car.objects.car_validator(request.POST)
+        if errors:
+            for key, value in errors.items():
+                messages.error(request, value)
+            return render(request, 'user_dashboard/my_vehicles.html', {
+                'open_modal': True,
+                'errors': errors,
+                'form_data': request.POST
+            })
 
-        errors = {}
-
-        if Car.objects.filter(vin=vin).exists():
-            errors['vin'] = 'A car with this VIN already exists.'
-            messages.error(request, errors)
-            return redirect('user_dashboard:vehicles')
-            
         Car.objects.create(
             user=request.user,
-            make=make,
-            model=model,
-            year=year,
-            vin=vin
+            make=request.POST['make'],
+            model=request.POST['model'],
+            year=int(request.POST['year']) if request.POST['year'] else None,
+            vin=request.POST['vin']
         )
         messages.success(request, "Vehicle added successfully!")
         return redirect('user_dashboard:vehicles')
-    return redirect('landing:main')
+    
+    return redirect('user_dashboard:vehicles')
 
-def edit_vehicle(request,vehicle_id):
-    pass
+def edit_vehicle(request, vehicle_id):
+    if not request.user.is_authenticated or (request.user.is_workshop_owner or request.user.is_superuser):
+        return JsonResponse({'status': 'error', 'message': 'Unauthorized'}, status=401)
+    
+    try:
+        car = Car.objects.get(id=vehicle_id, user=request.user)
+    except Car.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Vehicle not found'}, status=404)
+
+    if request.method == 'POST':
+        errors = Car.objects.car_validator(request.POST, instance=car)
+        
+        if errors:
+            return JsonResponse({
+                'status': 'error',
+                'errors': errors
+            }, status=400)
+
+        car.make = request.POST['make']
+        car.model = request.POST['model']
+        car.year = int(request.POST['year']) if request.POST['year'] else None
+        car.vin = request.POST['vin']
+        car.save()
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Vehicle updated successfully!',
+            'redirect': reverse('user_dashboard:vehicles')
+        })
+    
+    # If it's a GET request, return the car data
+    return JsonResponse({
+        'status': 'success',
+        'car': {
+            'make': car.make,
+            'model': car.model,
+            'year': car.year,
+            'vin': car.vin
+        }
+    })
 
 def delete_vehicle(request,vehicle_id):
     pass
