@@ -59,7 +59,7 @@
         <!-- Booking Filters -->
         <div class="card shadow-sm mb-4">
             <div class="card-body">
-                <form method="get" class="row g-3">
+                <form method="get" action="{% url 'owner_dashboard:bookings' %}" class="row g-3">
                     <div class="col-md-3">
                         <label class="form-label">Status</label>
                         <select name="status" class="form-select">
@@ -154,7 +154,7 @@
                                             <i class="fas fa-check"></i>
                                         </a>
                                         <a href="{% url 'owner_dashboard:cancel_booking' booking.id %}" 
-                                           class="btn btn-sm btn-danger" title="Cancel">
+                                           class="btn btn-sm btn-danger"  title="Cancel">
                                             <i class="fas fa-times"></i>
                                         </a>
                                         {% endif %}

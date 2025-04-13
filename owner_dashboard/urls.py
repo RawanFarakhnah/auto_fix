@@ -21,26 +21,14 @@ urlpatterns = [
     # Bookings Management
     path('owner/bookings/', views.bookings_management, name='bookings'),
     path('owner/bookings/<int:booking_id>/update-status/', views.update_booking_status, name='update_booking_status'),
+    path('owner/bookings/<int:booking_id>/confirm/',views.confirm_booking,name='confirm_booking'),
+    path('owner/bookings/<int:booking_id>/confirm/',views.cancel_booking,name='cancel_booking'),
+    path('owner/bookings/<int:booking_id>/confirm/',views.complete_booking,name='complete_booking'),
+
     
     # Reviews Management
     path('owner/reviews/', views.reviews_management, name='reviews'),
     # path('owner/reviews/<int:review_id>/reply/', views.reply_review, name='reply_review'),
-    
-    ##------------------------------------------------------------------------------##
-    #TODO: Make Sure To Implement New Logic Insted of This ..
-    # path('owner/dashboard1/', views.owner_dashboard, name='dashboard1'),
-    path('owner/manage_workshops/', views.manage_workshops, name='manage_workshops'),
-    path('owner/manage_workshop/create/', views.create_workshop, name='create_workshop'),
-    # path('owner/manage_workshop/edit/<int:id>', views.edit_workshop, name='edit_workshop'),
-    path('owner/manage_workshop/update/<int:id>/', views.workshop_update, name='workshop_update'),
-    # path('owner/manage_workshop/delete/<int:id>/', views.delete_workshop, name='delete_workshop'),
 
-
-    # path('owner/services',views.services,name='services'),
-    path('owner/manage_services/create/', views.service_create, name='service_create'),
-    path('owner/manage_services/delete/<int:service_id>/', views.delete_service, name='delete_service'),
-
-
-    path('owner/bookings',views.bookings,name='bookings'),
     path('owner/bookings/update/', views.update_booking, name='update_booking')
 ]
