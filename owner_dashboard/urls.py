@@ -8,6 +8,7 @@ urlpatterns = [
     # Workshop Management
     path('owner/workshop/', views.workshop_management, name='workshop'),
     path('owner/workshop/edit/', views.edit_workshop, name='edit_workshop'),
+    path('owner/workshop/change_image',views.change_image,name='change_image'),
     path('owner/workshop/delete/', views.delete_workshop, name='delete_workshop'),
     path('owner/workshop/register/', views.register_workshop, name="register_workshop"),
     

@@ -26,7 +26,8 @@ User = get_user_model()
 def dashboard(request):
     if not request.user.is_workshop_owner:
         return redirect('landing:main')
-    
+    if not Workshop.objects.filter(owner = request.user):
+        return redirect('owner_dashboard:workshop')
     workshop = Workshop.objects.filter(owner=request.user).first()
     
     if not workshop:
@@ -87,7 +88,36 @@ def workshop_management(request):
     # Workshop management view logic
     if not request.user.is_workshop_owner:
         return redirect('landing:main')
-    
+    if request.method == "POST":
+        errors = Workshop.objects.validation(request.POST)
+        if len(errors)>0:
+           for key,value in errors.items():
+               messages.error(request,value) 
+        else:
+            name = request.POST['name']
+            phone = request.POST['phone']
+            description = request.POST['description']
+            image = request.FILES['workshop_image']
+            street = request.POST['street']
+            city = request.POST['city']
+            region = request.POST['region']
+            country = request.POST['country']
+            postal_code = request.POST['postal_code']
+            the_address = Address.objects.create(
+                street = street,
+                city =city,
+                region = region,
+                country = country,
+                postal_code = postal_code
+            )
+            Workshop.objects.create(
+                name = name ,
+                phone = phone ,
+                description = description ,
+                image = image ,
+                owner = request.user,
+                address = the_address
+            )
     try:
         workshop = Workshop.objects.get(owner=request.user)
         total_services = workshop.services.count()
@@ -105,17 +135,54 @@ def workshop_management(request):
         }
     except Workshop.DoesNotExist:
         context = {'workshop': None}
-    
+        
     return render(request, 'owner_dashboard/workshop.html', context)
-    
+        
 
+
+@csrf_exempt
 def delete_workshop(request):
-    # Delete workshop view logic
-    pass
+      # Delete workshop view logic
+    if not request.user.is_workshop_owner:
+        return redirect('landing:main')
+    if request.method == 'POST':
+        workshop_id = request.POST.get('id')  
+        try:
+            workshop = Workshop.objects.get(id=workshop_id)
+            workshop.delete()
+            return JsonResponse({'status': 'deleted'})
+        except Workshop.DoesNotExist:
+            return JsonResponse({'error': 'Workshop not found'}, status=404)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
+def change_image(request):
+    if not request.user.is_workshop_owner:
+        return redirect('landing:main')
+    if request.method == 'POST':
+        image = request.FILES['Workshop_image']
+        workshop = Workshop.objects.get(owner = request.user)
+        workshop.image = image
+        workshop.save()
+        return redirect('owner_dashboard:workshop')
+    
 def edit_workshop(request):
     # Edit workshop view logic
-    pass
+    if not request.user.is_workshop_owner:
+        return redirect('landing:main')
+    if request.method == 'POST':
+        workshop = Workshop.objects.get(owner = request.user)
+        workshop.name = request.POST['name']
+        workshop.phone = request.POST['phone']
+        workshop.description =  request.POST['description']
+        workshop.save()
+        address = workshop.address
+        address.street = request.POST['street']
+        address.city = request.POST['city']
+        address.region = request.POST['region']
+        address.country = request.POST['country']
+        address.postal_code = request.POST['postal_code']
+        address.save()
+        return redirect('owner_dashboard:workshop')
 
 def register_workshop(request):
     # register workshop view logic
@@ -137,15 +204,48 @@ def services_management(request):
 
 def add_service(request):
     # Add service view logic
-    pass
+    if not request.user.is_workshop_owner:
+        return redirect('landing:main')
+    if request.method == 'POST':
+        name = request.POST['name']
+        price = request.POST['price']
+        description = request.POST['description']
+        duration = request.POST['duration']
+        workshop = Workshop.objects.get(owner = request.user.id)
+
+        service = Service.objects.create(
+            name=name,
+            price=price,
+            description=description,
+            duration=duration,
+            workshop=workshop
+        )
+
+        return redirect('owner_dashboard:services')
+    
 
 def edit_service(request, service_id):
     # Edit service view logic
-    pass
+    if not request.user.is_workshop_owner:
+        return redirect('landing:main')
+    if request.method == 'POST':
+        service = Service.objects.get(id = service_id)
+        service.name= request.POST['name']
+        service.price= request.POST['price']
+        service.description= request.POST['description']
+        service.duration= request.POST['duration']
+        service.save()
+        return redirect('owner_dashboard:services')
+    
 
 def delete_service(request, service_id):
     # Delete service view logic
-    pass
+    if not request.user.is_workshop_owner:
+        return redirect('landing:main')
+    service = Service.objects.get(id = service_id)
+    service.delete()
+    return redirect('owner_dashboard:services')
+
 
 def bookings_management(request):
     # Bookings management view logic
@@ -275,18 +375,6 @@ def workshop_update(request, id):
         return JsonResponse({'error': 'Invalid request method'}, status=400)
     return redirect('landing:main')
 
-@csrf_exempt
-def delete_workshop1(request, id):
-    if request.user.is_authenticated and request.user.is_workshop_owner:
-        if request.method == 'POST':
-            try:
-                workshop = Workshop.objects.get(id=id)
-                workshop.delete() 
-                return JsonResponse({'status': 'deleted'})
-            except Workshop.DoesNotExist:
-                return JsonResponse({'error': 'Workshop not found'}, status=404)
-        return JsonResponse({'error': 'Invalid request'}, status=400)
-    return redirect('landing:main')
 
 def services(request):
     if request.user.is_authenticated and request.user.is_workshop_owner:

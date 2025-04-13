@@ -8,6 +8,7 @@
 {% endblock %}
 
 {% block content %}
+
 <div class="wrapper d-flex">
     <!-- Sidebar -->
     <aside class="sidebar p-3 shadow-sm">
@@ -57,9 +58,14 @@
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Workshop Details</h5>
                 {% if workshop %}
+                <div class="btns">
                     <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editWorkshopModal">
                         <i class="fas fa-edit me-1"></i> Edit
                     </button>
+                    <button class="btn btn-sm btn-danger" id="delete-workshop"  data-id ="{{ workshop.id }}">
+                        <i class="fas fa-trash me-1"></i> Delete
+                    </button>
+                </div>
                 {% endif %}
             </div>
             
@@ -200,7 +206,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Workshop Image</label>
-                        <input class="form-control" type="file" name="image" accept="image/*">
+                        <input class="form-control" type="file" name="workshop_image" accept="image/*">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -236,7 +242,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Description</label>
-                                <textarea class="form-control" name="description" rows="4">{{ workshop.description }}</textarea>
+                                <textarea class="form-control" name="description" rows="4" value = "{{ workshop.description }}">{{ workshop.description }}</textarea>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -281,12 +287,12 @@
                 <h5 class="modal-title" id="uploadImageModalLabel">Upload Workshop Image</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" enctype="multipart/form-data">
+            <form method="post" action="{% url 'owner_dashboard:change_image' %}" enctype="multipart/form-data">
                 <div class="modal-body">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="workshopImage" class="form-label">Select Image</label>
-                        <input class="form-control" type="file" id="workshopImage" name="image" accept="image/*">
+                        <input class="form-control" type="file" id="workshopImage" name="Workshop_image" accept="image/*">
                     </div>
                     <div class="image-preview-container text-center mt-3">
                         <img id="imagePreview" src="{% if workshop.image %}{{ workshop.image.url }}{% else %}#{% endif %}" 
@@ -306,6 +312,7 @@
 
 {% block extra_js %}
 <script>
+    
 // Image preview functionality
 document.getElementById('workshopImage').addEventListener('change', function(e) {
     const preview = document.getElementById('imagePreview');
@@ -336,5 +343,32 @@ $(document).ready(function() {
         $(this).addClass('active-link');
     });
 });
+
+// delete workshop 
+$(document).on("click", "#delete-workshop", function() {
+    let workshopId = $(this).data("id");  
+    console.log('it works');
+    
+    $.ajax({
+        type: "POST",
+        url: "{% url 'owner_dashboard:delete_workshop' %}",
+        data: {
+            id: workshopId,
+            csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val()  
+        },
+        success: function(response) {
+            if (response.status === "deleted") {
+                alert("Workshop have been deleted !");
+                location.reload();
+            } else {
+                alert("Error: " + response.error);
+            }
+        },
+        error: function(xhr, status, error) {
+            alert("Error during deleting !");
+        }
+    });
+});
+
 </script>
 {% endblock %}
