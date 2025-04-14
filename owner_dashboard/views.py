@@ -253,6 +253,16 @@ def bookings_management(request):
         return redirect('landing:main')
     workshop = Workshop.objects.filter(owner = request.user).first()
     bookings = Booking.objects.filter(workshop=workshop)
+    status = request.GET.get('status', '')
+    from_date = request.GET.get('from_date', '')
+    to_date = request.GET.get('to_date', '')
+
+    if status:
+        bookings = bookings.filter(status=status)
+    if from_date:
+        bookings = bookings.filter(appointment_date__gte=from_date)
+    if to_date:
+        bookings = bookings.filter(appointment_date__lte=to_date)
 
     
     context = {

@@ -135,10 +135,10 @@
                                 </td>
                                 <td>
                                     <span class="badge 
-                                        {% if booking.status == 'confirmed' %}bg-primary
-                                        {% elif booking.status == 'pending' %}bg-warning text-dark
-                                        {% elif booking.status == 'completed' %}bg-secondary
-                                        {% else %}bg-danger{% endif %}">
+                                        {% if booking.status == 'confirmed' %} bg-primary
+                                        {% elif booking.status == 'pending' %} bg-warning text-dark
+                                        {% elif booking.status == 'completed' %} bg-secondary
+                                        {% elif booking.status == 'canceled' %} bg-danger{% endif %}">
                                         {{ booking.get_status_display }}
                                     </span>
                                 </td>
