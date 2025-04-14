@@ -1,11 +1,23 @@
 document.getElementById("notifications-btn").addEventListener("click", function () {
     let container = document.getElementById("notifications-container");
+    
+   
     container.style.display = container.style.display === "none" ? "block" : "none";
 
-    fetch("bookings:get_notification")
+    fetch("bookings/bookings/notifications/")  
         .then(response => response.json())
         .then(data => {
-            container.innerHTML = ""; 
+            container.innerHTML = "";  
+
+            let badge = document.getElementById("notification-badge");
+
+          
+            if (data.unread_count > 0) {
+                badge.innerText = data.unread_count;
+                badge.style.display = "inline";  
+            } else {
+                badge.style.display = "none";  
+            }
             if (data.notifications && data.notifications.length > 0) {
                 data.notifications.forEach(notification => {
                     let div = document.createElement("div");
@@ -14,8 +26,24 @@ document.getElementById("notifications-btn").addEventListener("click", function 
                     container.appendChild(div);
                 });
             } else {
-                container.innerHTML = "<p>No Notifications to show </p>";
+                container.innerHTML = "<p>No notifications to show</p>";
             }
         })
-        .catch(error => console.error('no ontifications to show ' ,error));
+        .catch(error => console.error("Error fetching notifications", error));
 });
+
+
+setInterval(() => {
+    fetch("/owner/notifications/")
+        .then(response => response.json())
+        .then(data => {
+            let badge = document.getElementById("notification-badge");
+            if (data.unread_count > 0) {
+                badge.innerText = data.unread_count;
+                badge.style.display = "inline";  
+            } else {
+                badge.style.display = "none";  
+            }
+        })
+        .catch(error => console.error("Error fetching notification count", error));
+}, 30000);

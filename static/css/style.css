@@ -97,7 +97,7 @@
 }
 
 #notifications-btn .fa-bell {
-  color: #333;
+  color: #f0f4f8;
   transition: color 0.3s;
 }
 
@@ -114,6 +114,7 @@
   overflow-y: auto;
   background-color: white;
   border: 1px solid #ddd;
+  border-radius: 15px;
   padding: 10px;
   display: none;
   box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
