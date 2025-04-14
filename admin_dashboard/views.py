@@ -240,7 +240,7 @@ def workshop_update(request, id):
         name = request.POST.get('name')
         phone = request.POST.get('phone')
         address_id = request.POST['address_id']
-        image = request.FILES.get('image')  # استخدام FILES لرفع الصور
+        image = request.FILES.get('image')  
 
         if name:
             workshop.name = name
@@ -279,7 +279,7 @@ def service_create(request):
         workshops = Workshop.objects.all()
         return render(request, 'admin_dashboard/create_service.html', {'workshops': workshops})
 
-    # إذا كان الطلب POST، إضافة الخدمة الجديدة
+    
     if request.method == 'POST':
         name = request.POST['name']
         price = request.POST['price']
@@ -313,6 +313,7 @@ def delete_service(request, service_id):
         return JsonResponse({'status': 'deleted'})
     return JsonResponse({'status': 'error'}, status=400)
 
+
 # def update_service(request, service_id):
 #     service = get_object_or_404(Service, id=service_id)
 
@@ -335,6 +336,9 @@ def delete_service(request, service_id):
 #             'description': service.description,
 #             'duration': service.duration
 #         })        
+
+
+
 
 
 

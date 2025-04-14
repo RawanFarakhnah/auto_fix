@@ -5,4 +5,5 @@ app_name = 'reviews'
 
 urlpatterns = [
     path('', views.reviews_list, name='list'),
+    path('', views.main, name='main'),
 ]

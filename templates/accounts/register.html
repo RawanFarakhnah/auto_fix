@@ -1,133 +1,104 @@
-{% extends "base.html" %}
-{% load static %}
-{% load bootstrap5 %}
+{% extends 'base.html' %}
+
+{% block title %}Register | AutoFix{% endblock %}
+
+{% load static bootstrap5 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 
 {% block content %}
-<!-- Registration Form Section -->
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-lg rounded-4 p-4">
-                <h3 class="text-center mb-4" style="color: #050e1c;">Create Account</h3>
-
-                <!-- Registration Form -->
-                <form action="{% url 'accounts:register' %}" method="post">
-                    {% csrf_token %}
-
-                    <!-- First Name and Last Name Fields -->
-                    <div class="row g-2 mb-3">
-                        <div class="col-md-6">
-                            <input type="text" name="first_name" value="{{ postData.first_name }}" class="form-control {% if errors.first_name %}is-invalid{% endif %}" placeholder="First Name" style="border-color: #ff6600; color: #ff6600;" required>
-                            {% if errors.first_name %}
-                                <div class="invalid-feedback">
-                                    <p>{{ errors.first_name }}</p>
-                                </div>
-                            {% endif %}
+<section class="register-section py-5" style="background-color: #f8f9fa;">
+    <div class="container">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-10">
+                <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                    <div class="row g-0">
+                        
+                        <div class="col-md-6 d-none d-md-block">
+                            <img src="{% static 'img/reg4.webp' %}" alt="Register Image"
+                                width="400px" height="100px">
                         </div>
+
+                    
                         <div class="col-md-6">
-                            <input type="text" name="last_name" value="{{ postData.last_name }}" class="form-control {% if errors.last_name %}is-invalid{% endif %}" placeholder="Last Name" style="border-color: #ff6600; color: #ff6600;" required>
-                            {% if errors.last_name %}
-                                <div class="invalid-feedback">
-                                    <p>{{ errors.last_name }}</p>
-                                </div>
-                            {% endif %}
+                            <div class="card-body p-5">
+                                <h2 class="text-center mb-4" style="color: #ff6600;">Create Your AutoFix Account</h2>
+
+                                <form action="{% url 'accounts:register' %}" method="post" novalidate>
+                                    {% csrf_token %}
+
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <input type="text" name="first_name" value="{{ postData.first_name }}" class="form-control {% if errors.first_name %}is-invalid{% endif %}" placeholder="First Name" required>
+                                            {% if errors.first_name %}
+                                                <div class="invalid-feedback">{{ errors.first_name }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="text" name="last_name" value="{{ postData.last_name }}" class="form-control {% if errors.last_name %}is-invalid{% endif %}" placeholder="Last Name" required>
+                                            {% if errors.last_name %}
+                                                <div class="invalid-feedback">{{ errors.last_name }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <input type="email" name="email" value="{{ postData.email }}" class="form-control {% if errors.email %}is-invalid{% endif %}" placeholder="Email" required>
+                                        {% if errors.email %}
+                                            <div class="invalid-feedback">{{ errors.email }}</div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <input type="text" name="phone" value="{{ postData.phone }}" class="form-control {% if errors.phone %}is-invalid{% endif %}" placeholder="Phone Number (xxx-xxx-xxxx)" required>
+                                        {% if errors.phone %}
+                                            <div class="invalid-feedback">{{ errors.phone }}</div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <input type="password" name="password" class="form-control {% if errors.password %}is-invalid{% endif %}" placeholder="Password" required>
+                                        {% if errors.password %}
+                                            <div class="invalid-feedback">{{ errors.password }}</div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <input type="password" name="confirm_password" class="form-control {% if errors.confirm_password %}is-invalid{% endif %}" placeholder="Confirm Password" required>
+                                        {% if errors.confirm_password %}
+                                            <div class="invalid-feedback">{{ errors.confirm_password }}</div>
+                                        {% endif %}
+                                    </div>
+
+                                    <button type="submit" class="btn w-100 btn-lg" style="background-color: #ff6600; color: white;">
+                                        Register
+                                    </button>
+                                </form>
+                                <p class="text-center mt-3">Already have an account? 
+                                    <a href="{% url 'accounts:login' %}" style="color: #ff6600;">Login here</a>
+                                </p>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- Email Address -->
-                    <div class="mb-3">
-                        <input type="email" name="email" value="{{ postData.email }}" class="form-control {% if errors.email %}is-invalid{% endif %}" placeholder="Email" style="border-color: #ff6600; color: #ff6600;" required>
-                        {% if errors.email %}
-                            <div class="invalid-feedback">
-                                <p>{{ errors.email }}</p>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Phone Number -->
-                    <div class="mb-3">
-                        <input type="text" name="phone" value="{{ postData.phone }}" class="form-control {% if errors.phone %}is-invalid{% endif %}" placeholder="Phone Number (xxx-xxx-xxxx)" style="border-color: #ff6600; color: #ff6600;" required>
-                        {% if errors.phone %}
-                            <div class="invalid-feedback">
-                                <p>{{ errors.phone }}</p>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Password and Confirm Password -->
-                    <div class="mb-3">
-                        <input type="password" name="password" class="form-control {% if errors.password %}is-invalid{% endif %}" placeholder="Password" style="border-color: #ff6600; color: #ff6600;" required>
-                        {% if errors.password %}
-                            <div class="invalid-feedback">
-                                <p>{{ errors.password }}</p>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="mb-3">
-                        <input type="password" name="confirm_password" class="form-control {% if errors.confirm_password %}is-invalid{% endif %}" placeholder="Confirm Password" style="border-color: #ff6600; color: #ff6600;" required>
-                        {% if errors.confirm_password %}
-                            <div class="invalid-feedback">
-                                <p>{{ errors.confirm_password }}</p>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Submit Button -->
-                    <button type="submit" class="btn btn-lg w-100" style="background-color: #ff6600; color: #fff; border: none;">
-                        Register
-                    </button>
-                </form>
-
-                <div class="text-center mb-3 text-muted">
-                    — or —
-                </div>
-
-                <!-- Google Register Option -->
-                <a href="#" class="btn btn-outline-secondary w-100 mb-3" style="border-color: #ff6600; color: #ff6600;">
-                    <i class="bi bi-google me-2"></i> Register with Google
-                </a>
-
-                <!-- Login Link -->
-                <div class="text-center">
-                    <small style="color: #050e1c;">
-                        Already have an account? 
-                        <a href="{% url 'accounts:login' %}" style="color: #ff6600;">Login here</a>
-                    </small>
+                    </div> <!-- /row -->
                 </div>
             </div>
         </div>
     </div>
-</div>
-
+</section>
 {% endblock %}
 
-<!-- JavaScript to Toggle Address Input Methods -->
-<script>
-    document.getElementById('enterAddressManually').addEventListener('click', function() {
-        document.getElementById('manualAddressFields').style.display = 'block';
-        document.getElementById('fetchLocationBtn').style.display = 'none';
-    });
-
-    document.getElementById('useCurrentLocation').addEventListener('click', function() {
-        document.getElementById('manualAddressFields').style.display = 'none';
-        document.getElementById('fetchLocationBtn').style.display = 'block';
-    });
-
-    // JavaScript function to get current location (example, could be more complex)
-    function getLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(showPosition);
-        } else {
-            alert("Geolocation is not supported by this browser.");
-        }
+{% block extra_js %}
+<style>
+    .form-control {
+        border: 2px solid #ff6600;
+        border-radius: 12px;
+        color: #ff6600;
     }
-
-    function showPosition(position) {
-        // Here you would use position.coords.latitude and position.coords.longitude
-        alert("Latitude: " + position.coords.latitude + "\nLongitude: " + position.coords.longitude);
-        // Ideally, update the address fields based on the geolocation
+    .form-control:focus {
+        box-shadow: 0 0 0 0.2rem rgba(255, 102, 0, 0.25);
     }
-</script>
+    .object-fit-cover {
+        object-fit: cover;
+    }
+</style>
+{% endblock %}

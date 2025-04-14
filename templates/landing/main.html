@@ -3,114 +3,143 @@
 {% block title %}Welcome to AutoFix{% endblock %}
 
 {% load static bootstrap5 %}
+
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 
 {% block content %}
-    <!-- Hero Section with Simplified Carousel -->
-    <div class="slider">
-        <div id="carouselExampleFade" class="carousel slide carousel-fade" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <img src="{% static 'img/slider/welcome-autofix.png' %}" class="d-block w-100" alt="Smart Car Maintenance Platform AI-Powered & Location-Based">
-                </div>
-                <div class="carousel-item">
-                    <img src="{% static 'img/slider/slider-img-1.png' %}" class="d-block w-100" alt="Let our AI guide you through car issues with smart conversation.">
-                </div>
-                <div class="carousel-item">
-                    <img src="{% static 'img/slider/slider-img-2.png' %}" class="d-block w-100" alt="Stay on top of your car's health with automatic reminders">
+<!-- Flash Section -->
+<section class="flash-images">
+    <div class="flash-wrapper">
+        <img src="{% static 'img/car4.png' %}" alt="Welcome to AutoFix" class="flash-image active">
+        <img src="{% static 'img/slider/slider-img-1.png' %}" alt="AI Car Assistance" class="flash-image">
+        <img src="{% static 'img/slider/slider-img-2.png' %}" alt="Auto Maintenance Reminder" class="flash-image">
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center text-dark mb-5">Why Choose AutoFix?</h2>
+        <div class="row justify-content-center">
+            <!-- Feature 1 -->
+            <div class="col-md-4 mb-4">
+                <div class="feature-card card border-0 shadow-lg text-center p-4 h-100">
+                    <div class="card-body">
+                        <img src="{% static 'img/feature-1.png' %}" alt="AI Service" class="mb-3" style="width: 80px;">
+                        <h5 class="card-title text-dark">AI-Powered Assistance</h5>
+                        <p class="card-text">Smart troubleshooting system to diagnose and guide your car repairs.</p>
+                    </div>
                 </div>
             </div>
-            <!-- Simplified Carousel Controls -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
+            <!-- Feature 2 -->
+            <div class="col-md-4 mb-4">
+                <div class="feature-card card border-0 shadow-lg text-center p-4 h-100">
+                    <div class="card-body">
+                        <img src="{% static 'img/feature-2.png' %}" alt="Reminders" class="mb-3" style="width: 80px;">
+                        <h5 class="card-title text-dark">Automatic Health Reminders</h5>
+                        <p class="card-text">Never forget a checkup. We notify you when your car needs attention.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Feature 3 -->
+            <div class="col-md-4 mb-4">
+                <div class="feature-card card border-0 shadow-lg text-center p-4 h-100">
+                    <div class="card-body">
+                        <img src="{% static 'img/feature-3.png' %}" alt="Location Services" class="mb-3" style="width: 80px;">
+                        <h5 class="card-title text-dark">Location-Based Services</h5>
+                        <p class="card-text">Find garages near you, matched to your car model and issue.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+</section>
 
-    <!-- Key Features Section -->
-    <section class="features py-5 text-center">
-        <div class="container">
-            <h2 class="mb-4 text-dark">Why Choose AutoFix?</h2>
-            <div class="row justify-content-center">
-                <!-- Feature 1 -->
-                <div class="col-md-4 mb-4">
-                    <div class="card shadow-sm border-0">
-                        <img src="{% static 'img/feature-1.png' %}" class="card-img-top" alt="AI Guided Service">
-                        <div class="card-body">
-                            <h5 class="card-title text-dark">AI-Powered Assistance</h5>
-                            <p class="card-text">Let our AI guide you through car issues with smart conversation and troubleshooting.</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Feature 2 -->
-                <div class="col-md-4 mb-4">
-                    <div class="card shadow-sm border-0">
-                        <img src="{% static 'img/feature-2.png' %}" class="card-img-top" alt="Health Reminders">
-                        <div class="card-body">
-                            <h5 class="card-title text-dark">Automatic Health Reminders</h5>
-                            <p class="card-text">Stay on top of your car's health with automatic maintenance reminders based on real-time data.</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Feature 3 -->
-                <div class="col-md-4 mb-4">
-                    <div class="card shadow-sm border-0">
-                        <img src="{% static 'img/feature-3.png' %}" class="card-img-top" alt="Location-Based Services">
-                        <div class="card-body">
-                            <h5 class="card-title text-dark">Location-Based Services</h5>
-                            <p class="card-text">Get recommendations and services based on your location and specific car issues.</p>
-                        </div>
-                    </div>
-                </div>
+
+<section class="testimonials py-5">
+    <h2 class="text-center text-dark mb-5">What Our Users Are</h2>
+    
+<div class="row justify-content-center mt-5">
+    {% for review in reviews %}
+    <div class="col-md-4 mb-4">
+        <div class="testimonial-card p-4 shadow-lg rounded bg-dark text-white">
+            <div class="rating mb-2" style="color: orange; font-size: 20px;">
+                {{ review.rating }}★
             </div>
+            <p class="fst-italic">"{{ review.comment }}"</p>
+            <p>
+                <strong>{{ review.user.username }}</strong><br>
+                Workshop: {{ review.workshop.name }}<br>
+                Service: {{ review.service.name }}
+            </p>
+            <small class="text-muted">{{ review.created_at|date:"Y-m-d H:i" }}</small>
         </div>
-    </section>
+    </div>
+    {% empty %}
+    <p class="text-light" style="background-color: #e18b52;">No reviews yet.</p>
+    {% endfor %}
+</div>
 
-    <!-- Call to Action Section with Brand Colors -->
-    <section class="cta py-5 bg-dark text-white" style="background-color: #050e1c;">
-        <div class="container text-center">
-            <h2 class="mb-4">Get Started with AutoFix Today!</h2>
-            <p class="mb-4">Sign up now to enjoy smart, efficient, and AI-powered car maintenance services. Don’t miss out!</p>
-            <a href="{% url 'accounts:register' %}" class="btn btn-warning btn-lg" style="background-color: #ff6600;">Sign Up Now</a>
-        </div>
-    </section>
+<section class="cta py-5" style="background-color: #e18b52;">
+    <div class="container text-center">
+        <h2 class="text-white mb-4">Get Started with AutoFix Today!</h2>
+        <p class="text-white mb-4">Sign up now to enjoy smart, efficient, and AI-powered car maintenance services.</p>
+        <a href="{% url 'accounts:register' %}" class="btn btn-lg btn-dark">Join Now</a>
+    </div>
+</section>
+{% endblock %}
 
-    <!-- Testimonials Section -->
-    <section class="testimonials py-5 bg-light">
-        <div class="container text-center">
-            <h2 class="mb-4 text-dark">What Our Users Say</h2>
-            <div class="row justify-content-center">
-                <!-- Testimonial 1 -->
-                <div class="col-md-4">
-                    <div class="testimonial-card p-4 bg-white shadow-sm">
-                        <p class="mb-3">"AutoFix made it easy for me to keep track of my car's health, and the AI really helped in solving issues quickly!"</p>
-                        <p><strong>John Doe</strong></p>
-                        <p>Car Owner</p>
-                    </div>
-                </div>
-                <!-- Testimonial 2 -->
-                <div class="col-md-4">
-                    <div class="testimonial-card p-4 bg-white shadow-sm">
-                        <p class="mb-3">"The automatic reminders are incredibly useful! I never forget my car’s maintenance anymore."</p>
-                        <p><strong>Jane Smith</strong></p>
-                        <p>Car Enthusiast</p>
-                    </div>
-                </div>
-                <!-- Testimonial 3 -->
-                <div class="col-md-4">
-                    <div class="testimonial-card p-4 bg-white shadow-sm">
-                        <p class="mb-3">"The location-based service is perfect for finding nearby workshops when I need a repair."</p>
-                        <p><strong>Michael Lee</strong></p>
-                        <p>Frequent Traveler</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+{% block extra_js %}
+<style>
+/* Flash Section Styles */
+.flash-images {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+.flash-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+.flash-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    z-index: 0;
+}
+.flash-image.active {
+    opacity: 1;
+    z-index: 1;
+}
+
+/* Card Styles */
+.feature-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 20px;
+}
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const images = document.querySelectorAll(".flash-image");
+        let index = 0;
+        setInterval(() => {
+            images.forEach(img => img.classList.remove("active"));
+            index = (index + 1) % images.length;
+            images[index].classList.add("active");
+        }, 3000);
+    });
+</script>
 {% endblock %}
