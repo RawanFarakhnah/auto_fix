@@ -21,6 +21,7 @@ class Review(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
     comment = models.TextField()
+    response = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     objects = ReviewManager()
     class Meta:

@@ -22,13 +22,13 @@ urlpatterns = [
     path('owner/bookings/', views.bookings_management, name='bookings'),
     path('owner/bookings/<int:booking_id>/update-status/', views.update_booking_status, name='update_booking_status'),
     path('owner/bookings/<int:booking_id>/confirm/',views.confirm_booking,name='confirm_booking'),
-    path('owner/bookings/<int:booking_id>/confirm/',views.cancel_booking,name='cancel_booking'),
-    path('owner/bookings/<int:booking_id>/confirm/',views.complete_booking,name='complete_booking'),
+    path('owner/bookings/<int:booking_id>/cancel/',views.cancel_booking,name='cancel_booking'),
+    path('owner/bookings/<int:booking_id>/complete/',views.complete_booking,name='complete_booking'),
 
     
     # Reviews Management
     path('owner/reviews/', views.reviews_management, name='reviews'),
-    # path('owner/reviews/<int:review_id>/reply/', views.reply_review, name='reply_review'),
+    path('owner/reviews/<int:review_id>/reply/', views.reply_review, name='reply_review'),
 
-    path('owner/bookings/update/', views.update_booking, name='update_booking')
+    
 ]

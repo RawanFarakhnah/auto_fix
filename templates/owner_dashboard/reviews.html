@@ -16,6 +16,12 @@
     .star-rating {
         color: #ffc107; /* Gold color for stars */
     }
+    .modal-backdrop {
+    z-index: 1049 !important; 
+    }
+    .modal {
+        z-index: 1050 !important; 
+    }
 </style>
 {% endblock %}
 
@@ -126,15 +132,36 @@
                             </div>
                             {% else %}
                             <div class="mt-3">
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" 
+                                <button class="btn btn-sm btn-outline-primary"  data-bs-toggle="modal" 
                                         data-bs-target="#respondModal{{ review.id }}">
                                     <i class="fas fa-reply me-1"></i> Respond
                                 </button>
+                                <!-- Response modal -->
                             </div>
                             {% endif %}
                         </div>
                     </div>
-                    
+                    <div class="modal" id="respondModal{{ review.id }}" tabindex="-1" aria-labelledby="respondModalLabel{{ review.id }}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="respondModalLabel{{ review.id }}">Respond to Review</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="respondForm{{ review.id }}" method="post" action="{% url 'owner_dashboard:reply_review' review.id %}">
+                                        {% csrf_token %}
+                                        <textarea class="form-control" name="response_text" rows="3" placeholder="Write your response here..."></textarea>
+                                        <input type="hidden" name="review_id" value="{{ review.id }}">
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-primary submit-response" data-id="{{ review.id }}" data-review-id="{{ review.id }}">Send Response</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <!-- Respond Modal (same as before) -->
                     {% endfor %}
                 {% else %}
@@ -146,6 +173,41 @@
                 {% endif %}
             </div>
         </div>
+        
     </main>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+$(document).on("click", ".submit-response", function() {
+    let reviewId = $(this).data("review-id");  
+    let responseText = $(`#respondForm${reviewId} textarea[name="response_text"]`).val().trim();
+
+    if (!responseText) {
+        alert("Please type Your replay before send !");
+        return;
+    }
+
+    $.ajax({
+        type: "POST",
+        url:`/owner_dashboard/owner/reviews/${reviewId}/reply/`,
+        data: {
+            review_id: reviewId,
+            response_text: responseText,
+            csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val()
+        },
+        success: function(response) {
+            if (response.status === "success") {
+                alert(response.message);
+                location.reload();  
+            } else {
+                alert("Error : " + response.message);
+            }
+        },
+        error: function(xhr) {
+            alert("Please Try again !");
+        }
+    });
+});
+</script>
 {% endblock %}

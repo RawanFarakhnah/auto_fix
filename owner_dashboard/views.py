@@ -18,6 +18,8 @@ from django.http import JsonResponse
 from workshops.models import Address,Service
 from django.db.models import Count, Avg, Sum
 from datetime import date, timedelta
+from django.shortcuts import get_object_or_404
+
 
 # get user model
 User = get_user_model()
@@ -328,27 +330,26 @@ def reviews_management(request):
    
 
 def reply_review(request, review_id):
-    # Reply to review view logic
-    pass
+      # Reply to review view logic
+    if request.method == 'POST':
+        review_id = request.POST.get('review_id')
+        response_text = request.POST.get('response_text')
+
+        review = get_object_or_404(Review, id=review_id)
+        
+        if not response_text.strip():
+            return JsonResponse({'status': 'error', 'message': 'Please type valid response!'}, status=400)
+
+        review.response = response_text
+        review.save()
+        
+        return JsonResponse({'status': 'success', 'message': 'Your response sent succesfully!'})
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid response , Try again!'}, status=400)
+  
+
 
 ##-----------------------------------------------------------------------###
-
-def update_booking(request):
-    if request.method == "POST" and request.user.is_authenticated:
-        booking_id = request.POST.get('id')
-        new_status = request.POST.get('status')
-        
-        booking = Booking.objects.get(id=booking_id)
-        booking.status = new_status
-        booking.save()
-        Notification.objects.create(
-            user=booking.user,
-            booking=booking,
-            message=f"booking have been updated to {new_status}"
-        )
-        return JsonResponse({"message": "Booking updated successfully", "status": new_status})
-
-    return redirect('landing:main')
 
 
 
