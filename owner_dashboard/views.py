@@ -305,9 +305,9 @@ def update_booking_status(request, booking_id):
     if new_status in ['pending', 'confirmed', 'completed', 'canceled']:
         booking.status = new_status
         booking.save()
-        return JsonResponse({'status': 'success', 'message': f'تم تحديث الحجز إلى {new_status} بنجاح!'})
+        return JsonResponse({'status': 'success', 'message': f'Updated to {new_status} successfuly!'})
     
-    return JsonResponse({'status': 'error', 'message': 'حالة غير صالحة'}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Error'}, status=400)
 
 
 def reviews_management(request):
