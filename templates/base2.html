@@ -75,23 +75,23 @@
 <!-- Main Content -->
 <main class="flex-grow-1 py-4">
     <div class="container">
-        {% block content %}{% endblock %}
-        <div id="chat-container">
-            <div id="chat-box" class="hidden">
-              <button class="close-btn" onclick="clearText()">close</button>
-              <div id="messages" class="messages-box"></div>
-              <div class="user-chat">
-                <input type="text"  id="user-input" placeholder="Type a message..."  class="form-control "  >
-                <button id="send-btn">Send</button>
-              </div>
-            </div>
-            <div id="chat-bubble">
-              <p>Chat With Our AI</p>
-            </div>
-        </div>
+        {% block content %}
+        {% endblock %}
     </div>
 </main>
-
+<div id="chat-container">
+    <div id="chat-box" class="hidden">
+      <button class="close-btn" onclick="clearText()">close</button>
+      <div id="messages" class="messages-box"></div>
+      <div class="user-chat">
+        <input type="text"  id="user-input" placeholder="Type a message..."  class="form-control "  >
+        <button id="send-btn">Send</button>
+      </div>
+    </div>
+    <div id="chat-bubble">
+      <p>Chat With Our AI</p>
+    </div>
+</div>
 <!-- Footer -->
 <footer class="text-center py-4">
     <p>&copy; {% now "Y" %} AutoFix. All Rights Reserved.</p>

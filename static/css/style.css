@@ -12,14 +12,14 @@
   /* Wrapper to hold sidebar + content */
   .wrapper {
     display: flex;
-    height: 100vh;
+    height: 100%;
   }
   
   /* Sidebar styling */
   .sidebar {
     width: 250px;
-    background: #0d1b2a;    /* داكن بدرجات زرقاء */
-    color: #e0e1dd;         /* أبيض مائل للرمادي الفاتح */
+    background: #0d1b2a;    
+    color: #e0e1dd;         
     display: flex;
     flex-direction: column;
     transition: width 0.3s;
