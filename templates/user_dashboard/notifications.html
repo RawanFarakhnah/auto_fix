@@ -66,7 +66,7 @@
         <div class="card shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">All Notifications</h5>
-                <button class="btn btn-sm btn-outline-secondary">Mark all as read</button>
+                <button id="mark-all-read-btn" class="btn btn-sm btn-outline-secondary" >Mark all as read</button>
             </div>
             <div class="card-body p-0">
                 {% if notifications %}
@@ -75,7 +75,7 @@
                         <div class="list-group-item {% if not notification.is_read %}bg-light{% endif %}">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="me-3">
-                                    <div class="icon-circle bg-{% if notification.is_read %}secondary{% else %}primary{% endif %}">
+                                    <div class="icon-circle bg-{% if notification.is_read %}secondary{% else %}orange{% endif %}">
                                         <i class="fas fa-{% if 'appointment' in notification.message %}calendar-alt{% elif 'reminder' in notification.message %}exclamation-circle{% else %}info-circle{% endif %} text-white"></i>
                                     </div>
                                 </div>
@@ -87,7 +87,7 @@
                                     {% endif %}
                                 </div>
                                 {% if not notification.is_read %}
-                                <span class="badge bg-primary rounded-pill">New</span>
+                                <span class="badge bg-orange rounded-pill">New</span>
                                 {% endif %}
                             </div>
                         </div>
@@ -133,12 +133,22 @@ $(document).ready(function() {
         $(this).addClass('active-link');
     });
     
-    // Mark notification as read when clicked
-    $('.list-group-item').on('click', function() {
-        $(this).removeClass('bg-light');
-        $(this).find('.badge').remove();
-        $(this).find('.icon-circle').removeClass('bg-primary').addClass('bg-secondary');
+    // Mark all notifications as read
+    $('#mark-all-read-btn').on('click', function() {
+            $.ajax({
+                url: "{% url 'user_dashboard:mark_all_notifications_as_read' %}",
+                type: "POST",
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                success: function(data) {
+                    if (data.status === 'success') {
+                        $('.list-group-item').removeClass('bg-light');
+                        $('.list-group-item .badge').remove();
+                        $('.list-group-item .icon-circle').removeClass('bg-primary').addClass('bg-secondary');
+                    }
+                }
+            });
     });
+    
 });
 </script>
 {% endblock %}

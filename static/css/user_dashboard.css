@@ -25,6 +25,11 @@
     margin-bottom: 5px;
   }
   
+  .bg-orange{
+    color: #fff;
+    background-color: #ff6600;
+  }
+
   .sidebar .menu a:hover,
   .sidebar .menu .active-link {
     background-color: #ff6600;
@@ -233,3 +238,20 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #555;
   }
+
+  .pagination .page-item.active .page-link {
+    background-color: #ff6600;
+    border-color: #ff6600;
+    color: white;
+}
+
+.pagination .page-link {
+    color: #ff6600;
+    border: 1px solid #ff6600;
+}
+
+.pagination .page-link:hover {
+    background-color: #ff6600;
+    color: white;
+    border-color: #ff6600;
+}

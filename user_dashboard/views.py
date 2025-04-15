@@ -13,6 +13,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 import datetime
 from django.utils import timezone
+from django.core.paginator import Paginator
 
 # get user model
 User = get_user_model()
@@ -216,8 +217,7 @@ def add_appointment(request):
             workshop = Workshop.objects.get(id=request.POST['workshop'])
             service = Service.objects.get(id=request.POST['service'])
             car = Service.objects.get(id=request.POST['vehicle'])
-            
-            #TODO: Add Car relationship
+           
             # Create the booking
             booking = Booking.objects.create(
                 user=request.user,
@@ -226,6 +226,21 @@ def add_appointment(request):
                 service=service,
                 appointment_date=request.POST['appointment_date'],
                 status='pending'
+            )
+        
+            # Create notification for the user
+            Notification.objects.create(
+                user=request.user,
+                message=f"Your appointment at {workshop.name} for {service.name} is submitted and is now pending.",
+                booking=booking
+            )
+
+            # Create notification for the workshop owner
+            if hasattr(workshop, 'owner'):
+                Notification.objects.create(
+                    user=workshop.owner,
+                    message=f"You have a new appointment from {request.user.get_full_name()} for {service.name}.",
+                    booking=booking
             )
                 
             messages.success(request, "Appointment booked successfully!")
@@ -237,19 +252,30 @@ def add_appointment(request):
     
     return redirect('user_dashboard:appointments')
 
-
-def edit_appointment(request,appointment_id):
-    pass
-
-
 def delete_appointment(request, appointment_id):
     if not request.user.is_authenticated or (request.user.is_workshop_owner or request.user.is_superuser):
         return redirect('landing:main')
     
+    booking = get_object_or_404(Booking, id=appointment_id, user=request.user)
     if request.method == 'POST':
-        booking = get_object_or_404(Booking, id=appointment_id, user=request.user)
         booking.status = 'canceled'
         booking.save()
+
+        # Notify the user (who canceled the appointment)
+        Notification.objects.create(
+            user=request.user,
+            message=f"Your appointment with the workshop '{booking.workshop.name}' has been canceled.",
+            booking=booking
+        )
+
+        # Notify the workshop owner
+        workshop_owner = booking.workshop.owner  # Adjust this line if the workshop's owner field has a different name
+        Notification.objects.create(
+            user=workshop_owner,
+            message=f"The user {request.user.username} has canceled their booking.",
+            booking=booking
+        )
+
         return redirect('user_dashboard:appointments')
     return redirect('user_dashboard:appointments')
 
@@ -261,10 +287,22 @@ def services(request):
 
 
 def notifications(request):
-    if request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser ):        
-        return render(request, 'user_dashboard/notifications.html')
+    if not request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser ):        
+        return redirect('landing:main')
+    
+    all_notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
 
-    return redirect('landing:main')
+    # Paginate with 5 notifications per page
+    paginator = Paginator(all_notifications, 5)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'notifications': page_obj,
+    }
+
+    return render(request, 'user_dashboard/notifications.html', context)
 
 @csrf_exempt
 def mark_notification_as_read(request, notification_id):
@@ -283,9 +321,16 @@ def mark_notification_as_read(request, notification_id):
        return redirect('user_dashboard:notifications')
     return redirect('landing:main')
 
-def reviews(request):
-    if request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser ):        
-        return render(request, 'user_dashboard/reviews.html')
+def mark_all_notifications_as_read(request):
+    if not request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser ):
+      return redirect('landing:main')  
+   
+    Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+    return JsonResponse({'status': 'success'})
 
-    return redirect('landing:main')
+def reviews(request):
+    if not request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser ):        
+       return redirect('landing:main')
+    
+    return render(request, 'user_dashboard/reviews.html')
 

@@ -102,10 +102,10 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <button class="btn btn-warning btn-sm update-appointment" 
-                                        style="background-color: #ff6600; color:white;"
+                                        <button class="btn btn-warning btn-sm view-appointment" 
+                                        style="background-color: #343a40; color:white; border: none;"
                                         data-appointment-id="{{ appointment.id }}">
-                                          Update
+                                          View
                                         </button>
                                        
                                         {% if appointment.status == 'pending' or appointment.status == 'confirmed' %}
@@ -125,7 +125,7 @@
                         <i class="fas fa-calendar fa-4x text-muted mb-3"></i>
                         <h5>No upcoming appointments</h5>
                         <p class="text-muted">Book your first appointment to get started with AutoFix</p>
-                        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bookAppointmentModal">
+                        <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#bookAppointmentModal">
                             <i class="fas fa-plus me-2"></i>Book Appointment
                         </a>
                     </div>
