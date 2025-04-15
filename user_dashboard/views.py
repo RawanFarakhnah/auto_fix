@@ -14,6 +14,7 @@ from django.http import JsonResponse
 import datetime
 from django.utils import timezone
 from django.core.paginator import Paginator
+from django.utils.timezone import make_naive
 
 # get user model
 User = get_user_model()
@@ -173,9 +174,9 @@ def appointments(request):
     ).order_by('appointment_date')
     
     past_appointments = Booking.objects.filter(
-        user=request.user,
-        appointment_date__lt=timezone.now()
-    ).order_by('-appointment_date')
+       user=request.user,
+       appointment_date__lt=make_naive(timezone.now())
+     ).order_by('-appointment_date')
     
     context = {
         'upcoming_appointments': upcoming_appointments,
@@ -252,16 +253,17 @@ def add_appointment(request):
     
     return redirect('user_dashboard:appointments')
 
+@csrf_exempt
 def delete_appointment(request, appointment_id):
-    if not request.user.is_authenticated or (request.user.is_workshop_owner or request.user.is_superuser):
-        return redirect('landing:main')
-    
+    if not request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser ):
+      return redirect('landing:main')  
+   
     booking = get_object_or_404(Booking, id=appointment_id, user=request.user)
     if request.method == 'POST':
         booking.status = 'canceled'
         booking.save()
 
-        # Notify the user (who canceled the appointment)
+         # Notify the user (who canceled the appointment)
         Notification.objects.create(
             user=request.user,
             message=f"Your appointment with the workshop '{booking.workshop.name}' has been canceled.",
@@ -276,14 +278,24 @@ def delete_appointment(request, appointment_id):
             booking=booking
         )
 
-        return redirect('user_dashboard:appointments')
-    return redirect('user_dashboard:appointments')
+    return JsonResponse({
+        'status': 'success', 
+        'redirect_url': reverse('user_dashboard:appointments')
+        })
 
 def services(request):
-    if request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser ):        
-        return render(request, 'user_dashboard/services.html')
+    if not request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser ):        
+        return redirect('landing:main')
+    
+    # Get all completed bookings for this user
+    completed_bookings = Booking.objects.filter(user=request.user, status='completed').select_related('workshop', 'service')
 
-    return redirect('landing:main')
+    context = {
+        'service_history': completed_bookings,
+    }
+
+    return render(request, 'user_dashboard/services.html', context)
+
 
 
 def notifications(request):

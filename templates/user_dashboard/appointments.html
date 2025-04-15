@@ -311,6 +311,26 @@ $(document).ready(function() {
         });
     });
 
+    $('.delete-appointment').on('click', function(e) {
+      e.preventDefault();
+      const appointmentId = $(this).data('appointment-id'); // Get the ID from the button
+      $.ajax({
+        url:`/user_dashboard/user/appointments/delete/${appointmentId}/`,
+        type: "POST",
+        data: {
+                appointment_id: appointmentId,
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+            },
+        success: function(data) {
+            if (data.status === 'success') {
+                setTimeout(() => {
+                    window.location.href = data.redirect_url;
+                }, 1500);
+            }
+        },
+      
+      });
+    });
 
     // Initialize form with any session data
     if (typeof form_data !== 'undefined') {
