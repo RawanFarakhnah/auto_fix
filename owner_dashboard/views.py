@@ -86,58 +86,48 @@ def dashboard(request):
     }
     return render(request, 'owner_dashboard/dashboard.html', context)
 
+from django.http import JsonResponse
+
 def workshop_management(request):
-    # Workshop management view logic
     if not request.user.is_workshop_owner:
-        return redirect('landing:main')
+        return JsonResponse({"status": "error", "message": "Unauthorized"}, status=403)
+
     if request.method == "POST":
-        errors = Workshop.objects.validation(request.POST)
-        if len(errors)>0:
-           for key,value in errors.items():
-               messages.error(request,value) 
-        else:
-            name = request.POST['name']
-            phone = request.POST['phone']
-            description = request.POST['description']
-            image = request.FILES['workshop_image']
-            street = request.POST['street']
-            city = request.POST['city']
-            region = request.POST['region']
-            country = request.POST['country']
-            postal_code = request.POST['postal_code']
-            the_address = Address.objects.create(
-                street = street,
-                city =city,
-                region = region,
-                country = country,
-                postal_code = postal_code
-            )
-            Workshop.objects.create(
-                name = name ,
-                phone = phone ,
-                description = description ,
-                image = image ,
-                owner = request.user,
-                address = the_address
-            )
+        errors = {**Workshop.objects.validation(request.POST), **Address.objects.validation(request.POST)}
+
+        if errors:
+            return JsonResponse({"status": "error", "messages": errors})  
+
+
+        the_address = Address.objects.create(
+            street=request.POST['street'],
+            city=request.POST['city'],
+            region=request.POST['region'],
+            country=request.POST['country'],
+            postal_code=request.POST['postal_code']
+        )
+        Workshop.objects.create(
+            name=request.POST['name'],
+            phone=request.POST['phone'],
+            description=request.POST['description'],
+            image=request.FILES['workshop_image'],
+            owner=request.user,
+            address=the_address
+        )
+
+        return JsonResponse({"status": "success", "message": "Workshop registered successfully!"})  # ✅ إرجاع رسالة نجاح
+
     try:
         workshop = Workshop.objects.get(owner=request.user)
-        total_services = workshop.services.count()
-        total_bookings = workshop.booking_set.count()
-        
-        # Calculate average rating
-        reviews = workshop.review_set.all()
-        avg_rating = None
-
         context = {
             'workshop': workshop,
-            'total_services': total_services,
-            'total_bookings': total_bookings,
-            'avg_rating': round(avg_rating, 1) if avg_rating else None
+            'total_services': workshop.services.count(),
+            'total_bookings': workshop.booking_set.count(),
+            'avg_rating': round(workshop.review_set.aggregate(Avg('rating'))['rating__avg'], 1) if workshop.review_set.exists() else None
         }
     except Workshop.DoesNotExist:
         context = {'workshop': None}
-        
+
     return render(request, 'owner_dashboard/workshop.html', context)
         
 
@@ -167,28 +157,26 @@ def change_image(request):
         workshop.save()
         return redirect('owner_dashboard:workshop')
     
+
 def edit_workshop(request):
-    # Edit workshop view logic
     if not request.user.is_workshop_owner:
-        return redirect('landing:main')
+        return JsonResponse({"status": "error", "message": "Unauthorized"}, status=403)
+
     if request.method == 'POST':
-        workshop = Workshop.objects.get(owner = request.user)
+        errors = Workshop.objects.validation(request.POST)
+        
+        if errors:
+            return JsonResponse({"status": "error", "messages": errors}) 
+
+        workshop = Workshop.objects.get(owner=request.user)
         workshop.name = request.POST['name']
         workshop.phone = request.POST['phone']
-        workshop.description =  request.POST['description']
+        workshop.description = request.POST['description']
         workshop.save()
-        address = workshop.address
-        address.street = request.POST['street']
-        address.city = request.POST['city']
-        address.region = request.POST['region']
-        address.country = request.POST['country']
-        address.postal_code = request.POST['postal_code']
-        address.save()
-        return redirect('owner_dashboard:workshop')
 
-def register_workshop(request):
-    # register workshop view logic
-    pass
+        return JsonResponse({"status": "success", "message": "Workshop updated successfully!"})  # ✅ رسالة نجاح
+
+
 
 def services_management(request):
     try:
@@ -204,40 +192,48 @@ def services_management(request):
     
     return render(request, 'owner_dashboard/services.html', context)
 
-def add_service(request):
-    # Add service view logic
-    if not request.user.is_workshop_owner:
-        return redirect('landing:main')
-    if request.method == 'POST':
-        name = request.POST['name']
-        price = request.POST['price']
-        description = request.POST['description']
-        duration = request.POST['duration']
-        workshop = Workshop.objects.get(owner = request.user.id)
 
-        service = Service.objects.create(
-            name=name,
-            price=price,
-            description=description,
-            duration=duration,
+def add_service(request):
+    if not request.user.is_workshop_owner:
+        return JsonResponse({"status": "error", "message": "Unauthorized"}, status=403)
+
+    if request.method == 'POST':
+        errors = Service.objects.validation(request.POST)  
+        if errors:
+            return JsonResponse({"status": "error", "messages": errors}) 
+        
+        workshop = get_object_or_404(Workshop, owner=request.user)
+        Service.objects.create(
+            name=request.POST['name'],
+            price=request.POST['price'],
+            description=request.POST['description'],
+            duration=request.POST['duration'],
             workshop=workshop
         )
 
-        return redirect('owner_dashboard:services')
+        return JsonResponse({"status": "success", "message": "Service added successfully!"})  
     
 
+
 def edit_service(request, service_id):
-    # Edit service view logic
     if not request.user.is_workshop_owner:
-        return redirect('landing:main')
+        return JsonResponse({"status": "error", "message": "Unauthorized"}, status=403)
+
+    service = get_object_or_404(Service, id=service_id)
+
     if request.method == 'POST':
-        service = Service.objects.get(id = service_id)
-        service.name= request.POST['name']
-        service.price= request.POST['price']
-        service.description= request.POST['description']
-        service.duration= request.POST['duration']
+        errors = Service.objects.validation(request.POST) 
+
+        if errors:
+            return JsonResponse({"status": "error", "messages": errors})  
+
+        service.name = request.POST.get('name', '')
+        service.price = request.POST['price']
+        service.description = request.POST['description']
+        service.duration = request.POST['duration']
         service.save()
-        return redirect('owner_dashboard:services')
+
+        return JsonResponse({"status": "success", "message": "Service updated successfully!"})  
     
 
 def delete_service(request, service_id):

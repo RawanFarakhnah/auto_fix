@@ -4,7 +4,7 @@ document.getElementById("notifications-btn").addEventListener("click", function 
    
     container.style.display = container.style.display === "none" ? "block" : "none";
 
-    fetch("bookings/bookings/notifications/")  
+    fetch("/bookings/bookings/notifications/")  
         .then(response => response.json())
         .then(data => {
             container.innerHTML = "";  
@@ -34,7 +34,7 @@ document.getElementById("notifications-btn").addEventListener("click", function 
 
 
 setInterval(() => {
-    fetch("/owner/notifications/")
+    fetch("/bookings/bookings/notifications/")
         .then(response => response.json())
         .then(data => {
             let badge = document.getElementById("notification-badge");

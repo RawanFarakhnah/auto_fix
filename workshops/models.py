@@ -10,8 +10,23 @@ class WorkshopManager(models.Manager):
             errors['description'] = 'You should fill the discription of your workshop !'
         if not data['phone']:
             errors['phone'] = ' You should insert phone number !'
+        if not data['image']:
+            errors['image'] = 'Please upload image related to your work shop !'
         return errors
-
+class serviceManager(models.Manager):
+    def validation(self,data):
+        errors = {}
+        if not data['name']:
+            errors['name'] = 'You should insert avalid name for your service !'
+        if not data['price']:
+            errors['price'] = 'You should insert a valid phone number for your service'
+        if not data['description']:
+            errors['description'] = 'You sould descripe your service !'
+        if not data['duration']:
+            errors['duration'] = 'You sould insert the time of your service !'
+        return errors
+    
+    
 class Workshop(models.Model):
     name = models.CharField(max_length=255)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
@@ -29,6 +44,7 @@ class Service(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True)
     duration = models.PositiveIntegerField(help_text="Duration in minutes")
+    objects = serviceManager()
     
     def __str__(self):
         return f"{self.name} at {self.workshop.name}"

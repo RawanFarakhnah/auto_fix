@@ -163,7 +163,8 @@
                 <h5 class="modal-title" id="registerWorkshopModalLabel">Register Your Workshop</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" enctype="multipart/form-data">
+            <div id="workshop-errors"></div>
+            <form method="post" enctype="multipart/form-data" id="registerWorkshopModal">
                 <div class="modal-body">
                     {% csrf_token %}
                     <div class="row">
@@ -213,6 +214,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">Register Workshop</button>
                 </div>
+                
             </form>
         </div>
     </div>
@@ -227,14 +229,15 @@
                 <h5 class="modal-title" id="editWorkshopModalLabel">Edit Workshop Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" action="{% url 'owner_dashboard:edit_workshop' %}">
+            <div id="workshop-errors"></div>
+            <form method="post" action="{% url 'owner_dashboard:edit_workshop' %}" id="edit-workshop-form">
                 <div class="modal-body">
                     {% csrf_token %}
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Workshop Name</label>
-                                <input type="text" class="form-control" name="name" value="{{ workshop.name }}" required>
+                                <input type="text" class="form-control" name="name" value="{{ workshop.name }}" >
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Phone Number</label>
@@ -243,7 +246,7 @@
                             <div class="mb-3">
                                 <label class="form-label">Description</label>
                                 <textarea class="form-control" name="description" rows="4" value = "{{ workshop.description }}">{{ workshop.description }}</textarea>
-                            </div>
+                            </div> 
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -366,6 +369,58 @@ $(document).on("click", "#delete-workshop", function() {
         },
         error: function(xhr, status, error) {
             alert("Error during deleting !");
+        }
+    });
+});
+// this code for register the workshop : 
+$(document).on("submit", "#registerWorkshopModal form", function(event) {
+    event.preventDefault();  
+
+    let formData = new FormData(this);
+
+    $.ajax({
+        type: "POST",
+        url: "/owner_dashboard/owner/workshop/",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            let errorContainer = $("#workshop-errors");
+            errorContainer.html("");
+
+            if (response.status === "error") {
+                Object.entries(response.messages).forEach(([key, msg]) => {
+                    errorContainer.append(`<div class="alert alert-danger">${msg}</div>`);  // ✅ عرض الأخطاء داخل المودال
+                });
+            } else {
+                $("#registerWorkshopModal").modal("hide");  
+                location.reload();  
+            }
+        }
+    });
+});
+// this code for the edit workshop : 
+$(document).on("submit", "#edit-workshop-form", function(event) {
+    event.preventDefault(); 
+
+    let formData = $(this).serialize();
+    
+    $.ajax({
+        type: "POST",
+        url: "/owner_dashboard/owner/workshop/edit/",
+        data: formData,
+        success: function(response) {
+            if (response.status === "error") {
+                let errorContainer = $("#workshop-errors");
+                errorContainer.html("");  
+                
+                Object.values(response.messages).forEach(msg => {
+                    errorContainer.append(`<div class="alert alert-danger">${msg}</div>`); 
+                });
+            } else {
+                $("#editWorkshopModal").modal("hide");  
+                location.reload();  
+            }
         }
     });
 });

@@ -109,23 +109,24 @@
                             </tr>
                             
                             <!-- Edit Service Modal -->
-                            <div class="modal fade" id="editServiceModal{{ service.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal fade edit-service-form"  id="editServiceModal{{ service.id }}" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
                                             <h5 class="modal-title">Edit Service</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
+                                        <div class="service-errors"></div>
                                         <form method="post" action="{% url 'owner_dashboard:edit_service' service.id %}">
+                                            {% csrf_token %}
                                             <div class="modal-body">
-                                                {% csrf_token %}
                                                 <div class="mb-3">
                                                     <label class="form-label">Service Name</label>
                                                     <input type="text" class="form-control" name="name" value="{{ service.name }}" required>
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label">Description</label>
-                                                    <textarea class="form-control" name="description" rows="3">{{ service.description }}</textarea>
+                                                    <textarea class="form-control" name="description" rows="3" required>{{ service.description }}</textarea>
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-md-6 mb-3">
@@ -193,9 +194,10 @@
                 <h5 class="modal-title" id="addServiceModalLabel">Add New Service</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <div id="service-errors"></div>
             <form method="post" action="{% url 'owner_dashboard:add_service' %}">
+                {% csrf_token %}
                 <div class="modal-body">
-                    {% csrf_token %}
                     <div class="mb-3">
                         <label class="form-label">Service Name</label>
                         <input type="text" class="form-control" name="name" required>
@@ -235,6 +237,60 @@ $(document).ready(function() {
     $('.menu a').on('click', function() {
         $('.menu a').removeClass('active-link');
         $(this).addClass('active-link');
+    });
+});
+// this code for the add service : 
+$(document).on("submit", "#addServiceModal form", function(event) {
+    event.preventDefault();  
+
+    let formData = $(this).serialize();
+
+    $.ajax({
+        type: "POST",
+        url: "/owner_dashboard/owner/services/add/",
+        data: formData,
+        success: function(response) {
+            let errorContainer = $("#service-errors");
+            errorContainer.html(""); 
+
+            if (response.status === "error") {
+                Object.entries(response.messages).forEach(([key, msg]) => {
+                    errorContainer.append(`<div class="alert alert-danger">${msg}</div>`);  
+                });
+            } else {
+                $("#addServiceModal").modal("hide"); 
+                location.reload();  
+            }
+        }
+    });
+});
+// this code for the edit service form : 
+$(document).on("submit", ".edit-service-form", function(event) {
+    event.preventDefault();  
+
+    let form = $(this);
+    let formData = form.serialize();
+    let modalId = form.closest(".modal").attr("id"); 
+    let errorContainer = $("#" + modalId + " .service-errors");
+    let serviceId =   modalId.replace("editServiceModal", "");
+    let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+    formData += "&csrfmiddlewaretoken=" + csrfToken;
+    $.ajax({
+        type: "POST",
+        url: `/owner_dashboard/owner/services/${serviceId}/edit/`,
+        data: formData,
+        success: function(response) {
+            errorContainer.html(""); 
+
+            if (response.status === "error") {
+                Object.entries(response.messages).forEach(([key, msg]) => {
+                    errorContainer.append(`<div class="alert alert-danger">${msg}</div>`); 
+                });
+            } else {
+                $("#" + modalId).modal("hide"); 
+                location.reload(); 
+            }
+        }
     });
 });
 </script>
