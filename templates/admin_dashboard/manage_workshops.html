@@ -100,7 +100,10 @@
                 <div class="card-body">
                     <h5 class="card-title editable" contenteditable="true" data-id="{{ workshop.id }}" data-field="name">{{ workshop.name }}</h5>
                     <p class="card-text editable" contenteditable="true" data-id="{{ workshop.id }}" data-field="phone">{{ workshop.phone }}</p>
-    
+     
+                    <p class="card-text">
+                        <strong>Owner:</strong> {{ workshop.owner.first_name }} {{ workshop.owner.last_name }}
+                    </p>
                     <div class="d-flex justify-content-center mt-3">
                         <a href="{% url 'admin_dashboard:edit_workshop' workshop.id %}" class="btn btn-update btn-sm">Update</a>
     

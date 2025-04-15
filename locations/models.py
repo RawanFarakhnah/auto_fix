@@ -1,6 +1,18 @@
 from django.db import models
 from django.forms import ValidationError
 
+class AddressManager(models.Manager):
+    def validation(self,data):
+        errors ={}
+        if not data['street']:
+            errors['street'] = 'You should insert valid street !'
+        if not data['city']:
+            errors['city'] = 'You should insert valid city !'
+        if not data['region']:
+            errors['region'] = 'You should insert valid region !'
+        if not data['postal_code']:
+            errors['postal_code'] = 'You should insert valid postal code  !'
+        return errors
 # Create your models here.
 class Address(models.Model):
     street = models.CharField(max_length=255)
@@ -10,6 +22,7 @@ class Address(models.Model):
     postal_code = models.CharField(max_length=20)
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
+    objects = AddressManager()
 
     class Meta:
         verbose_name_plural = "Addresses"

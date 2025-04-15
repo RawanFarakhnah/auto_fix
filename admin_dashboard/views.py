@@ -16,6 +16,9 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from workshops.models import Address,Service
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Count
 
 # get user model
 User = get_user_model()
@@ -177,6 +180,7 @@ def delete_user(request, user_id):
         })
 
 def manage_users(request):
+    
     users = User.objects.all().order_by('-id')
     
     data = [
@@ -220,15 +224,25 @@ def create_workshop(request):
     return render(request, 'admin_dashboard/create_workshop.html', {'addresses': addresses})
 
 
+from django.db.models import Q
+
 def edit_workshop(request, id):
     workshop = Workshop.objects.get(id=id)
     addresses = Address.objects.all()
+    
+    owners = User.objects.filter(
+        is_workshop_owner=True,
+        workshop__isnull=True  
+    )
+
     return render(request, 'admin_dashboard/update_workshop.html', {
         'workshop': workshop,
         'addresses': addresses,
+        'owners': owners 
     })
 
 
+@csrf_exempt
 @csrf_exempt
 def workshop_update(request, id):
     if request.method == 'POST':
@@ -239,8 +253,9 @@ def workshop_update(request, id):
 
         name = request.POST.get('name')
         phone = request.POST.get('phone')
-        address_id = request.POST['address_id']
-        image = request.FILES.get('image')  # استخدام FILES لرفع الصور
+        address_id = request.POST.get('address_id')
+        owner_id = request.POST.get('owner_id')  # إضافة السطر الخاص بالمالك
+        image = request.FILES.get('image')
 
         if name:
             workshop.name = name
@@ -250,36 +265,49 @@ def workshop_update(request, id):
             workshop.address_id = address_id
         if image:
             workshop.image = image
+        if owner_id:
+            try:
+                owner = User.objects.get(id=owner_id)
+                workshop.owner = owner
+            except User.DoesNotExist:
+                return JsonResponse({'error': 'Owner not found'}, status=404)
 
         workshop.save()
-        return JsonResponse({'status': 'updated', 'name': name, 'phone': phone})
+        return JsonResponse({
+            'status': 'updated',
+            'name': name,
+            'phone': phone,
+            'owner_id': owner_id
+        })
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
 @csrf_exempt
 def delete_workshop(request, id):
-    if request.method == 'POST':
-        try:
-            workshop = Workshop.objects.get(id=id)
-            workshop.delete() 
-            return JsonResponse({'status': 'deleted'})
-        except Workshop.DoesNotExist:
-            return JsonResponse({'error': 'Workshop not found'}, status=404)
-    return JsonResponse({'error': 'Invalid request'}, status=400)
-
+    if request.user.is_authenticated and request.user.is_superuser:
+        if request.method == 'POST':
+            try:
+                workshop = Workshop.objects.get(id=id)
+                workshop.delete() 
+                return JsonResponse({'status': 'deleted'})
+            except Workshop.DoesNotExist:
+                return JsonResponse({'error': 'Workshop not found'}, status=404)
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+    return JsonResponse({
+            'success': False,
+            'error': "Unautorized User",
+            'redirect_url': reverse('landing:main')
+            })
 def manage_services(request):
     services = Service.objects.all()
-    return render(request, 'admin_dashboard/mange_services.html', {'services': services}) 
+    return render(request, 'admin_dashboard/manage_services.html', {'services': services}) 
 
-@csrf_exempt
-def service_create(request):
-  
+def create_service(request):
     if request.method == 'GET':
         workshops = Workshop.objects.all()
         return render(request, 'admin_dashboard/create_service.html', {'workshops': workshops})
 
-    # إذا كان الطلب POST، إضافة الخدمة الجديدة
     if request.method == 'POST':
         name = request.POST['name']
         price = request.POST['price']
@@ -287,56 +315,98 @@ def service_create(request):
         duration = request.POST['duration']
         workshop_id = request.POST['workshop_id']
 
-        workshop = Workshop.objects.get(id=workshop_id)
+        try:
+            workshop = Workshop.objects.get(id=workshop_id)
+            Service.objects.create(
+                name=name,
+                price=price,
+                description=description,
+                duration=duration,
+                workshop=workshop
+            )
+        except Workshop.DoesNotExist:
+            
+            return render(request, 'admin_dashboard/create_service.html', {
+                'workshops': Workshop.objects.all(),
+                'error': 'Workshop not found.'
+            })
 
-        service = Service.objects.create(
-            name=name,
-            price=price,
-            description=description,
-            duration=duration,
-            workshop=workshop
-        )
-
-        return JsonResponse({
-            'id': service.id,
-            'name': service.name,
-            'price': service.price,
-            'description': service.description,
-            'duration': service.duration
-        })
-        
+        return redirect('admin_dashboard:manage_services') 
+      
 @csrf_exempt
 def delete_service(request, service_id):
-    if request.method == 'POST':
+    if request.user.is_authenticated and request.user.is_superuser:
+        if request.method == 'POST':
+            service = get_object_or_404(Service, id=service_id)
+            service.delete()
+            return JsonResponse({'status': 'deleted'})
+        return JsonResponse({'status': 'error'}, status=400)
+    return JsonResponse({
+            'success': False,
+            'error': "Unautorized User",
+            'redirect_url': reverse('landing:main')
+            })
+
+def edit_service(request, service_id):
+    
+    if request.user.is_authenticated and request.user.is_superuser:
         service = get_object_or_404(Service, id=service_id)
-        service.delete()
-        return JsonResponse({'status': 'deleted'})
-    return JsonResponse({'status': 'error'}, status=400)
-
-# def update_service(request, service_id):
-#     service = get_object_or_404(Service, id=service_id)
-
-#     if request.method == 'POST':
-#         name = request.POST.get('name')
-#         price = request.POST.get('price')
-#         description = request.POST.get('description')
-#         duration = request.POST.get('duration')
-
-#         service.name = name
-#         service.price = price
-#         service.description = description
-#         service.duration = duration
-#         service.save()
-
-#         return JsonResponse({
-#             'id': service.id,
-#             'name': service.name,
-#             'price': service.price,
-#             'description': service.description,
-#             'duration': service.duration
-#         })        
+        context = {
+            'service': service
+        }
+        return render(request, 'admin_dashboard/update_service.html', context)
+    return JsonResponse({
+            'success': False,
+            'error': "Unautorized User",
+            'redirect_url': reverse('landing:main')
+            })     
 
 
+@csrf_exempt
+def update_service(request, service_id):
+    print("Entered update_service view")
+    print("Request method:", request.method)
+    print("User:", request.user)
+
+    if request.user.is_authenticated and request.user.is_superuser:
+        if request.method == 'POST':
+            service = get_object_or_404(Service, id=service_id)
+            service.name = request.POST.get('name')
+            service.price = request.POST.get('price')
+            service.description = request.POST.get('description')
+            service.duration = request.POST.get('duration')
+            service.save()
+
+            print("Service updated successfully")
+            return JsonResponse({'success': True})
+
+        print("Request method is not POST")
+        return JsonResponse({'success': False, 'error': 'Request method must be POST'}, status=400)
+
+    print("User is not authorized")
+    return JsonResponse({
+        'success': False,
+        'error': "Unauthorized user",
+        'redirect_url': reverse('landing:main')
+    }, status=403)
+def dashboard(request):
+    
+    last_30_days = timezone.now() - timedelta(days=30)
+
+    
+    bookings_by_day = Booking.objects.filter(appointment_date__gte=last_30_days) \
+    .values('appointment_date__date') \
+    .annotate(count=Count('id')) \
+    .order_by('appointment_date__date')
 
 
-                
+    
+    dates = [b['appointment_date__date'].strftime('%Y-%m-%d') for b in bookings_by_day]  # تحويل التاريخ إلى صيغة قابلة للاستخدام
+    counts = [b['count'] for b in bookings_by_day]  
+
+    
+    context = {
+        'dates': dates,
+        'counts': counts
+    }
+    return render(request, 'admin_dashboard/dashboard.html', context)

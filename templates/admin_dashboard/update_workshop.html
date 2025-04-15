@@ -1,7 +1,7 @@
-{% extends 'base2.html' %} 
-{% block title %} User Dashboard {% endblock %} 
+{% extends 'base2.html' %}
+{% block title %} User Dashboard {% endblock %}
 {% load static bootstrap5 %}
-{% bootstrap_css %} 
+{% bootstrap_css %}
 {% bootstrap_javascript %}
 
 {% block extra_css %}
@@ -10,68 +10,82 @@
 
 {% block content %}
 <div class="wrapper d-flex">
-  <!-- Sidebar -->
-  <aside class="sidebar p-3 shadow-sm">
-    <h4 class="welcome mb-4">Welcome, {{ request.user.get_short_name }}</h4>
-    <nav class="menu d-flex flex-column gap-2">
-      <a href="{% url 'admin_dashboard:dashboard' %}" class="text-white text-decoration-none">Dashboard</a>
-      <a href="{% url 'admin_dashboard:manage_users' %}" class="text-white text-decoration-none">Manage Users</a>
-      <a href="{% url 'admin_dashboard:manage_workshops'%}" class="active-link text-white text-decoration-none" >Manage Workshops</a>
-      <a href="{% url 'admin_dashboard:manage_services' %}" class="text-white text-decoration-none">Manage Services</a>
-    </nav>
-  </aside>
-  
-  <!-- Main Content -->
-  <main class="main-content flex-grow-1 p-4">
-    <h6>
-      <a
-        href="{% url 'admin_dashboard:manage_workshops' %}"
-        class="active-link text-decoration-none"
-        style="border-color: #ff6600; color: #ff6600"
-      >
-        << Back to Manage Workshops</a
-      >
-    </h6>
+    <!-- Sidebar -->
+    <aside class="sidebar p-3 shadow-sm">
+        <h4 class="welcome mb-4">Welcome, {{ request.user.get_short_name }}</h4>
+        <nav class="menu d-flex flex-column gap-2">
+            <a href="{% url 'admin_dashboard:dashboard' %}" class="text-white text-decoration-none">Dashboard</a>
+            <a href="{% url 'admin_dashboard:manage_users' %}" class="text-white text-decoration-none">Manage Users</a>
+            <a href="{% url 'admin_dashboard:manage_workshops'%}"
+                class="active-link text-white text-decoration-none">Manage Workshops</a>
+            <a href="{% url 'admin_dashboard:manage_services' %}" class="text-white text-decoration-none">Manage
+                Services</a>
+        </nav>
+    </aside>
 
-    <div class="form-container">
-        <form id="workshopForm" action="{% url 'admin_dashboard:workshop_update' workshop.id %}" method="post" enctype="multipart/form-data">
+    <!-- Main Content -->
+    <main class="main-content flex-grow-1 p-4">
+        <h6>
+            <a href="{% url 'admin_dashboard:manage_workshops' %}" class="active-link text-decoration-none"
+                style="border-color: #ff6600; color: #ff6600">
+                << Back to Manage Workshops</a>
+        </h6>
 
-            {% csrf_token %}
-            <div class="mb-3">
-                <label class="form-label">Name:</label>
-                <input type="text" name="name" class="form-control" value="{{ workshop.name }}">
-            </div>
+        <div class="form-container">
+            <form id="workshopForm" action="{% url 'admin_dashboard:workshop_update' workshop.id %}" method="post"
+                enctype="multipart/form-data">
 
-            <div class="mb-3">
-                <label class="form-label">Phone:</label>
-                <input type="text" name="phone" class="form-control" value="{{ workshop.phone }}">
-            </div>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Name:</label>
+                    <input type="text" name="name" class="form-control" value="{{ workshop.name }}">
+                </div>
 
-            <div class="mb-3">
-                <label class="form-label">Address:</label>
-                <select name="address_id" class="form-select">
-                    {% for address in addresses %}
-                        <option value="{{ address.id }}" {% if address.id == workshop.address_id %}selected{% endif %}>
-                            {{ address.city }} - {{ address.street }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
+                <div class="mb-3">
+                    <label class="form-label">Phone:</label>
+                    <input type="text" name="phone" class="form-control" value="{{ workshop.phone }}">
+                </div>
 
-            <div class="mb-3">
-                <label class="form-label">Image:</label>
-                <input type="file" name="image" class="form-control">
-                {% if workshop.image %}
-                    <div class="mt-2">
-                        <img src="{{ workshop.image.url }}" alt="Current Image" class="img-fluid rounded" style="max-height: 150px;">
+                <div class="mb-3">
+                    <select name="address_id" class="form-select">
+                        {% for address in addresses %}
+                            <option value="{{ address.id }}" {% if address.id == workshop.address.id %}selected{% endif %}>
+                                {{ address.city }} - {{ address.street }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    
+                </div>
+                <div class="mb-3">
+                    <div class="mb-3">
+                        <label for="owner">Select Owner:</label>
+                        <select name="owner_id" id="owner" class="form-select">
+                            <option value="">-- Select an Owner --</option>
+                            {% for owner in owners %}
+                            <option value="{{ owner.id }}" {% if owner.id == workshop.owner.id %}selected{% endif %}>
+                                {{ owner.first_name }} {{ owner.last_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
                     </div>
-                {% endif %}
-            </div>
+                </div>
 
-            <button type="submit" class="btn btn-warning text-white" style="background-color: #ff6600;" >Update</button>
-        </form>
-    </div>
-  </main>
+                <div class="mb-3">
+                    <label class="form-label">Image:</label>
+                    <input type="file" name="image" class="form-control">
+                    {% if workshop.image %}
+                    <div class="mt-2">
+                        <img src="{{ workshop.image.url }}" alt="Current Image" class="img-fluid rounded"
+                            style="max-height: 150px;">
+                    </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-warning text-white"
+                    style="background-color: #ff6600;">Update</button>
+            </form>
+        </div>
+    </main>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

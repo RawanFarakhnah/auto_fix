@@ -1,38 +1,328 @@
 {% extends 'base2.html' %}
 
-{% block title %} User Dashboard {% endblock %}
+{% block title %}Owner Dashboard{% endblock %}
 
 {% load static bootstrap5 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/owner_dashboard.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="wrapper d-flex">
-    
     <!-- Sidebar -->
     <aside class="sidebar p-3 shadow-sm">
-        <h4 class="welcome mb-4">Welcome, {{ user.get_short_name }}</h4>
+        <div class="user-profile mb-4 text-center">
+            <div class="avatar mb-2">
+                <i class="fas fa-user-circle fa-3x"></i>
+            </div>
+            <h5 class="welcome mb-1">Welcome, {{ user.get_short_name }}</h5>
+            <small class="text-muted">Workshop Owner</small>
+        </div>
         
         <nav class="menu d-flex flex-column gap-2">
-            <a href="{% url 'owner_dashboard:dashboard' %}" class="active-link text-white text-decoration-none" >Dashboard</a>
-            <a href="{%url 'owner_dashboard:manage_workshops'%}" class="text-white text-decoration-none" >Manage Workshops</a>
-         
+            <a href="{% url 'owner_dashboard:dashboard' %}" class="active-link">
+                <i class="fas fa-chart-line me-2"></i>Dashboard
+            </a>
+            <a href="{% url 'owner_dashboard:workshop' %}">
+                <i class="fas fa-warehouse me-2"></i>My Workshop
+            </a>
+            <a href="{% url 'owner_dashboard:services' %}">
+                <i class="fas fa-wrench me-2"></i>Services
+            </a>
+            <a href="{% url 'owner_dashboard:bookings' %}">
+                <i class="fas fa-calendar-check me-2"></i>Bookings
+            </a>
+            <a href="{% url 'owner_dashboard:reviews' %}">
+                <i class="fas fa-star me-2"></i>Reviews
+            </a>
+            <a href="{% url 'accounts:logout' %}" class="text-danger">
+                <i class="fas fa-sign-out-alt me-2"></i>Logout
+            </a>
         </nav>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content flex-grow-1 p-4">
-        <h1 class="mb-4">Owner Dashboard Overview</h1>
+        <div class="dashboard-header mb-4">
+            <h1>Dashboard Overview</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                </ol>
+            </nav>
+        </div>
+        <!-- Stats Cards -->
+        <div class="row stats-cards mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Today's Bookings</h6>
+                                <h3 class="mb-0">{{ stats.today_bookings }}</h3>
+                            </div>
+                            <div class="bg-primary bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-calendar text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Pending Bookings</h6>
+                                <h3 class="mb-0">{{ stats.pending_bookings }}</h3>
+                            </div>
+                            <div class="bg-warning bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-clock text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Monthly Revenue</h6>
+                                <h3 class="mb-0">${{ stats.monthly_revenue }}</h3>
+                            </div>
+                            <div class="bg-success bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-dollar-sign text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Avg. Rating</h6>
+                                <h3 class="mb-0">{{ stats.average_rating }}</h3>
+                            </div>
+                            <div class="bg-info bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-star text-info"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Main Content Sections -->
+        <div class="row">
+            <!-- Recent Bookings -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0">Recent Bookings</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_bookings %}
+                            <div class="list-group">
+                                {% for booking in recent_bookings %}
+                                <div class="list-group-item border-0 py-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">{{ booking.service.name }}</h6>
+                                            <small class="text-muted">{{ booking.appointment_date|date:"F j, Y H:i" }}</small>
+                                        </div>
+                                        <span class="badge 
+                                            {% if booking.status == 'confirmed' %}bg-primary
+                                            {% elif booking.status == 'pending' %}bg-warning text-dark
+                                            {% elif booking.status == 'completed' %}bg-secondary
+                                            {% else %}bg-danger{% endif %}">
+                                            {{ booking.get_status_display }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">Customer: {{ booking.user.get_short_name }}</small>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <a href="{% url 'owner_dashboard:bookings' %}" class="btn btn-outline-primary mt-3">View All Bookings</a>
+                        {% else %}
+                            <div class="text-center py-3">
+                                <i class="fas fa-calendar fa-3x text-muted mb-3"></i>
+                                <h5>No recent bookings</h5>
+                                <p class="text-muted">You don't have any bookings yet</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
 
+            <!-- Recent Reviews -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0">Recent Reviews</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_reviews %}
+                            <div class="list-group">
+                                {% for review in recent_reviews %}
+                                <div class="list-group-item border-0 py-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="mb-0">{{ review.service.name }}</h6>
+                                        <div class="star-rating">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= review.rating %}
+                                                    <i class="fas fa-star text-warning"></i>
+                                                {% else %}
+                                                    <i class="far fa-star text-warning"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <p class="mb-2">{{ review.comment|truncatechars:100 }}</p>
+                                    <small class="text-muted">
+                                        By {{ review.user.get_short_name }} • 
+                                        {{ review.created_at|date:"M j, Y" }}
+                                    </small>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <a href="{% url 'owner_dashboard:reviews' %}" class="btn btn-outline-primary mt-3">View All Reviews</a>
+                        {% else %}
+                            <div class="text-center py-3">
+                                <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                                <h5>No reviews yet</h5>
+                                <p class="text-muted">Your workshop hasn't received any reviews yet</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Additional Sections -->
+        <div class="row">
+            <!-- Popular Services -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0">Popular Services</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if popular_services %}
+                            <div class="row">
+                                {% for service in popular_services %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card h-100 shadow-sm">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ service.name }}</h5>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">Price:</span>
+                                                <span>${{ service.price }}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">Duration:</span>
+                                                <span>{{ service.duration }} mins</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">Bookings:</span>
+                                                <span>{{ service.booking_count }}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <span class="text-muted">Rating:</span>
+                                                <span>
+                                                    {% if service.avg_rating %}
+                                                        {{ service.avg_rating|floatformat:1 }}★
+                                                    {% else %}
+                                                        No reviews
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <a href="{% url 'owner_dashboard:services' %}" class="btn btn-outline-primary mt-3">Manage Services</a>
+                        {% else %}
+                            <div class="text-center py-3">
+                                <i class="fas fa-wrench fa-3x text-muted mb-3"></i>
+                                <h5>No services added</h5>
+                                <p class="text-muted">Add services to start receiving bookings</p>
+                                <a href="{% url 'owner_dashboard:services' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Add Service
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workshop Overview -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Workshop Overview</h5>
+                        <a href="{% url 'owner_dashboard:workshop' %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    </div>
+                    <div class="card-body">
+                    {% if workshops %}
+                        <div class="row">
+                            <div class="col-md-4 mb-3 mb-md-0">
+                                <div class="workshop-image bg-light rounded-3 overflow-hidden" style="height: 150px;">
+                                    {% if workshops.0.image %}
+                                        <img src="{{ workshops.0.image.url }}" alt="{{ workshops.0.name }}" class="w-100 h-100 object-fit-cover">
+                                    {% else %}
+                                        <div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted">
+                                            <i class="fas fa-image fa-3x mb-2"></i>
+                                            <span>No Image</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <h5>{{ workshops.0.name }}</h5>
+                                <p class="text-muted mb-2">
+                                    <i class="fas fa-map-marker-alt me-2"></i>
+                                    {{ workshops.0.address.street }}, {{ workshops.0.address.city }}
+                                </p>
+                                <p class="text-muted mb-3">
+                                    <i class="fas fa-phone me-2"></i> {{ workshops.0.phone }}
+                                </p>
+                                <p class="small">{{ workshops.0.description|truncatechars:100 }}</p>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-warehouse fa-3x text-muted mb-3"></i>
+                            <h5>No workshop registered</h5>
+                            <p class="text-muted">Register your workshop to get started</p>
+                            <a href="{% url 'workshops:register' %}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Register Workshop
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
-
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/dashboard.js' %}"></script>
+<script>
+$(document).ready(function() {
+    // Initialize tooltips
+    $('[data-bs-toggle="tooltip"]').tooltip();
+    
+    // Sidebar active link management
+    $('.menu a').on('click', function() {
+        $('.menu a').removeClass('active-link');
+        $(this).addClass('active-link');
+    });
+});
+</script>
 {% endblock %}
