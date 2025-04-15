@@ -222,7 +222,7 @@ def add_appointment(request):
             # Create the booking
             booking = Booking.objects.create(
                 user=request.user,
-                # car=car,
+                car=car,
                 workshop=workshop,
                 service=service,
                 appointment_date=request.POST['appointment_date'],

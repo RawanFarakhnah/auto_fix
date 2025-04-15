@@ -1,0 +1,213 @@
+{% extends 'base2.html' %}
+{% load static %}
+
+{% block title %}Customer Reviews{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/owner_dashboard.css' %}">
+<style>
+    .review-card {
+        transition: all 0.3s ease;
+    }
+    .review-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .star-rating {
+        color: #ffc107; /* Gold color for stars */
+    }
+    .modal-backdrop {
+    z-index: 1049 !important; 
+    }
+    .modal {
+        z-index: 1050 !important; 
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wrapper d-flex">
+    <!-- Sidebar (same as before) -->
+    <aside class="sidebar p-3 shadow-sm">
+        <div class="user-profile mb-4 text-center">
+            <div class="avatar mb-2">
+                <i class="fas fa-user-circle fa-3x"></i>
+            </div>
+            <h5 class="welcome mb-1">Welcome, {{ user.get_short_name }}</h5>
+            <small class="text-muted">Workshop Owner</small>
+        </div>
+        
+        <nav class="menu d-flex flex-column gap-2">
+            <a href="{% url 'owner_dashboard:dashboard' %}">
+                <i class="fas fa-chart-line me-2"></i>Dashboard
+            </a>
+            <a href="{% url 'owner_dashboard:workshop' %}">
+                <i class="fas fa-warehouse me-2"></i>My Workshop
+            </a>
+            <a href="{% url 'owner_dashboard:services' %}">
+                <i class="fas fa-wrench me-2"></i>Services
+            </a>
+            <a href="{% url 'owner_dashboard:bookings' %}">
+                <i class="fas fa-calendar-check me-2"></i>Bookings
+            </a>
+            <a href="{% url 'owner_dashboard:reviews' %}" class="active-link">
+                <i class="fas fa-star me-2"></i>Reviews
+            </a>
+            <a href="{% url 'accounts:logout' %}" class="text-danger">
+                <i class="fas fa-sign-out-alt me-2"></i>Logout
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content flex-grow-1 p-4">
+        <div class="dashboard-header mb-4">
+            <h1>Customer Reviews</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'owner_dashboard:dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Reviews</li>
+                </ol>
+            </nav>
+        </div>
+
+        <!-- Simplified Rating Summary -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body text-center">
+                <h3 class="mb-3">Average Rating: {{ avg_rating|default:"No reviews yet" }}</h3>
+                <div class="star-rating mb-3">
+                    {% if avg_rating %}
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= avg_rating %}
+                                <i class="fas fa-star fa-2x"></i>
+                            {% else %}
+                                <i class="far fa-star fa-2x"></i>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <i class="far fa-star fa-2x text-muted"></i>
+                        <i class="far fa-star fa-2x text-muted"></i>
+                        <i class="far fa-star fa-2x text-muted"></i>
+                        <i class="far fa-star fa-2x text-muted"></i>
+                        <i class="far fa-star fa-2x text-muted"></i>
+                    {% endif %}
+                </div>
+                <p class="text-muted">{{ total_reviews }} total reviews</p>
+            </div>
+        </div>
+
+        <!-- Reviews List -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">All Reviews</h5>
+            </div>
+            
+            <div class="card-body">
+                {% if reviews %}
+                    {% for review in reviews %}
+                    <div class="review-card card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h6 class="mb-0">{{ review.user.get_full_name }}</h6>
+                                <div class="star-rating">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= review.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <p class="mb-2">{{ review.comment }}</p>
+                            <small class="text-muted">
+                                {{ review.service.name }} • {{ review.created_at|date:"M j, Y" }}
+                            </small>
+                            
+                            {% if review.response %}
+                            <div class="mt-3 p-3 bg-light rounded">
+                                <strong>Your response:</strong>
+                                <p class="mb-0">{{ review.response }}</p>
+                            </div>
+                            {% else %}
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-outline-primary"  data-bs-toggle="modal" 
+                                        data-bs-target="#respondModal{{ review.id }}">
+                                    <i class="fas fa-reply me-1"></i> Respond
+                                </button>
+                                <!-- Response modal -->
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="modal" id="respondModal{{ review.id }}" tabindex="-1" aria-labelledby="respondModalLabel{{ review.id }}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="respondModalLabel{{ review.id }}">Respond to Review</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="respondForm{{ review.id }}" method="post" action="{% url 'owner_dashboard:reply_review' review.id %}">
+                                        {% csrf_token %}
+                                        <textarea class="form-control" name="response_text" rows="3" placeholder="Write your response here..."></textarea>
+                                        <input type="hidden" name="review_id" value="{{ review.id }}">
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-primary submit-response" data-id="{{ review.id }}" data-review-id="{{ review.id }}">Send Response</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Respond Modal (same as before) -->
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-star fa-4x text-muted mb-4"></i>
+                        <h3>No Reviews Yet</h3>
+                        <p class="text-muted">Your workshop hasn't received any reviews yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+$(document).on("click", ".submit-response", function() {
+    let reviewId = $(this).data("review-id");  
+    let responseText = $(`#respondForm${reviewId} textarea[name="response_text"]`).val().trim();
+
+    if (!responseText) {
+        alert("Please type Your replay before send !");
+        return;
+    }
+
+    $.ajax({
+        type: "POST",
+        url:`/owner_dashboard/owner/reviews/${reviewId}/reply/`,
+        data: {
+            review_id: reviewId,
+            response_text: responseText,
+            csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val()
+        },
+        success: function(response) {
+            if (response.status === "success") {
+                alert(response.message);
+                location.reload();  
+            } else {
+                alert("Error : " + response.message);
+            }
+        },
+        error: function(xhr) {
+            alert("Please Try again !");
+        }
+    });
+});
+</script>
+{% endblock %}

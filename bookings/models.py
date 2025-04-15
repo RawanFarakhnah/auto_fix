@@ -79,9 +79,9 @@ class Booking(models.Model):
     ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    # car = models.ForeignKey(Car, on_delete=models.CASCADE, null=True)
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, null=True, related_name='car_bookings')
     workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE)
-    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='booking')
     appointment_date = models.DateTimeField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)

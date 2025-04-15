@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 from locations.models import Address
 from django.conf import settings
 
+
 def user_register(request):
     if request.user.is_authenticated:
         return redirect('landing:dashboard')
@@ -168,6 +169,8 @@ def update_address(request):
         messages.error(request, f"Error saving address: {str(e)}")
     
     return redirect('accounts:profile#address')
+
+
 
 
 def change_password(request):
