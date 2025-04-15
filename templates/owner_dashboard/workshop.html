@@ -232,7 +232,7 @@
             </div>
             
             <form method="post" action="{% url 'owner_dashboard:edit_workshop' %}" id="edit-workshop-form">
-                <div id="workshop-errors"></div>
+                <div id="edit-workshop-errors"></div>
                 <div class="modal-body">
                     {% csrf_token %}
                     <div class="row">
@@ -413,7 +413,7 @@ $(document).on("submit", "#edit-workshop-form", function(event) {
         data: formData,
         success: function(response) {
             if (response.status === "error") {
-                let errorContainer = $("#workshop-errors");
+                let errorContainer = $("#edit-workshop-errors");
                 errorContainer.html("");  
                 
                 Object.values(response.messages).forEach(msg => {
