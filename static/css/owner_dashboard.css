@@ -68,6 +68,23 @@
   padding: 20px;
 }
 
+/* Buttons */
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.btn-outline-primary {
+  border-color: #ff6600;
+  color: #ff6600;
+}
+
+.btn-outline-primary:hover {
+  background-color: #ff6600;
+  border-color: #ff6600;
+  color: white;
+}
+
 /* Card Headers */
 .card-header {
   background-color: white;
