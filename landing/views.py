@@ -23,6 +23,9 @@ def main(request):
     if request.user.is_authenticated:
         return redirect('landing:dashboard')
 
+    context = {
+        "reviews" : Review.objects.all()[:3]
+    }
     return render(request, 'landing\main.html')
 
 def contact(request):
@@ -38,3 +41,7 @@ def dashboard(request):
             return redirect('user_dashboard:dashboard')
     else:
         return redirect('landing:main')
+
+# def reviews_list(request):
+#     reviews = Review.objects.select_related('user', 'workshop', 'service').all()
+#     return render(request, 'landing/main.html', {'reviews': reviews})
