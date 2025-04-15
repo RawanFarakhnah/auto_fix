@@ -70,7 +70,7 @@
                         <h5 class="mb-0">Service History</h5>
                     </div>
                     <div class="card-body">
-                        {% if service_history %}
+                        {% if bookings_service_history %}
                             <div class="table-responsive">
                                 <table class="table table-hover">
                                     <thead>
@@ -84,13 +84,13 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for service in service_history %}
+                                        {% for bookings_service in bookings_service_history %}
                                         <tr>
-                                            <td>{{ service.date|date:"M d, Y" }}</td>
-                                            <td>{{ service.name }}</td>
-                                            <td>{{ service.workshop.name }}</td>
-                                            <td>{{ service.vehicle.make }} {{ service.vehicle.model }}</td>
-                                            <td>${{ service.price }}</td>
+                                            <td>{{ bookings_service.appointment_date|date:"M d, Y" }}</td>
+                                            <td>{{ bookings_service.service.name }}</td>
+                                            <td>{{ bookings_service.workshop.name }}</td>
+                                            <td>{{ bookings_service.car.make }} {{ service.car.model }}</td>
+                                            <td>${{ bookings_service.service.price }}</td>
                                             <td>
                                                 <button class="btn btn-sm btn-outline-primary">Details</button>
                                             </td>

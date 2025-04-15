@@ -291,7 +291,7 @@ def services(request):
     completed_bookings = Booking.objects.filter(user=request.user, status='completed').select_related('workshop', 'service')
 
     context = {
-        'service_history': completed_bookings,
+        'bookings_service_history': completed_bookings,
     }
 
     return render(request, 'user_dashboard/services.html', context)
