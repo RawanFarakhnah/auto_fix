@@ -1,23 +1,18 @@
 from django.db.models import Count, Q
-from django.shortcuts import render, redirect, HttpResponse
+from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 from workshops.models import Workshop, Service
 from reviews.models import Review
 from bookings.models import Booking, Notification
 from locations.models import Address
 from reviews.models import Review
-from cars.models import Car
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
-from django.contrib.auth.hashers import make_password
 from django.contrib import messages
-from django.core.paginator import Paginator
 from django.http import JsonResponse
 from workshops.models import Address,Service
 from django.db.models import Count, Avg, Sum
-from datetime import date, timedelta
+from datetime import date
 from django.shortcuts import get_object_or_404
 
 
@@ -86,31 +81,58 @@ def dashboard(request):
     }
     return render(request, 'owner_dashboard/dashboard.html', context)
 
-from django.http import JsonResponse
+
 
 def workshop_management(request):
     if not request.user.is_workshop_owner:
         return JsonResponse({"status": "error", "message": "Unauthorized"}, status=403)
 
     if request.method == "POST":
-        errors = {**Workshop.objects.validation(request.POST), **Address.objects.validation(request.POST)}
+        errors = {}
+        name = request.POST.get('name', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        description = request.POST.get('description', '').strip()
+        street = request.POST.get('street', '').strip()
+        city = request.POST.get('city', '').strip()
+        region = request.POST.get('region', '').strip()
+        country = request.POST.get('country', '').strip()
+        postal_code = request.POST.get('postal_code', '').strip()
+        image = request.FILES.get('workshop_image')
+
+        if not name:
+            errors['name'] = "Workshop name is required!"
+        if not phone or not phone.isdigit():
+            errors['phone'] = "Phone number must contain only digits!"
+        if not description or len(description) < 10:
+            errors['description'] = "Description must be at least 10 characters long!"
+        if not street:
+            errors['street'] = "Street address is required!"
+        if not city:
+            errors['city'] = "City is required!"
+        if not region:
+            errors['region'] = "Region/State is required!"
+        if not country:
+            errors['country'] = "Country is required!"
+        if not postal_code or not postal_code.isdigit():
+            errors['postal_code'] = "Postal code must contain only digits!"
+        if not image:
+            errors['workshop_image'] = "Workshop image is required!"
 
         if errors:
             return JsonResponse({"status": "error", "messages": errors})  
 
-
         the_address = Address.objects.create(
-            street=request.POST['street'],
-            city=request.POST['city'],
-            region=request.POST['region'],
-            country=request.POST['country'],
-            postal_code=request.POST['postal_code']
+            street=street,
+            city=city,
+            region=region,
+            country=country,
+            postal_code=postal_code
         )
         Workshop.objects.create(
-            name=request.POST['name'],
-            phone=request.POST['phone'],
-            description=request.POST['description'],
-            image=request.FILES['workshop_image'],
+            name=name,
+            phone=phone,
+            description=description,
+            image=image,
             owner=request.user,
             address=the_address
         )
@@ -158,27 +180,54 @@ def change_image(request):
         return redirect('owner_dashboard:workshop')
     
 
+
+
+
 def edit_workshop(request):
     if not request.user.is_workshop_owner:
         return JsonResponse({"status": "error", "message": "Unauthorized"}, status=403)
 
     if request.method == 'POST':
-        errors = Workshop.objects.validation(request.POST)
-        
-        if errors:
-            return JsonResponse({"status": "error", "messages": errors}) 
+        errors = {}  
 
-        workshop = Workshop.objects.get(owner=request.user)
-        workshop.name = request.POST['name']
-        workshop.phone = request.POST['phone']
-        workshop.description = request.POST['description']
+        try:
+            workshop = get_object_or_404(Workshop, owner=request.user)
+        except Workshop.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Workshop not found"}, status=404)
+
+    
+        name = request.POST.get('name', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        description = request.POST.get('description', '').strip()
+
+
+        if not name:
+            errors['name'] = "Workshop name is required!"
+        elif not name.replace(" ", "").isalpha(): 
+            errors['name'] = "Workshop name must contain only letters!"
+        
+        if not phone or not phone.isdigit():
+            errors['phone'] = "Phone number must contain only digits!"
+        
+        if not description or len(description) < 10:
+            errors['description'] = "Description must be at least 10 characters long!"
+
+        if errors:
+            return JsonResponse({"status": "error", "messages": errors})  
+
+      
+        workshop.name = name
+        workshop.phone = phone
+        workshop.description = description
         workshop.save()
 
-        return JsonResponse({"status": "success", "message": "Workshop updated successfully!"})  # ✅ رسالة نجاح
+        return JsonResponse({"status": "success", "message": "Workshop updated successfully!"})  
 
 
 
 def services_management(request):
+    if not request.user.is_workshop_owner:
+        return redirect('landing:main')
     try:
         workshop = request.user.workshop
         services = Service.objects.filter(workshop=workshop)
@@ -197,10 +246,18 @@ def add_service(request):
     if not request.user.is_workshop_owner:
         return JsonResponse({"status": "error", "message": "Unauthorized"}, status=403)
 
-    if request.method == 'POST':
-        errors = Service.objects.validation(request.POST)  
-        if errors:
-            return JsonResponse({"status": "error", "messages": errors}) 
+    if request.method == 'POST' :
+        errors= {}    
+        name = request.POST.get('name', '').strip()
+        price = request.POST.get('price')
+        duration = request.POST.get('duration')
+
+        if not name:
+            errors['name'] = "Service name is required!"
+        if not price or float(price) <= 0:
+            errors['price'] = "Price must be greater than zero!"
+        if not duration or int(duration) <= 0:
+            errors['duration'] = "Duration must be a positive number!"
         
         workshop = get_object_or_404(Workshop, owner=request.user)
         Service.objects.create(
@@ -220,9 +277,18 @@ def edit_service(request, service_id):
         return JsonResponse({"status": "error", "message": "Unauthorized"}, status=403)
 
     service = get_object_or_404(Service, id=service_id)
+    if request.method == 'POST' :
+        errors= {}    
+        name = request.POST.get('name', '').strip()
+        price = request.POST.get('price')
+        duration = request.POST.get('duration')
 
-    if request.method == 'POST':
-        errors = Service.objects.validation(request.POST) 
+        if not name:
+            errors['name'] = "Service name is required!"
+        if not price or float(price) <= 0:
+            errors['price'] = "Price must be greater than zero!"
+        if not duration or int(duration) <= 0:
+            errors['duration'] = "Duration must be a positive number!"
 
         if errors:
             return JsonResponse({"status": "error", "messages": errors})  
@@ -275,6 +341,11 @@ def confirm_booking(request,booking_id):
     booking = Booking.objects.get(id = booking_id)
     booking.status = 'confirmed'
     booking.save()
+    notification = Notification.objects.create(
+        user = booking.user,
+        message = f"The {booking.service.name} have been changed to {booking.status}",
+        booking = booking
+    )
     return redirect('owner_dashboard:bookings')
 
 def cancel_booking(request,booking_id):
@@ -283,6 +354,11 @@ def cancel_booking(request,booking_id):
     booking = Booking.objects.get(id = booking_id)
     booking.status = 'canceled'
     booking.save()
+    notification = Notification.objects.create(
+        user = booking.user,
+        message = f"The {booking.service.name} have been changed to {booking.status}",
+        booking = booking
+    )
     return redirect('owner_dashboard:bookings')
 
 def complete_booking(request,booking_id):
@@ -291,11 +367,18 @@ def complete_booking(request,booking_id):
     booking = Booking.objects.get(id = booking_id)
     booking.status = 'completed'
     booking.save()
+    notification = Notification.objects.create(
+        user = booking.user,
+        message = f"The {booking.service.name} have been changed to {booking.status}",
+        booking = booking
+    )
     return redirect('owner_dashboard:bookings')
 
 
 def update_booking_status(request, booking_id):
     # Update booking status view logic
+    if not request.user.is_workshop_owner:
+        return JsonResponse({"status": "error", "message": "Unauthorized"}, status=403)
     booking = Booking.objects.get(id = booking_id)
     new_status = request.GET.value
     if new_status in ['pending', 'confirmed', 'completed', 'canceled']:
@@ -307,6 +390,8 @@ def update_booking_status(request, booking_id):
 
 
 def reviews_management(request):
+    if not request.user.is_workshop_owner:
+        return redirect('landing:main')
     try:
         workshop = request.user.workshop
     except AttributeError:
@@ -327,6 +412,9 @@ def reviews_management(request):
 
 def reply_review(request, review_id):
       # Reply to review view logic
+    if not request.user.is_workshop_owner:
+        return JsonResponse({"status": "error", "message": "Unauthorized"}, status=403)
+    
     if request.method == 'POST':
         review_id = request.POST.get('review_id')
         response_text = request.POST.get('response_text')

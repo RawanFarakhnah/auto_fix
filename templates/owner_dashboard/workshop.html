@@ -163,8 +163,9 @@
                 <h5 class="modal-title" id="registerWorkshopModalLabel">Register Your Workshop</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div id="workshop-errors"></div>
+            
             <form method="post" enctype="multipart/form-data" id="registerWorkshopModal">
+                <div id="workshop-errors"></div>
                 <div class="modal-body">
                     {% csrf_token %}
                     <div class="row">
@@ -229,8 +230,9 @@
                 <h5 class="modal-title" id="editWorkshopModalLabel">Edit Workshop Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div id="workshop-errors"></div>
+            
             <form method="post" action="{% url 'owner_dashboard:edit_workshop' %}" id="edit-workshop-form">
+                <div id="workshop-errors"></div>
                 <div class="modal-body">
                     {% csrf_token %}
                     <div class="row">
