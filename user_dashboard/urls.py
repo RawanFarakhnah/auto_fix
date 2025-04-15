@@ -13,6 +13,11 @@ urlpatterns = [
     path('user/vehicles/delete/<int:vehicle_id>/', views.delete_vehicle, name='delete_vehicle'),
     
     path('user/appointments', views.appointments, name='appointments'),
+    path('user/appointments/add_appointment', views.add_appointment, name='add_appointment'),
+    path('user/appointments/edit/<int:appointment_id>/', views.edit_appointment, name='edit_appointment'),
+    path('user/appointments/delete/<int:appointment_id>/', views.delete_appointment, name='delete_appointment'),
+    path('user/appointments/get-workshop-services/<int:workshop_id>/', views.get_workshop_services, name='get_workshop_services'),
+
     path('user/services', views.services, name='services'),
     path('user/notifications', views.notifications, name='notifications'),
     path('user/notifications/mark-as-read/<int:notification_id>/', views.mark_notification_as_read, name='mark_notification_as_read'),

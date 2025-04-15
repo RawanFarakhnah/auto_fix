@@ -1,5 +1,5 @@
 from django.db.models import Count, Q
-from django.shortcuts import get_object_or_404, render, redirect, HttpResponse
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from workshops.models import Workshop, Service
@@ -9,13 +9,10 @@ from locations.models import Address
 from cars.models import Car
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
-from django.contrib.auth.hashers import make_password
 from django.contrib import messages
-from django.core.paginator import Paginator
 from django.http import JsonResponse
 import datetime
-from django import forms
+from django.utils import timezone
 
 # get user model
 User = get_user_model()
@@ -155,14 +152,106 @@ def edit_vehicle(request, vehicle_id):
     })
 
 def delete_vehicle(request,vehicle_id):
+    if not request.user.is_authenticated or (request.user.is_workshop_owner or request.user.is_superuser):
+        return redirect('landing:main')
+    
+    vehicle = get_object_or_404(Car, id=vehicle_id, user=request.user)
+    if request.method == 'POST':
+        vehicle.delete()
+        return redirect('user_dashboard:vehicles')
+    return redirect('user_dashboard:vehicles')
+ 
+def appointments(request):
+    if not request.user.is_authenticated or (request.user.is_workshop_owner or request.user.is_superuser):
+        return redirect('landing:main')
+    
+    # Get upcoming and past appointments
+    upcoming_appointments = Booking.objects.filter(
+        user=request.user,
+        appointment_date__gte=timezone.now()
+    ).order_by('appointment_date')
+    
+    past_appointments = Booking.objects.filter(
+        user=request.user,
+        appointment_date__lt=timezone.now()
+    ).order_by('-appointment_date')
+    
+    context = {
+        'upcoming_appointments': upcoming_appointments,
+        'past_appointments': past_appointments,
+        'vehicles': Car.objects.filter(user=request.user),
+        'workshops': Workshop.objects.all(),
+        'form_data': request.session.pop('form_data', None),
+        'open_modal': request.session.pop('open_modal', False),
+        'errors': request.session.pop('errors', None)
+    }
+
+    return render(request, 'user_dashboard/appointments.html', context)
+
+def get_workshop_services(request, workshop_id):
+    try:
+        services = Service.objects.filter(workshop_id=workshop_id).values('id', 'name', 'price', 'duration')
+        return JsonResponse({'status': 'success', 'services': list(services)})
+    except Workshop.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Workshop not found'}, status=404)
+    
+def add_appointment(request):
+    if not request.user.is_authenticated or (request.user.is_workshop_owner or request.user.is_superuser):
+        return redirect('landing:main')
+    
+    if request.method == 'POST':        
+        errors = Booking.objects.user_booking_validator(request.POST, request.user)
+        if errors:
+            request.session['errors'] = errors
+            #return redirect('user_dashboard:appointments')
+            return render(request, 'user_dashboard/appointments.html', {
+                'open_modal': True,
+                'errors': errors,
+                'form_data': request.POST,
+                'vehicles': Car.objects.filter(user=request.user),
+                'workshops': Workshop.objects.all(),
+            })
+        
+        try:
+            workshop = Workshop.objects.get(id=request.POST['workshop'])
+            service = Service.objects.get(id=request.POST['service'])
+            car = Service.objects.get(id=request.POST['vehicle'])
+            
+            #TODO: Add Car relationship
+            # Create the booking
+            booking = Booking.objects.create(
+                user=request.user,
+                # car=car,
+                workshop=workshop,
+                service=service,
+                appointment_date=request.POST['appointment_date'],
+                status='pending'
+            )
+                
+            messages.success(request, "Appointment booked successfully!")
+            return redirect('user_dashboard:appointments')
+            
+        except Exception as e:
+            messages.error(request, f"An error occurred: {str(e)}")
+            return redirect('user_dashboard:appointments')
+    
+    return redirect('user_dashboard:appointments')
+
+
+def edit_appointment(request,appointment_id):
     pass
 
-def appointments(request):
-    if request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser ):        
-        return render(request, 'user_dashboard/appointments.html')
 
-    return redirect('landing:main')
-
+def delete_appointment(request, appointment_id):
+    if not request.user.is_authenticated or (request.user.is_workshop_owner or request.user.is_superuser):
+        return redirect('landing:main')
+    
+    if request.method == 'POST':
+        booking = get_object_or_404(Booking, id=appointment_id, user=request.user)
+        booking.status = 'canceled'
+        booking.save()
+        return redirect('user_dashboard:appointments')
+    return redirect('user_dashboard:appointments')
 
 def services(request):
     if request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser ):        
