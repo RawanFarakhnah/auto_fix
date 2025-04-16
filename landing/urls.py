@@ -5,7 +5,7 @@ app_name = 'landing'
 
 urlpatterns = [  
     path('', views.main, name='main'),
-    path('contact/', views.contact, name='contact'),
+    
     path('dashboard/', views.dashboard, name='dashboard'),
-    # path('reviews/', views.reviews_list, name='reviews_list'),
+    path('send_contact_message/', views.send_contact_message, name='send_contact_message')
 ]

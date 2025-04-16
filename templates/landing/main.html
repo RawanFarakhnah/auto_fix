@@ -58,7 +58,7 @@
             </div>
         </div>
         <div class="col-lg-2 mb-4">
-            <div class="feature-card card text-center h-150 shadow p-4">
+            <div class="feature-card card text-center h-100 shadow p-4">
                 <div class="card-body">
                     <img src="{% static 'img/feature-4.jpg' %}" alt="Support" class="mb-3" style="width: 60px;">
                     <h5 class="card-title">24/7 Support</h5>
@@ -96,13 +96,48 @@
 
 <!-- CTA Section -->
 <section class="cta py-5" style="background-color: #e18b52;">
-    <div class="container text-center">
-        <h2 class="text-white mb-4">Get Started with AutoFix Today!</h2>
-        <p class="text-white mb-4">Sign up now to enjoy smart, efficient, and AI-powered car maintenance services.</p>
-        <a href="{% url 'accounts:register' %}" class="btn btn-lg btn-dark">Join Now</a>
+    <div class="container">
+      <div class="row align-items-center justify-content-between">
+        
+        <div class="col-md-5 mb-4 mb-md-0">
+          <h2 class="text-white mb-3">Get Started with AutoFix Today!</h2>
+          <p class="text-white mb-4" style="font-size: 1.1rem;">
+            Sign up now to enjoy smart, efficient, and AI-powered car maintenance services.
+          </p>
+          <a href="{% url 'accounts:register' %}" class="btn btn-dark btn-lg">
+            Join Now
+          </a>
+        </div>
+  
+        
+        <div class="col-md-6 d-flex justify-content-end">
+          <form method="POST" action="{% url 'landing:send_contact_message' %}" style="width: 60%;">
+            {% csrf_token %}
+            <div class="mb-2">
+              <input type="text" name="name" class="form-control form-control-sm"
+                placeholder="Your Name"
+                style="border: none; border-bottom: 1px solid #fff; background: transparent; color: #fff; font-size: 0.85rem;" required>
+            </div>
+            <div class="mb-2">
+              <input type="email" name="email" class="form-control form-control-sm"
+                placeholder="Your Email"
+                style="border: none; border-bottom: 1px solid #fff; background: transparent; color: #fff; font-size: 0.85rem;" required>
+            </div>
+            <div class="mb-3">
+              <textarea name="message" rows="2" class="form-control form-control-sm"
+                placeholder="Your Message"
+                style="border: none; border-bottom: 1px solid #fff; background: transparent; color: #fff; font-size: 0.85rem;" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-dark btn-lg ">
+              Send
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
-</section>
-
+  </section>
+  
+    
 {% endblock %}
 
 {% block extra_js %}

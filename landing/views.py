@@ -15,6 +15,8 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from workshops.models import Address,Service
+from django.core.mail import send_mail
+from django.conf import settings
 
 # Create your views here.
 User = get_user_model()
@@ -24,12 +26,11 @@ def main(request):
         return redirect('landing:dashboard')
 
     context = {
-        "reviews" : Review.objects.all()[:3]
+        "reviews" : Review.objects.all()[:3]      
     }
-    return render(request, 'landing\main.html')
+    return render(request, 'landing\main.html',context)
 
-def contact(request):
-    return render(request, 'landing\contact.html')
+
 
 def dashboard(request):
     if request.user.is_authenticated:
@@ -40,8 +41,38 @@ def dashboard(request):
         else:
             return redirect('user_dashboard:dashboard')
     else:
+        return redirect('landing:main')       
+
+
+
+
+def send_contact_message(request):
+    print("🚀 View reached!")
+
+   
+
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+
+        print("Received Data:", name, email, message)  
+
+        subject = f"New message from {name} via AutoFix"
+        full_message = f"From: {name} <{email}>\n\nMessage:\n{message}"
+
+        try:
+            send_mail(
+                subject,
+                full_message,
+                'yasmeenabassam85@gmail.com',
+                ['yasmeenabassam85@gmail.com'],
+                fail_silently=False,
+            )
+            print("Email sent successfully!")
+        except Exception as e:
+            print("Error while sending email:", e)
+
         return redirect('landing:main')
 
-# def reviews_list(request):
-#     reviews = Review.objects.select_related('user', 'workshop', 'service').all()
-#     return render(request, 'landing/main.html', {'reviews': reviews})
+    return redirect('landing:main')
