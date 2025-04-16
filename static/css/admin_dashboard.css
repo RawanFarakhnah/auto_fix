@@ -92,9 +92,9 @@
 }  
 
 .btn.btn-warning {
-  background-color: #ff6600;
+  background-color: #ff6600 !important;
   color: white;
-  border-color: #ff6600;
+  border-color: #ff6600 !important;
   transition: all 0.3s ease-in-out;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

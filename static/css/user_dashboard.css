@@ -152,14 +152,14 @@
   transition: all 0.3s ease-in-out;
 }
 
-.btn-outline-primary {
+.btn.btn-outline-primary {
   border: 2px solid #ff6600;
   color: #ff6600;
   background-color: transparent;
   box-shadow: 0 2px 4px rgba(255, 102, 0, 0.2);
 }
 
-.btn-outline-primary:hover {
+.btn.btn-outline-primary:hover {
   background-color: #ff6600;
   color: white;
   border-color: #e65c00;
@@ -167,20 +167,23 @@
   transform: translateY(-1px);
 }
 
-.btn-warning {
-  background-color: #ff6600;
+
+.btn.btn-warning {
+  background-color: #ff6600 !important;
   color: white;
-  border-color: #ff6600;
+  border-color: #ff6600 !important;
+  transition: all 0.3s ease-in-out;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.btn-warning:hover {
-  background-color: #e65c00;
-  border-color: #e65c00;
+.btn.btn-warning:hover {
+  background-color: #e65c00 !important; /* Slightly darker orange */
+  border-color: #e65c00 !important;
   color: #fff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transform: translateY(-2px);
 }
+
 
 /* Responsive Adjustments - Matching Owner Dashboard */
 @media (max-width: 768px) {
