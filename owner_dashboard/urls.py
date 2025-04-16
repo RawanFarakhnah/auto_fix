@@ -28,6 +28,10 @@ urlpatterns = [
     # Reviews Management
     path('owner/reviews/', views.reviews_management, name='reviews'),
     path('owner/reviews/<int:review_id>/reply/', views.reply_review, name='reply_review'),
+    
+    path('owner/notifications', views.notifications, name='notifications'),
+    path('owner/notifications/mark-as-read/<int:notification_id>/', views.mark_notification_as_read, name='mark_notification_as_read'),
+    path('owner/notifications/mark-all-read/', views.mark_all_notifications_as_read, name='mark_all_notifications_as_read'),
 
     
 ]

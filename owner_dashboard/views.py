@@ -14,7 +14,7 @@ from workshops.models import Address,Service
 from django.db.models import Count, Avg, Sum
 from datetime import date
 from django.shortcuts import get_object_or_404
-
+from django.core.paginator import Paginator
 
 # get user model
 User = get_user_model()
@@ -441,7 +441,47 @@ def reply_review(request, review_id):
   
 
 
-##-----------------------------------------------------------------------###
+def notifications(request):
+    if not request.user.is_workshop_owner:
+        return redirect('landing:main')
+    
+    all_notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+    paginator = Paginator(all_notifications, 5)
 
+    page_number = request.GET.get('page') 
+    page_obj = paginator.get_page(page_number)  
+
+    context = {
+        'notifications': page_obj.object_list,  
+        'page_obj': page_obj, 
+    }
+
+    return render(request, 'owner_dashboard/notifications.html', context)
+
+@csrf_exempt
+def mark_notification_as_read(request, notification_id):
+       if not request.user.is_workshop_owner:
+          return redirect('landing:main')
+       
+       if request.method == 'POST':
+          try:
+              notification = Notification.objects.get(
+                  id=notification_id,
+                  user=request.user
+              )
+              notification.is_read = True
+              notification.save()
+              return JsonResponse({'success': True})
+          except Notification.DoesNotExist:
+              return JsonResponse({'success': False, 'error': 'Notification not found'}, status=404)
+       return redirect('owner_dashboard:notifications')
+     
+
+def mark_all_notifications_as_read(request):
+    if not request.user.is_workshop_owner:
+          return redirect('landing:main') 
+   
+    Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+    return JsonResponse({'status': 'success'})
 
 
