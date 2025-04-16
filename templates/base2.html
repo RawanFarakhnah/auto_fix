@@ -44,7 +44,7 @@
                         <!-- this code for the notifications :  -->
         <a {% if request.user.is_workshop_owner %} href="{% url 'owner_dashboard:notifications' %}" {% elif request.user.is_superuser %} href="{% url 'admin_dashboard:notifications' %}" {% else %} href="{% url 'user_dashboard:notifications' %}" {% endif %} id="notifications-btn" class="btn btn-outline-primary position-relative">
             <i class="fa fa-bell"></i>
-            <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge bg-danger" style="display: none;">
+            <span id="notification-badge" class="position-absolute fs-6 top-0 start-100 translate-middle badge bg-danger" style="display: none;">
                 0
             </span>
         </a>
