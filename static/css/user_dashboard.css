@@ -1,257 +1,224 @@
-/* Base Styles */
+/* Admin Dashboard CSS - Matching Owner Dashboard Style */
 .wrapper {
-    display: flex;
-    min-height: 80vh;
-    background-color: #f8f9fa;
+  display: flex;
+  min-height: 80vh;
+  background-color: #f8f9fa;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #343a40;
+  color: #fff;
+  border-radius: 8px;
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+  margin: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar .menu a {
+  color: #ddd;
+  padding: 10px 15px;
+  display: block;
+  border-radius: 4px;
+  transition: all 0.3s;
+  text-decoration: none;
+  margin-bottom: 5px;
+}
+
+.sidebar .menu a:hover,
+.sidebar .menu .active-link {
+  background-color: #ff6600;
+  color: #fff;
+  transform: translateX(5px);
+}
+
+.sidebar .menu a i {
+  width: 20px;
+  text-align: center;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+}
+
+/* User Profile - Matching Owner Dashboard */
+.user-profile {
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  text-align: center;
+}
+
+.user-profile .avatar {
+  color: #ff6600;
+}
+
+.user-profile .welcome {
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+/* Stats Cards - Matching Owner Dashboard */
+.stats-cards .card {
+  background: #fff;
+  border: none;
+  border-radius: 8px;
+  transition: transform 0.3s;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.stats-cards .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.stats-cards .card-body {
+  padding: 20px;
+}
+
+.stats-cards .text-muted {
+  font-size: 0.85rem;
+  color: #6c757d !important;
+}
+
+.stats-cards h3 {
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+/* Cards - Matching Owner Dashboard */
+.card {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+  margin-bottom: 20px;
+}
+
+.card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  background-color: white;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  padding: 15px 20px;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+/* Form Elements - Matching Owner Dashboard */
+.form-select {
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  padding: 5px 10px;
+  font-size: 0.85rem;
+}
+
+.border-orange {
+  border-color: #ff6600 !important;
+}
+
+/* Tables - Matching Owner Dashboard */
+.table {
+  margin-bottom: 0;
+}
+
+.table th {
+  border-top: 0;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #6c757d;
+  background-color: #f8f9fa;
+}
+
+.table td {
+  vertical-align: middle;
+  padding: 12px 15px;
+}
+
+/* Badges - Matching Owner Dashboard Buttons */
+.badge {
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+/* Buttons - Exact Match from Owner Dashboard */
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease-in-out;
+}
+
+.btn-outline-primary {
+  border: 2px solid #ff6600;
+  color: #ff6600;
+  background-color: transparent;
+  box-shadow: 0 2px 4px rgba(255, 102, 0, 0.2);
+}
+
+.btn-outline-primary:hover {
+  background-color: #ff6600;
+  color: white;
+  border-color: #e65c00;
+  box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-warning {
+  background-color: #ff6600;
+  color: white;
+  border-color: #ff6600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-warning:hover {
+  background-color: #e65c00;
+  border-color: #e65c00;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Responsive Adjustments - Matching Owner Dashboard */
+@media (max-width: 768px) {
+  .wrapper {
+    flex-direction: column;
   }
   
   .sidebar {
-    width: 250px;
-    background-color: #343a40;
-    color: #fff;
-    border-radius: 8px;
-    position: sticky;
-    top: 20px;
-    height: fit-content;
-  }
-  
-  .sidebar .menu a {
-    color: #ddd;
-    padding: 10px 15px;
-    display: block;
-    border-radius: 4px;
-    transition: all 0.3s;
-    text-decoration: none;
-    margin-bottom: 5px;
-  }
-  
-  .bg-orange{
-    color: #fff;
-    background-color: #ff6600;
-  }
-
-  .sidebar .menu a:hover,
-  .sidebar .menu .active-link {
-    background-color: #ff6600;
-    color: #fff;
-    transform: translateX(5px);
-  }
-  
-  .sidebar .menu a i {
-    width: 20px;
-    text-align: center;
+    width: 100%;
+    margin-bottom: 20px;
+    position: static;
+    margin: 0;
+    border-radius: 0;
   }
   
   .main-content {
-    flex-grow: 1;
-    padding-left: 20px;
+    padding-left: 0;
   }
   
-  /* User Profile */
-  .user-profile {
-    padding: 15px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+  .stats-cards .col-md-3 {
+    flex: 0 0 50%;
+    max-width: 50%;
   }
-  
-  .user-profile .avatar {
-    color: #ff6600;
-  }
-  
-  /* Stats Cards */
-  .stats-cards .card {
-    background: #fff;
-    border: none;
-    border-radius: 8px;
-    transition: transform 0.3s;
-  }
-  
-  .stats-cards .card:hover {
-    transform: translateY(-5px);
-  }
-  
-  .stats-cards .card-body {
-    padding: 20px;
-  }
-  
-  /* Timeline */
-  .timeline {
-    position: relative;
-    padding-left: 30px;
-  }
-  
-  .timeline-item {
-    position: relative;
-    padding-bottom: 20px;
-  }
-  
-  .timeline-item:last-child {
-    padding-bottom: 0;
-  }
-  
-  .timeline-icon {
-    position: absolute;
-    left: -30px;
-    top: 0;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 10px;
-  }
-  
-  .timeline-content {
-    padding-left: 20px;
-  }
-  
-  /* Notification Icons */
-  .icon-circle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-  }
-  
-  /* Star Rating */
-  .star-rating {
-    color: #ffc107;
-  }
-  
-  /* Responsive Adjustments */
-  @media (max-width: 768px) {
-    .wrapper {
-      flex-direction: column;
-    }
-    
-    .sidebar {
-      width: 100%;
-      margin-bottom: 20px;
-    }
-    
-    .main-content {
-      padding-left: 0;
-    }
-  }
-  
-  /* Breadcrumb */
-  .breadcrumb {
-    background-color: transparent;
-    padding: 0;
-    margin-bottom: 0;
-  }
-  
-  /* Card Headers */
-  .card-header {
-    background-color: white;
-    border-bottom: 1px solid rgba(0,0,0,0.125);
-  }
-  
-  /* List Group Items */
-  .list-group-item {
-    border-left: 0;
-    border-right: 0;
-  }
-  
-  .list-group-item:first-child {
-    border-top: 0;
-  }
-  
-  /* Badges */
-  .badge {
-    font-weight: 500;
-    padding: 5px 8px;
-  }
-  
-  /* Alerts */
-  .alert {
-    border-radius: 8px;
-  }
-  
-  /* Buttons */
-  .btn {
-    border-radius: 8px;
-    font-weight: 500;
-  }
-  
-  .btn-outline-primary {
-    border-color: #ff6600;
-    color: #ff6600;
-  }
-  
-  .btn-outline-primary:hover {
-    background-color: #ff6600;
-    border-color: #ff6600;
-    color: white;
-  }
-  
-  /* Tables */
-  .table {
-    margin-bottom: 0;
-  }
-  
-  .table th {
-    border-top: 0;
-  }
-  
-  /* Dropdowns */
-  .dropdown-menu {
-    border-radius: 8px;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-  }
-  
-  /* Forms */
-  .form-control, .form-select {
-    border-radius: 8px;
-    padding: 10px 15px;
-  }
-  
-  /* Modal */
-  .modal-content {
-    border-radius: 12px;
-  }
-  
-  /* Pagination */
-  .pagination .page-item .page-link {
-    border-radius: 8px;
-    margin: 0 3px;
-  }
-  
-  /* Custom Scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 10px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: #555;
-  }
-
-  .pagination .page-item.active .page-link {
-    background-color: #ff6600;
-    border-color: #ff6600;
-    color: white;
 }
 
-.pagination .page-link {
-    color: #ff6600;
-    border: 1px solid #ff6600;
+@media (max-width: 576px) {
+  .stats-cards .col-md-3 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
+  .table-responsive {
+    border: 0;
+  }
 }
 
-.pagination .page-link:hover {
-    background-color: #ff6600;
-    color: white;
-    border-color: #ff6600;
+/* Chart Canvas */
+canvas {
+  width: 100% !important;
+  max-height: 250px;
 }

@@ -19,18 +19,42 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Count
+from django.db.models.functions import TruncDate
+from django.utils.timezone import now, timedelta
 
 # get user model
 User = get_user_model()
 
 #Admin Dashboard
 def admin_dashboard(request):
-    if request.user.is_authenticated and request.user.is_superuser:
+    if request.user.is_superuser:
+        # Base stats
+        users_count = User.objects.count()
+        active_workshops = Workshop.objects.count()
+        pending_bookings = Booking.objects.filter(status='Pending').count()
+        completed_bookings = Booking.objects.filter(status='Completed').count()
+
+        # Chart data - completed bookings in last 90 days
+        ninety_days_ago = now() - timedelta(days=90)
+        bookings_by_date = (
+            Booking.objects
+            .filter(status='Completed', created_at__gte=ninety_days_ago)
+            .annotate(date=TruncDate('created_at'))
+            .values('date')
+            .annotate(count=Count('id'))
+            .order_by('date')
+        )
+
+        list_of_dates = [entry['date'].strftime('%Y-%m-%d') for entry in bookings_by_date]
+        list_of_counts = [entry['count'] for entry in bookings_by_date]
+
         context = {
-        
-        'users_count': User.objects.count(),
-        'pending_bookings': Booking.objects.filter(status='Pending').count(),
-        'completed_bookings': Booking.objects.filter(status='Completed').count(),
+            'users_count': users_count,
+            'active_workshops': active_workshops,
+            'pending_bookings': pending_bookings,
+            'completed_bookings': completed_bookings,
+            'dates': list_of_dates,
+            'counts': list_of_counts
         }
         return render(request, 'admin_dashboard/dashboard.html', context)
 

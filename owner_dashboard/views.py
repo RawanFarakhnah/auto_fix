@@ -103,6 +103,11 @@ def workshop_management(request):
             errors['name'] = "Workshop name is required , and must be only characters!"
         if not phone or not phone.isdigit():
             errors['phone'] = "Phone number must contain only digits!"
+        if not phone or len(phone) != 10:
+            errors['phone'] = "Phone number must be 10 digits!"
+        if not str(phone).startswith("05"):
+             errors['phone'] = "Phone number must start with 05"
+
         if not description or len(description) < 10:
             errors['description'] = "Description must be at least 10 characters long!"
         if not street:

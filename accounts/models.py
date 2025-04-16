@@ -25,8 +25,16 @@ class UserManager(models.Manager):
         if postData['password'] != postData['confirm_password']:
             errors['confirm_password'] = "Passwords do not match"
         
-        if postData.get('phone') and not re.match(r'^\d{3}-\d{3}-\d{4}$', postData['phone']):
-            errors['phone'] =  "enter a valid phone number. Example format: 800-555-1234"
+        # if postData.get('phone') and not re.match(r'^\d{3}-\d{3}-\d{4}$', postData['phone']):
+        #     errors['phone'] =  "enter a valid phone number. Example format: 05xxxxxxxx"
+       
+        phone = postData.get('phone')
+        if not phone or not phone.isdigit():
+            errors['phone'] = "Phone number must contain only digits!"
+        if not phone or len(phone) != 10:
+            errors['phone'] = "Phone number must be 10 digits!"
+        if not str(phone).startswith("05"):
+             errors['phone'] = "Phone number must start with 05"
 
         return errors
 

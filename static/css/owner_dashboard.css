@@ -74,15 +74,37 @@
   font-weight: 500;
 }
 
-.btn-outline-primary {
-  border-color: #ff6600;
+.btn.btn-outline-primary {
+  border: 2px solid #ff6600;
   color: #ff6600;
+  background-color: transparent;
+  transition: all 0.3s ease-in-out;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(255, 102, 0, 0.2);
 }
 
-.btn-outline-primary:hover {
+.btn.btn-outline-primary:hover {
   background-color: #ff6600;
-  border-color: #ff6600;
   color: white;
+  border-color: #e65c00;
+  box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3);
+  transform: translateY(-1px);
+}  
+
+.btn.btn-warning {
+  background-color: #ff6600;
+  color: white;
+  border-color: #ff6600;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn.btn-warning:hover {
+  background-color: #e65c00; /* Slightly darker orange */
+  border-color: #e65c00;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
 }
 
 /* Card Headers */
