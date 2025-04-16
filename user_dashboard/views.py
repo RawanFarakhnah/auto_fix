@@ -433,7 +433,11 @@ def add_review(request):
                 service=service,
                 defaults={'rating': rating, 'comment': comment}
             )
-
+            notification = Notification.objects.create(
+                user = request.user ,
+                message = f"{request.user} have been review {service.name}",
+                booking = Booking.objects.filter(service = service).first()
+            )
             if not created:
                 return JsonResponse({'status': 'error', 'message': 'You already reviewed this service.'})
 
