@@ -1,80 +1,122 @@
 {% extends 'base2.html' %}
 
-{% block title %} Admin Dashboard {% endblock %}
+{% block title %} Manage Services {% endblock %}
 
 {% load static bootstrap5 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="wrapper d-flex">
 
-    <!-- Sidebar -->
+    <!-- Sidebar (maintaining your existing style) -->
     <aside class="sidebar p-3 shadow-sm">
-        <h4 class="welcome mb-4">Welcome, {{ user.get_short_name }}</h4>
-
+        <div class="user-profile mb-4 text-center">
+            <div class="avatar mb-2">
+                <i class="fas fa-user-shield fa-3x"></i>
+            </div>
+            <h5 class="welcome mb-1">Welcome, {{ user.get_short_name }}</h5>
+            <small class="text-muted">Administrator</small>
+        </div>
+        
         <nav class="menu d-flex flex-column gap-2">
-            <a href="{% url 'admin_dashboard:dashboard' %}" class="text-white text-decoration-none">Dashboard</a>
-            <a href="{% url 'admin_dashboard:manage_users' %}" class="text-white text-decoration-none">Manage
-                Users</a>
-            <a href="{%url 'admin_dashboard:manage_workshops'%}" class="text-white text-decoration-none" >Manage Workshops</a>
-            <a href="{% url 'admin_dashboard:manage_services' %}" class="active-link text-white text-decoration-none">Manage Services</a>
+            <a href="{% url 'admin_dashboard:dashboard' %}">
+                <i class="fas fa-chart-line me-2"></i>Dashboard
+            </a>
+            <a href="{% url 'admin_dashboard:manage_users' %}">
+                <i class="fas fa-users me-2"></i>Manage Users
+            </a>
+            <a href="{% url 'admin_dashboard:manage_workshops' %}">
+                <i class="fas fa-warehouse me-2"></i>Workshops
+            </a>
+            <a href="{% url 'admin_dashboard:manage_services' %}" class="active-link">
+                <i class="fas fa-tools me-2"></i>Services
+            </a>
+            <a href="{% url 'accounts:logout' %}" class="text-danger">
+                <i class="fas fa-sign-out-alt me-2"></i>Logout
+            </a>
         </nav>
-    </aside>
+      </aside>
 
-    <main class="main-content flex-grow-1 p-4">
-        <div class="d-flex justify-content-between">
-            <h1 class="mb-4">Manage Services</h1>
-            <div>
-                <a class="btn btn-warning text-white" style="background-color: #ff6600;" 
-               href="{% url 'admin_dashboard:create_service' %}">Add New Service</a>
+      <main class="main-content flex-grow-1 p-4">
+        <div class="dashboard-header mb-4">
+            <h1>Manage Services</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-decoration-none" style="color: #ff6600;" 
+                        href="{% url 'admin_dashboard:dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Services</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">My Services</h5>
+                <a class="btn btn-sm btn-warning" href="{% url 'admin_dashboard:create_service' %}">
+                    <i class="fas fa-plus me-1"></i> Add Service
+                </a>
+            </div>
+            
+            <div class="card-body">
+                {% if services %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr id="service-{{ service.id }}">
+                                <th>Workshop</th>
+                                <th>Service</th>
+                                <th>Price</th>
+                                <th>Duration</th>
+                                <th>Bookings</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for service in services %}
+                            <tr>
+                                <td>
+                                    <h6 class="mb-1">{{ service.workshop.name }}</h6>
+                                </td>
+                                <td>
+                                    <h6 class="mb-1">{{ service.name }}</h6>
+                                    <small class="text-muted">{{ service.description|truncatechars:50 }}</small>
+                                </td>
+                                <td>${{ service.price }}</td>
+                                <td>{{ service.duration }} mins</td>
+                                <td>{{ service.booking_count }}</td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-warning btn-sm" style="background-color: #ff6600; color:white;" 
+                                             data-id="{{ service.id }}"
+                                             onclick="window.location.href='{% url 'admin_dashboard:edit_service' service.id %}'">
+                                             Update
+                                         </button>
+                                        <button class="btn btn-dark btn-sm btn-delete" data-id="{{ service.id }}">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-wrench fa-4x text-muted mb-4"></i>
+                    <h3>No Services Added</h3>
+                    <p class="text-muted mb-4">  There are currently no services in the system. Click below to add a new service.</p>
+                    <a class="btn btn-warning btn-lg" href="{% url 'admin_dashboard:create_service' %}">
+                        <i class="fas fa-plus me-1"></i> Add Service
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
 
-        <div class="search-box mb-3">
-            <input type="text" class="form-control" placeholder="Search...">
-        </div>
-
-        <table class="table table-striped">
-            <thead>
-                <tr class="main">
-                    <th>Workshop</th>
-                    <th>Name</th>
-                    <th>Price</th>
-                    <th>Description</th>
-                    <th>Duration (min)</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for service in services %}
-                <tr id="service-{{ service.id }}">
-                    <td>{{ service.workshop.name }}</td>
-                    <td contenteditable="true" class="editable" data-id="{{ service.id }}" data-field="name">{{ service.name }}</td>
-                    <td contenteditable="true" class="editable" data-id="{{ service.id }}" data-field="price">{{ service.price }}</td>
-                    <td contenteditable="true" class="editable" data-id="{{ service.id }}" data-field="description">{{ service.description }}</td>
-                    <td contenteditable="true" class="editable" data-id="{{ service.id }}" data-field="duration">{{ service.duration }}</td>
-                    <td>
-                        <button class="btn btn-warning btn-sm" 
-                        style="background-color: #ff6600; color:white;" 
-                        data-id="{{ service.id }}"
-                        onclick="window.location.href='{% url 'admin_dashboard:edit_service' service.id %}'">
-                    Update
-                </button>
-                <button class="btn btn-dark btn-sm btn-delete" data-id="{{ service.id }}">Delete</button>
-
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>      
-        
-    </main>
-
+      </main>
 </div>
 {% endblock %}
 

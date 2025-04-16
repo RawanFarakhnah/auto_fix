@@ -122,12 +122,7 @@
             <div class="col-lg-8 mb-4">
                 <div class="card shadow-sm h-100">
                     <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Bookings Analytics</h5>
-                        <select class="form-select form-select-sm w-auto">
-                            <option>Last 7 Days</option>
-                            <option>Last 30 Days</option>
-                            <option selected>Last 90 Days</option>
-                        </select>
+                        <h5 class="mb-0">Bookings Analytics (Last 30 Days)</h5>
                     </div>
                     <div class="card-body">
                         <canvas id="bookingChart" height="250"></canvas>
@@ -139,12 +134,7 @@
             <div class="col-lg-4 mb-4">
                 <div class="card shadow-sm h-100">
                     <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">User Growth</h5>
-                        <select class="form-select form-select-sm w-auto">
-                            <option>Last 7 Days</option>
-                            <option>Last 30 Days</option>
-                            <option selected>Last 90 Days</option>
-                        </select>
+                        <h5 class="mb-0">User Growth (Last 30 Days)</h5>
                     </div>
                     <div class="card-body">
                         <canvas id="userGrowthChart" height="250"></canvas>
@@ -162,6 +152,8 @@
 <!-- Chart Data -->
 {{ dates|json_script:"dates-data" }}
 {{ counts|json_script:"counts-data" }}
+{{ userGrowth_dates|json_script:"userGrowth-dates-data" }}
+{{ userGrowth_counts|json_script:"userGrowth-counts-data" }}
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -210,10 +202,10 @@ document.addEventListener("DOMContentLoaded", function() {
     const userGrowthChart = new Chart(userGrowthCtx, {
         type: 'bar',
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            labels: JSON.parse(document.getElementById('userGrowth-dates-data').textContent),
             datasets: [{
-                label: 'New Users',
-                data: [12, 19, 15, 27, 22, 31],
+                label: 'Users',
+                data: JSON.parse(document.getElementById('userGrowth-counts-data').textContent),
                 backgroundColor: 'rgba(54, 162, 235, 0.7)',
                 borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1

@@ -3,23 +3,19 @@ from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from workshops.models import Workshop, Service
-from reviews.models import Review
 from bookings.models import Booking
 from locations.models import Address
 from cars.models import Car
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from workshops.models import Address,Service
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Count
-from django.db.models.functions import TruncDate
 from django.utils.timezone import now, timedelta
 
 # get user model
@@ -27,61 +23,39 @@ User = get_user_model()
 
 #Admin Dashboard
 def admin_dashboard(request):
-    if request.user.is_superuser:
-        # Base stats
-        users_count = User.objects.count()
-        active_workshops = Workshop.objects.count()
-        pending_bookings = Booking.objects.filter(status='Pending').count()
-        completed_bookings = Booking.objects.filter(status='Completed').count()
+    if request.user.is_authenticated and request.user.is_superuser:
+        last_30_days = timezone.now() - timedelta(days=30)
 
-        # Chart data - completed bookings in last 90 days
-        ninety_days_ago = now() - timedelta(days=90)
-        bookings_by_date = (
-            Booking.objects
-            .filter(status='Completed', created_at__gte=ninety_days_ago)
-            .annotate(date=TruncDate('created_at'))
-            .values('date')
-            .annotate(count=Count('id'))
-            .order_by('date')
-        )
+        bookings_by_day = Booking.objects.filter(appointment_date__gte=last_30_days) \
+        .values('appointment_date__date') \
+        .annotate(count=Count('id')) \
+        .order_by('appointment_date__date')
+        
+        dates = [b['appointment_date__date'].strftime('%Y-%m-%d') for b in bookings_by_day]  
+        counts = [b['count'] for b in bookings_by_day]  
 
-        list_of_dates = [entry['date'].strftime('%Y-%m-%d') for entry in bookings_by_date]
-        list_of_counts = [entry['count'] for entry in bookings_by_date]
+        users_growth_by_day = User.objects.filter(date_joined__gte=last_30_days) \
+          .values('date_joined__date') \
+          .annotate(count=Count('id')) \
+          .order_by('date_joined__date')
+
+        userGrowth_dates = [b['date_joined__date'].strftime('%Y-%m-%d') for b in users_growth_by_day]  
+        userGrowth_counts = [b['count'] for b in users_growth_by_day]  
 
         context = {
-            'users_count': users_count,
-            'active_workshops': active_workshops,
-            'pending_bookings': pending_bookings,
-            'completed_bookings': completed_bookings,
-            'dates': list_of_dates,
-            'counts': list_of_counts
-        }
+           'userGrowth_dates': userGrowth_dates,
+           'userGrowth_counts': userGrowth_counts,
+           'dates': dates,
+           'counts': counts,
+           'users_count': User.objects.count(),
+           'active_workshops': Workshop.objects.count(),
+           'pending_bookings': Booking.objects.filter(status='pending').count(),
+           'completed_bookings': Booking.objects.filter(status='completed').count(),
+           }
+        
         return render(request, 'admin_dashboard/dashboard.html', context)
 
     return redirect('landing:main')
-
-
-@csrf_exempt
-def users_list(request):
-    if request.user.is_authenticated and request.user.is_superuser:
-        users = User.objects.all()
-        user_data = []
-        for user in users:
-            user_data.append({
-                'id': user.id,
-                'full_name': user.get_full_name(),
-                'email': user.email,
-                'phone': user.phone,
-                'is_superuser':user.is_superuser,
-                'is_workshop_owner':user.is_workshop_owner
-            })
-        return JsonResponse({'users': user_data})
-    else:
-        return JsonResponse({
-        'success': False,
-        'message': "Unautorized User",
-        'redirect_url': reverse('landing:main')
-        }) 
 
 def create_user(request):
     if request.user.is_authenticated and request.user.is_superuser:    
@@ -204,19 +178,30 @@ def delete_user(request, user_id):
         })
 
 def manage_users(request):
+    if not request.user.is_superuser:
+        return redirect('landing:main')
+
+    users = User.objects.all().order_by('-date_joined')
     
-    users = User.objects.all().order_by('-id')
-    
-    data = [
-        {'name': f'User {i}', 'description': f'Description {i}'} for i in range(1, 21)
-    ]
-    paginator = Paginator(data, 5)  
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    
+    role = request.GET.get('role', '')
+    from_date = request.GET.get('from_date', '')
+    to_date = request.GET.get('to_date', '')
+
+    if role:
+        if role == 'admin':
+           users = users.filter(is_superuser=True)
+        elif role == 'owner':
+           users = users.filter(is_workshop_owner=True)
+        elif role == 'user':
+           users = users.filter(is_superuser=False,is_workshop_owner=False)
+           
+    if from_date:
+        users = users.filter(date_joined__gte=from_date)
+    if to_date:
+        users = users.filter(date_joined__lte=to_date)
+
     context = {
-        'users': users,
-        'page_obj': page_obj
+        'all_users': users,
     }
 
     return render(request, 'admin_dashboard/manage_users.html', context)
@@ -227,7 +212,6 @@ def manage_workshops(request):
   
 def create_workshop(request):
     if request.method == 'POST':
-        #TODO: Back Validation 
         name = request.POST.get('name')
         phone = request.POST.get('phone')
         address_id = request.POST.get('address_id')
@@ -267,7 +251,6 @@ def edit_workshop(request, id):
 
 
 @csrf_exempt
-@csrf_exempt
 def workshop_update(request, id):
     if request.method == 'POST':
         try:
@@ -278,7 +261,7 @@ def workshop_update(request, id):
         name = request.POST.get('name')
         phone = request.POST.get('phone')
         address_id = request.POST.get('address_id')
-        owner_id = request.POST.get('owner_id')  # إضافة السطر الخاص بالمالك
+        owner_id = request.POST.get('owner_id') 
         image = request.FILES.get('image')
 
         if name:
@@ -323,11 +306,18 @@ def delete_workshop(request, id):
             'error': "Unautorized User",
             'redirect_url': reverse('landing:main')
             })
+
 def manage_services(request):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        return redirect('landing:main')
+    
     services = Service.objects.all()
     return render(request, 'admin_dashboard/manage_services.html', {'services': services}) 
 
 def create_service(request):
+    if not request.user.is_superuser:
+        return redirect('landing:main')
+    
     if request.method == 'GET':
         workshops = Workshop.objects.all()
         return render(request, 'admin_dashboard/create_service.html', {'workshops': workshops})
@@ -413,24 +403,4 @@ def update_service(request, service_id):
         'error': "Unauthorized user",
         'redirect_url': reverse('landing:main')
     }, status=403)
-def dashboard(request):
-    
-    last_30_days = timezone.now() - timedelta(days=30)
 
-    
-    bookings_by_day = Booking.objects.filter(appointment_date__gte=last_30_days) \
-    .values('appointment_date__date') \
-    .annotate(count=Count('id')) \
-    .order_by('appointment_date__date')
-
-
-    
-    dates = [b['appointment_date__date'].strftime('%Y-%m-%d') for b in bookings_by_day]  # تحويل التاريخ إلى صيغة قابلة للاستخدام
-    counts = [b['count'] for b in bookings_by_day]  
-
-    
-    context = {
-        'dates': dates,
-        'counts': counts
-    }
-    return render(request, 'admin_dashboard/dashboard.html', context)
