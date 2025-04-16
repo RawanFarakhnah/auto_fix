@@ -17,45 +17,184 @@ from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Count
 from django.utils.timezone import now, timedelta
+from bookings.models import Booking, Notification
+from django.contrib.auth import update_session_auth_hash
 
 # get user model
 User = get_user_model()
 
 #Admin Dashboard
 def admin_dashboard(request):
-    if request.user.is_authenticated and request.user.is_superuser:
-        last_30_days = timezone.now() - timedelta(days=30)
+    if not request.user.is_authenticated or not request.user.is_superuser:
+       return redirect('landing:main')
+    
+    last_30_days = timezone.now() - timedelta(days=30)
 
-        bookings_by_day = Booking.objects.filter(appointment_date__gte=last_30_days) \
-        .values('appointment_date__date') \
-        .annotate(count=Count('id')) \
-        .order_by('appointment_date__date')
+    bookings_by_day = Booking.objects.filter(appointment_date__gte=last_30_days) \
+    .values('appointment_date__date') \
+    .annotate(count=Count('id')) \
+    .order_by('appointment_date__date')
+    
+    dates = [b['appointment_date__date'].strftime('%Y-%m-%d') for b in bookings_by_day]  
+    counts = [b['count'] for b in bookings_by_day]  
+
+    users_growth_by_day = User.objects.filter(date_joined__gte=last_30_days) \
+      .values('date_joined__date') \
+      .annotate(count=Count('id')) \
+      .order_by('date_joined__date')
+
+    userGrowth_dates = [b['date_joined__date'].strftime('%Y-%m-%d') for b in users_growth_by_day]  
+    userGrowth_counts = [b['count'] for b in users_growth_by_day]  
+
+    context = {
+       'userGrowth_dates': userGrowth_dates,
+       'userGrowth_counts': userGrowth_counts,
+       'dates': dates,
+       'counts': counts,
+       'users_count': User.objects.count(),
+       'active_workshops': Workshop.objects.count(),
+       'pending_bookings': Booking.objects.filter(status='pending').count(),
+       'completed_bookings': Booking.objects.filter(status='completed').count(),
+       }
+    
+    return render(request, 'admin_dashboard/dashboard.html', context)
+
+def profile(request):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+       return redirect('landing:main')
+    
+    return render(request, 'admin_dashboard/my_profile.html')
+
+def profile_update(request):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+       return redirect('landing:main')
+    
+    if request.method != 'POST':
+        return redirect('admin_dashboard:profile')
+    
+    if request.method == "POST":
+        user = request.user
+        user.first_name = request.POST.get('first_name', user.first_name)
+        user.last_name = request.POST.get('last_name', user.last_name)
+        phone = request.POST.get('phone', '')
         
-        dates = [b['appointment_date__date'].strftime('%Y-%m-%d') for b in bookings_by_day]  
-        counts = [b['count'] for b in bookings_by_day]  
+        # Validate phone number format
+        phone_errors = []
 
-        users_growth_by_day = User.objects.filter(date_joined__gte=last_30_days) \
-          .values('date_joined__date') \
-          .annotate(count=Count('id')) \
-          .order_by('date_joined__date')
-
-        userGrowth_dates = [b['date_joined__date'].strftime('%Y-%m-%d') for b in users_growth_by_day]  
-        userGrowth_counts = [b['count'] for b in users_growth_by_day]  
-
-        context = {
-           'userGrowth_dates': userGrowth_dates,
-           'userGrowth_counts': userGrowth_counts,
-           'dates': dates,
-           'counts': counts,
-           'users_count': User.objects.count(),
-           'active_workshops': Workshop.objects.count(),
-           'pending_bookings': Booking.objects.filter(status='pending').count(),
-           'completed_bookings': Booking.objects.filter(status='completed').count(),
-           }
+        if not phone:
+            phone_errors.append("Phone number is required.")
+        elif not phone.isdigit():
+            phone_errors.append("Phone number must contain only digits.")
+        elif len(phone) != 10:
+            phone_errors.append("Phone number must be 10 digits.")
+        elif not phone.startswith("05"):
+            phone_errors.append("Phone number must start with 05.")
         
-        return render(request, 'admin_dashboard/dashboard.html', context)
+        if phone_errors:
+            messages.error(request, " ".join(phone_errors))
+        else:
+            user.phone = phone
+            user.save()
+            messages.success(request, "Profile updated successfully")
+        
+        return redirect('admin_dashboard:profile')
+    
+def update_address(request):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+       return redirect('landing:main')
+    
+    if request.method != 'POST':
+        return redirect('admin_dashboard:profile')
+    
+    user = request.user
+    street = request.POST.get('street', '').strip()
+    city = request.POST.get('city', '').strip()
+    region = request.POST.get('region', '').strip()
+    country = request.POST.get('country', '').strip()
+    postal_code = request.POST.get('postal_code', '').strip()
+    
+    # Make coordinates optional with default None
+    latitude = request.POST.get('latitude', '').strip() or None
+    longitude = request.POST.get('longitude', '').strip() or None
+    
+    # Validate required fields
+    if not all([street, city, country]):
+        messages.error(request, "Street, City and Country are required fields")
+        return redirect('admin_dashboard:profile')
+    
+    try:
+        # Convert coordinates if provided
+        if latitude is not None:
+            latitude = float(latitude)
+            if not (-90 <= latitude <= 90):
+                raise ValueError("Latitude must be between -90 and 90")
+        
+        if longitude is not None:
+            longitude = float(longitude)
+            if not (-180 <= longitude <= 180):
+                raise ValueError("Longitude must be between -180 and 180")
+            
+        # Create or update address
+        if user.address:
+            address = user.address
+            address.street = street
+            address.city = city
+            address.region = region
+            address.country = country
+            address.postal_code = postal_code
+            if latitude: address.latitude = latitude
+            if longitude: address.longitude = longitude
+        else:
+            address = Address.objects.create(
+                street=street,
+                city=city,
+                region=region,
+                country=country,
+                postal_code=postal_code,
+                latitude=latitude,
+                longitude=longitude
+            )
+            user.address = address
+        
+        address.save()
+        user.save()
+        messages.success(request, "Address updated successfully")
+        
+    except ValueError as e:
+        messages.error(request, str(e))
+    except Exception as e:
+        messages.error(request, f"Error saving address: {str(e)}")
+    
+    return redirect('admin_dashboard:profile')
 
-    return redirect('landing:main')
+def change_password(request):
+    if not request.user.is_superuser:
+        return redirect('landing:main')
+
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if not request.user.check_password(current_password):
+            messages.error(request, "Current password is incorrect.")
+            return redirect('admin_dashboard:profile')
+
+        if len(new_password) < 8:
+            messages.error(request, "New password must be at least 8 characters long.")
+            return redirect('admin_dashboard:profile')
+
+        if new_password != confirm_password:
+            messages.error(request, "New password and confirmation do not match.")
+            return redirect('admin_dashboard:profile')
+
+        request.user.set_password(new_password)
+        request.user.save()
+        update_session_auth_hash(request, request.user)  # Keeps user logged in after password change
+        messages.success(request, "Password changed successfully.")
+        return redirect('admin_dashboard:profile')
+
+    return redirect('admin_dashboard:profile')
 
 def create_user(request):
     if request.user.is_authenticated and request.user.is_superuser:    
@@ -86,7 +225,7 @@ def create_user(request):
             )
             
             messages.success(request, "User created successfully")
-            return redirect('landing:dashboard') 
+            return redirect('admin_dashboard:manage_users')
         
         return render(request, 'admin_dashboard/create_user.html')
 
@@ -107,9 +246,8 @@ def edit_user(request, user_id):
                 'role': role,  # Ensure this is passed for role selection in the form
             })
         except User.DoesNotExist:
-            return redirect('landing:dashboard')
+            return redirect('admin_dashboard:manage_users')
     return redirect('landing:main')
-
 
 @csrf_exempt
 def update_user(request, user_id):
@@ -378,10 +516,6 @@ def edit_service(request, service_id):
 
 @csrf_exempt
 def update_service(request, service_id):
-    print("Entered update_service view")
-    print("Request method:", request.method)
-    print("User:", request.user)
-
     if request.user.is_authenticated and request.user.is_superuser:
         if request.method == 'POST':
             service = get_object_or_404(Service, id=service_id)
@@ -391,16 +525,57 @@ def update_service(request, service_id):
             service.duration = request.POST.get('duration')
             service.save()
 
-            print("Service updated successfully")
             return JsonResponse({'success': True})
 
-        print("Request method is not POST")
         return JsonResponse({'success': False, 'error': 'Request method must be POST'}, status=400)
 
-    print("User is not authorized")
     return JsonResponse({
         'success': False,
         'error': "Unauthorized user",
         'redirect_url': reverse('landing:main')
     }, status=403)
 
+
+def notifications(request):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        return redirect('landing:main')
+    
+    all_notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+
+    # Paginate with 5 notifications per page
+    paginator = Paginator(all_notifications, 5)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'notifications': page_obj,
+    }
+
+    return render(request, 'admin_dashboard/notifications.html', context)
+
+@csrf_exempt
+def mark_notification_as_read(request, notification_id):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        return redirect('landing:main')
+     
+    if request.method == 'POST':
+      try:
+          notification = Notification.objects.get(
+              id=notification_id,
+              user=request.user
+          )
+          notification.is_read = True
+          notification.save()
+          return JsonResponse({'success': True})
+      except Notification.DoesNotExist:
+          return JsonResponse({'success': False, 'error': 'Notification not found'}, status=404)
+    return redirect('admin_dashboard:notifications')
+  
+
+def mark_all_notifications_as_read(request):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+      return redirect('landing:main')
+   
+    Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+    return JsonResponse({'status': 'success'})

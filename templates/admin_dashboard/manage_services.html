@@ -14,6 +14,7 @@
 <div class="wrapper d-flex">
 
     <!-- Sidebar (maintaining your existing style) -->
+    <!-- Sidebar -->
     <aside class="sidebar p-3 shadow-sm">
         <div class="user-profile mb-4 text-center">
             <div class="avatar mb-2">
@@ -27,6 +28,9 @@
             <a href="{% url 'admin_dashboard:dashboard' %}">
                 <i class="fas fa-chart-line me-2"></i>Dashboard
             </a>
+            <a href="{% url 'admin_dashboard:profile' %}">
+                <i class="fas fa-user me-2"></i>My Profile
+            </a>
             <a href="{% url 'admin_dashboard:manage_users' %}">
                 <i class="fas fa-users me-2"></i>Manage Users
             </a>
@@ -36,11 +40,14 @@
             <a href="{% url 'admin_dashboard:manage_services' %}" class="active-link">
                 <i class="fas fa-tools me-2"></i>Services
             </a>
+            <a href="{% url 'admin_dashboard:notifications' %}">
+                <i class="fas fa-bell me-2"></i>Notifications
+            </a>
             <a href="{% url 'accounts:logout' %}" class="text-danger">
                 <i class="fas fa-sign-out-alt me-2"></i>Logout
             </a>
         </nav>
-      </aside>
+     </aside>
 
       <main class="main-content flex-grow-1 p-4">
         <div class="dashboard-header mb-4">

@@ -113,6 +113,12 @@
   border-bottom: 1px solid rgba(0,0,0,0.125);
 }
 
+.badge.bg-warning{
+  background-color: #e65c00 !important; /* Slightly darker orange */
+  border-color: #e65c00 !important;
+  color: #fff;
+}
+
 /* Tables */
 .table {
   margin-bottom: 0;
