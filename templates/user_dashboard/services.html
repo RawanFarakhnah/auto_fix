@@ -86,13 +86,26 @@
                                     <tbody>
                                         {% for bookings_service in bookings_service_history %}
                                         <tr>
-                                            <td>{{ bookings_service.appointment_date|date:"M d, Y" }}</td>
+                                            <td class="small text-muted fw-light fst-italic">{{ bookings_service.appointment_date|date:"M d, Y" }}</td>
                                             <td>{{ bookings_service.service.name }}</td>
                                             <td>{{ bookings_service.workshop.name }}</td>
                                             <td>{{ bookings_service.car.make }} {{ service.car.model }}</td>
                                             <td>${{ bookings_service.service.price }}</td>
                                             <td>
-                                                <button class="btn btn-sm btn-outline-primary">Details</button>
+                                                <button class="btn btn-sm btn-outline-primary view-service-details" data-id="{{ bookings_service.service.id }}">Details</button>
+                                                <div class="modal fade" id="serviceDetailModal" tabindex="-1" aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg">
+                                                      <div class="modal-content">
+                                                        <div class="modal-header">
+                                                          <h5 class="modal-title">Service Details</h5>
+                                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body" id="serviceDetailBody">
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                  
                                             </td>
                                         </tr>
                                         {% endfor %}
@@ -117,33 +130,18 @@
                     </div>
                     <div class="card-body">
                         <div class="list-group">
+                            {% for service in recomended_services %}
                             <div class="list-group-item border-0">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <h6 class="mb-1">Oil Change</h6>
-                                        <small class="text-muted">Due in 500 miles</small>
+                                        <h6 class="mb-1">{{service.name}}</h6>
+                                        <small class="text-muted">{{service.description}}</small>
                                     </div>
-                                    <button class="btn btn-sm btn-outline-primary">Book</button>
                                 </div>
                             </div>
-                            <div class="list-group-item border-0">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="mb-1">Tire Rotation</h6>
-                                        <small class="text-muted">Due in 30 days</small>
-                                    </div>
-                                    <button class="btn btn-sm btn-outline-primary">Book</button>
-                                </div>
-                            </div>
-                            <div class="list-group-item border-0">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="mb-1">Brake Inspection</h6>
-                                        <small class="text-muted">Recommended</small>
-                                    </div>
-                                    <button class="btn btn-sm btn-outline-primary">Book</button>
-                                </div>
-                            </div>
+                            <hr style="color: #ff6600; padding:3px;">
+                            {% endfor %}
+                              
                         </div>
                     </div>
                 </div>
@@ -165,5 +163,32 @@ $(document).ready(function() {
         $(this).addClass('active-link');
     });
 });
+
+// this code to show the details of the service : 
+
+$(document).on('click', '.view-service-details', function () {
+    let serviceId = $(this).data('id');
+    
+    $.ajax({
+        url: `/user_dashboard/user/services/${serviceId}/details`,
+        method: 'GET',
+        success: function (data) {
+            let html = `
+                <p><strong>Name:</strong> ${data.name}</p>
+                <p><strong>Description:</strong> ${data.description}</p>
+                <p><strong>Price:</strong> $${data.price}</p>
+                <p><strong>Workshop:</strong> ${data.workshop}</p>
+            `;
+            $('#serviceDetailBody').html(html);
+            $('#serviceDetailModal').modal('show');
+        },
+        error: function () {
+            alert('Failed to load service details.');
+        }
+    });
+});
+
+
+
 </script>
 {% endblock %}

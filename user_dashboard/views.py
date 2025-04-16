@@ -15,6 +15,8 @@ import datetime
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.utils.timezone import make_naive
+from django.db.models import Avg
+
 
 # get user model
 User = get_user_model()
@@ -28,7 +30,6 @@ def user_dashboard(request):
            appointment_date__gte=datetime.date.today(),
            appointment_date__lte=datetime.date.today() + datetime.timedelta(days=30),
         ).order_by('appointment_date')[:5]
-                
         # Get recent notifications
         recent_notifications = Notification.objects.filter(
            user=request.user,
@@ -314,30 +315,61 @@ def services(request):
         return redirect('landing:main')
     
     # Get all completed bookings for this user
+    current_user = User.objects.get(id = request.user.id)
+    region = getattr(request.user.address, 'region', None)
     completed_bookings = Booking.objects.filter(user=request.user, status='completed').select_related('workshop', 'service')
+    recomended_service = Service.objects.filter(
+        workshop__address__region__iexact=region
+        )[:3]
+
+    if recomended_service.exists():
+        recomended_service = recomended_service
+    else:
+        top_rated_services = (
+            Service.objects.annotate(avg_rating=Avg('review__rating'))
+            .order_by('-avg_rating')[:3]
+        )
+        recomended_service = top_rated_services
 
     context = {
         'bookings_service_history': completed_bookings,
+        'recomended_services':recomended_service
     }
 
     return render(request, 'user_dashboard/services.html', context)
 
 
-
-def notifications(request):
+def services_details(request, service_id):
     if not request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser ):        
         return redirect('landing:main')
     
-    all_notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+    try:
+        service = Service.objects.get(id=service_id)
+        data = {
+            "name": service.name,
+            "description": service.description,
+            "price": service.price,
+            "workshop": service.workshop.name if service.workshop else "Unknown",
+        }
+        return JsonResponse(data)
+    except Service.DoesNotExist:
+        return JsonResponse({'error': 'Service not found'}, status=404)
 
-    # Paginate with 5 notifications per page
+
+
+
+def notifications(request):
+    if not request.user.is_authenticated and not (request.user.is_workshop_owner or request.user.is_superuser):        
+        return redirect('landing:main')
+    all_notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
     paginator = Paginator(all_notifications, 5)
 
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_number = request.GET.get('page') 
+    page_obj = paginator.get_page(page_number)  
 
     context = {
-        'notifications': page_obj,
+        'notifications': page_obj.object_list,  
+        'page_obj': page_obj, 
     }
 
     return render(request, 'user_dashboard/notifications.html', context)
@@ -367,8 +399,62 @@ def mark_all_notifications_as_read(request):
     return JsonResponse({'status': 'success'})
 
 def reviews(request):
-    if not request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser ):        
-       return redirect('landing:main')
-    
-    return render(request, 'user_dashboard/reviews.html')
+    if not request.user.is_authenticated and not (request.user.is_workshop_owner or request.user.is_superuser):        
+        return redirect('landing:main')
 
+    reviews = Review.objects.filter(user = request.user.id)
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' and 'workshop_id' in request.GET:
+        workshop_id = request.GET.get('workshop_id')
+        services = Service.objects.filter(workshop_id=workshop_id).values('id', 'name')
+        return JsonResponse({'services': list(services)})
+
+ 
+    workshops = Workshop.objects.all()
+    return render(request, 'user_dashboard/reviews.html', {'workshops': workshops,'reviews':reviews})
+
+@csrf_exempt
+def add_review(request):
+    if not request.user.is_authenticated and not (request.user.is_workshop_owner or request.user.is_superuser):        
+        return redirect('landing:main')
+    if request.method == "POST":
+        print("POST DATA:", request.POST)
+        try:
+            workshop_id = request.POST.get("workshop")
+            service_id = request.POST.get("service")
+            rating = int(request.POST.get("rating", 0))
+            comment = request.POST.get("comment")
+
+            workshop = Workshop.objects.get(id=workshop_id)
+            service = Service.objects.get(id=service_id)
+
+            review,created = Review.objects.get_or_create(
+                user=request.user,
+                workshop=workshop,
+                service=service,
+                defaults={'rating': rating, 'comment': comment}
+            )
+
+            if not created:
+                return JsonResponse({'status': 'error', 'message': 'You already reviewed this service.'})
+
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def delete_review(request):
+    if request.method == "POST":
+        review_id = request.POST.get("id")
+
+        try:
+            review = Review.objects.get(id=review_id, user=request.user)
+            review.delete()
+            return JsonResponse({'status': 'success'})
+        except Review.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Review not found.'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request.'})

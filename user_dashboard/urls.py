@@ -20,9 +20,14 @@ urlpatterns = [
     path('user/appointments/get-workshop-services/<int:workshop_id>/', views.get_workshop_services, name='get_workshop_services'),
 
     path('user/services', views.services, name='services'),
+    path('user/services/<int:service_id>/details',views.services_details,name='services_details'),
+
+
     path('user/notifications', views.notifications, name='notifications'),
     path('user/notifications/mark-as-read/<int:notification_id>/', views.mark_notification_as_read, name='mark_notification_as_read'),
     path('user/notifications/mark-all-read/', views.mark_all_notifications_as_read, name='mark_all_notifications_as_read'),
 
-    path('user/reviews', views.reviews, name='reviews')
+    path('user/reviews', views.reviews, name='reviews'),
+    path('user/add-review', views.add_review, name='add_review'),
+    path('user/delete-review/', views.delete_review, name='delete_review')
 ]

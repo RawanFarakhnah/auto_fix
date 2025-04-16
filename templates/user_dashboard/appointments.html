@@ -296,56 +296,56 @@
 
 <script>
 $(document).ready(function() {
-    // Initialize tooltips
-    $('[data-bs-toggle="tooltip"]').tooltip();
-    
-    // Sidebar active link management
-    $('.menu a').on('click', function() {
-        $('.menu a').removeClass('active-link');
-        $(this).addClass('active-link');
-    });
+// Initialize tooltips
+$('[data-bs-toggle="tooltip"]').tooltip();
 
-    $('select[name="workshop"]').change(function() {
-        const workshopId = $(this).val();
-        const $serviceSelect = $('select[name="service"]');
-        
-        $serviceSelect.prop('disabled', !workshopId);
-        if (!workshopId) return;
-        
-        $.get(`/user_dashboard/user/appointments/get-workshop-services/${workshopId}/`, function(data) {
-            $serviceSelect.empty().append('<option value="">Select Service</option>');
-            data.services.forEach(service => {
-                $serviceSelect.append(`<option value="${service.id}">${service.name}</option>`);
-            });
+// Sidebar active link management
+$('.menu a').on('click', function() {
+    $('.menu a').removeClass('active-link');
+    $(this).addClass('active-link');
+});
+
+$('select[name="workshop"]').change(function() {
+    const workshopId = $(this).val();
+    const $serviceSelect = $('select[name="service"]');
+    
+    $serviceSelect.prop('disabled', !workshopId);
+    if (!workshopId) return;
+    
+    $.get(`/user_dashboard/user/appointments/get-workshop-services/${workshopId}/`, function(data) {
+        $serviceSelect.empty().append('<option value="">Select Service</option>');
+        data.services.forEach(service => {
+            $serviceSelect.append(`<option value="${service.id}">${service.name}</option>`);
         });
     });
+});
 
-    $('.delete-appointment').on('click', function(e) {
-      e.preventDefault();
-      const appointmentId = $(this).data('appointment-id'); // Get the ID from the button
-      $.ajax({
-        url:`/user_dashboard/user/appointments/delete/${appointmentId}/`,
-        type: "POST",
-        data: {
-                appointment_id: appointmentId,
-                csrfmiddlewaretoken: "{{ csrf_token }}",
-            },
-        success: function(data) {
-            if (data.status === 'success') {
-                setTimeout(() => {
-                    window.location.href = data.redirect_url;
-                }, 1500);
-            }
+$('.delete-appointment').on('click', function(e) {
+    e.preventDefault();
+    const appointmentId = $(this).data('appointment-id'); // Get the ID from the button
+    $.ajax({
+    url:`/user_dashboard/user/appointments/delete/${appointmentId}/`,
+    type: "POST",
+    data: {
+            appointment_id: appointmentId,
+            csrfmiddlewaretoken: "{{ csrf_token }}",
         },
-      
-      });
+    success: function(data) {
+        if (data.status === 'success') {
+            setTimeout(() => {
+                window.location.href = data.redirect_url;
+            }, 1500);
+        }
+    },
+    
     });
+});
 
-    // Initialize form with any session data
-    if (typeof form_data !== 'undefined') {
-        $('select[name="workshop"]').val(form_data.workshop || '').trigger('change');
-        $('input[name="appointment_date"]').val(form_data.appointment_date || '');
-    }
+// Initialize form with any session data
+if (typeof form_data !== 'undefined') {
+    $('select[name="workshop"]').val(form_data.workshop || '').trigger('change');
+    $('input[name="appointment_date"]').val(form_data.appointment_date || '');
+}
 
 });
     // this code to view the appointment :  
