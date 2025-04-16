@@ -101,14 +101,15 @@
                     </div>
                 {% endif %}
             </div>
+            <!-- :TODO: apply the pigination in this line :  -->
             <div class="card-footer bg-white">
                 <nav aria-label="Notification pagination">
                     <ul class="pagination justify-content-center mb-0">
                         <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                            <a class="page-link" href="{% url 'user_dashboard:notifications' %}" tabindex="-1" aria-disabled="true">Previous</a>
                         </li>
                         <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" name = '2' href="#">2</a></li>
                         <li class="page-item"><a class="page-link" href="#">3</a></li>
                         <li class="page-item">
                             <a class="page-link" href="#">Next</a>

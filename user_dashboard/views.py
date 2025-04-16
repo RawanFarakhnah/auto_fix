@@ -206,8 +206,19 @@ def add_appointment(request):
         if errors:
             request.session['errors'] = errors
             #return redirect('user_dashboard:appointments')
+            upcoming_appointments = Booking.objects.filter(
+                user=request.user,
+                appointment_date__gte=timezone.now()
+                ).order_by('appointment_date')
+            
+            past_appointments = Booking.objects.filter(
+                user=request.user,
+                appointment_date__lt=make_naive(timezone.now())
+                ).order_by('-appointment_date')
             return render(request, 'user_dashboard/appointments.html', {
                 'open_modal': True,
+                'upcoming_appointments': upcoming_appointments,
+                'past_appointments': past_appointments,
                 'errors': errors,
                 'form_data': request.POST,
                 'vehicles': Car.objects.filter(user=request.user),
@@ -217,7 +228,7 @@ def add_appointment(request):
         try:
             workshop = Workshop.objects.get(id=request.POST['workshop'])
             service = Service.objects.get(id=request.POST['service'])
-            car = Service.objects.get(id=request.POST['vehicle'])
+            car = Car.objects.get(id=request.POST['vehicle'])
            
             # Create the booking
             booking = Booking.objects.create(
@@ -252,6 +263,21 @@ def add_appointment(request):
             return redirect('user_dashboard:appointments')
     
     return redirect('user_dashboard:appointments')
+
+def appointment_details(request, appointment_id):
+    if not request.user.is_authenticated or (request.user.is_workshop_owner or request.user.is_superuser):
+        return redirect('landing:main')
+    booking = get_object_or_404(Booking, id=appointment_id, user=request.user)
+    
+    data = {
+        "date": booking.appointment_date.strftime("%b %d, %Y %H:%M"),
+        "workshop": booking.workshop.name,
+        "service": booking.service.name,
+        "vehicle": booking.car.__str__(),
+        "status": booking.get_status_display(),
+        "notes": booking.notes if hasattr(booking, "notes") else "No notes available."
+    }
+    return JsonResponse(data)
 
 @csrf_exempt
 def delete_appointment(request, appointment_id):

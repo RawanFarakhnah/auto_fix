@@ -91,7 +91,7 @@
                                     <td>{{ appointment.appointment_date|date:"M d, Y H:i" }}</td>
                                     <td>{{ appointment.workshop.name }}</td>
                                     <td>{{ appointment.service.name }}</td>
-                                    <td>Toyota Camry</td>
+                                    <td>{{appointment.car.make}} {{appointment.car.model}}</td>
                                     <td>
                                         <span class="badge 
                                             {% if appointment.status == 'confirmed' %}bg-success
@@ -103,7 +103,7 @@
                                     </td>
                                     <td>
                                         <button class="btn btn-sm btn-outline-primary view-appointment" 
-                                           data-appointment-id="{{ appointment.id }}">
+                                           data-id="{{ appointment.id }}">
                                           View
                                         </button>
                                        
@@ -156,7 +156,7 @@
                                     <td>{{ appointment.appointment_date|date:"M d, Y H:i" }}</td>
                                     <td>{{ appointment.workshop.name }}</td>
                                     <td>{{ appointment.service.name }}</td>
-                                    <td>Toyota Camry</td>
+                                    <td>{{appointment.car.make}} {{appointment.car.model}}</td>
                                     <td>
                                         <span class="badge 
                                             {% if appointment.status == 'confirmed' %}bg-success
@@ -167,13 +167,27 @@
                                         </span>
                                     </td>
                                     <td>
-                                       <a class="btn btn-sm btn-outline-primary" href="#">View Details</a>
+                                        <a href="#" class="btn btn-sm btn-outline-primary view-appointment" data-id="{{ appointment.id }}">View Details </a>
+                                       <div class="modal fade" id="appointmentDetailModal" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                          <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h5 class="modal-title">Appointment Details</h5>
+                                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body" id="appointmentDetailBody">
+                                            
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
                                     </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
+                   
                 {% else %}
                     <div class="text-center py-5">
                         <i class="fas fa-clock fa-4x text-muted mb-3"></i>
@@ -196,7 +210,11 @@
                     <form action="{% url 'user_dashboard:add_appointment' %}" method="POST">
                         {% csrf_token %}
                         <div class="modal-body">
-                            {{errors}}
+                            {% if errors %}
+                            {% for key,value in errors.items %}
+                                <div class="alert alert-danger">{{value}}</div>
+                            {% endfor %}
+                            {% endif %}
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Vehicle</label>
@@ -253,7 +271,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" >Cancel</button>
                             <button type="submit" class="btn btn-warning" style="background-color: #ff6600; color:white;">Book Now</button>
                         </div>
                     </form>
@@ -330,5 +348,32 @@ $(document).ready(function() {
     }
 
 });
+    // this code to view the appointment :  
+$(document).on('click', '.view-appointment', function (e) {
+    e.preventDefault();
+    let appointmentId = $(this).data('id');
+    console.log(appointmentId);
+    
+    $.ajax({
+        url: `/user_dashboard/user/appointments/${appointmentId}/details/`,
+        method: 'GET',
+        success: function (data) {
+            let html = `
+                <p><strong>Date:</strong> ${data.date}</p>
+                <p><strong>Workshop:</strong> ${data.workshop}</p>
+                <p><strong>Service:</strong> ${data.service}</p>
+                <p><strong>Vehicle:</strong> ${data.vehicle}</p>
+                <p><strong>Status:</strong> ${data.status}</p>
+                <p><strong>Notes:</strong> ${data.notes}</p>
+            `;
+            $('#appointmentDetailBody').html(html);
+            $('#appointmentDetailModal').modal('show');
+        },
+        error: function () {
+            alert('Failed to load appointment details.');
+        }
+    });
+});
+
 </script>
 {% endblock %}

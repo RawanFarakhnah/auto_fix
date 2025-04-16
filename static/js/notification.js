@@ -46,4 +46,4 @@ setInterval(() => {
             }
         })
         .catch(error => console.error("Error fetching notification count", error));
-}, 30000);
+}, 20000);

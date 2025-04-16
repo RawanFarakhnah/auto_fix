@@ -14,6 +14,7 @@ urlpatterns = [
     
     path('user/appointments', views.appointments, name='appointments'),
     path('user/appointments/add_appointment', views.add_appointment, name='add_appointment'),
+    path('user/appointments/<int:appointment_id>/details/', views.appointment_details, name='appointment_details'),
     # path('user/appointments/edit/<int:appointment_id>/', views.edit_appointment, name='edit_appointment'),
     path('user/appointments/delete/<int:appointment_id>/', views.delete_appointment, name='delete_appointment'),
     path('user/appointments/get-workshop-services/<int:workshop_id>/', views.get_workshop_services, name='get_workshop_services'),
