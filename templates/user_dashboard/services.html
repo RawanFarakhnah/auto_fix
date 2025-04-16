@@ -86,7 +86,7 @@
                                     <tbody>
                                         {% for bookings_service in bookings_service_history %}
                                         <tr>
-                                            <td class="small text-muted fw-light fst-italic">{{ bookings_service.appointment_date|date:"M d, Y" }}</td>
+                                            <td >{{ bookings_service.appointment_date|date:"M d, Y" }}</td>
                                             <td>{{ bookings_service.service.name }}</td>
                                             <td>{{ bookings_service.workshop.name }}</td>
                                             <td>{{ bookings_service.car.make }} {{ service.car.model }}</td>
