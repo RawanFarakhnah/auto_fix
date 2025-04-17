@@ -15,6 +15,7 @@ from django.db.models import Count, Avg, Sum
 from datetime import date
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
+from django.contrib.auth import update_session_auth_hash
 
 # get user model
 User = get_user_model()
@@ -82,6 +83,182 @@ def dashboard(request):
     return render(request, 'owner_dashboard/dashboard.html', context)
 
 
+def profile(request):
+    if not request.user.is_workshop_owner:
+       return redirect('landing:main')
+    
+    return render(request, 'owner_dashboard/my_profile.html')
+
+@csrf_exempt
+def profile_update(request):
+    if not request.user.is_workshop_owner:
+        return redirect('landing:main')
+
+    if request.method == 'POST':
+        user = request.user
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        email = request.POST.get('email', '').strip()
+        phone = request.POST.get('phone', '').strip()
+
+        errors = []
+
+        # Validate first name
+        if not first_name:
+            errors.append("First name is required.")
+        elif len(first_name) > 30:
+            errors.append("First name cannot exceed 30 characters.")
+        else:
+            user.first_name = first_name
+
+        # Validate last name
+        if not last_name:
+            errors.append("Last name is required.")
+        elif len(last_name) > 30:
+            errors.append("Last name cannot exceed 30 characters.")
+        else:
+            user.last_name = last_name
+
+        # Validate email
+        if not email:
+            errors.append("Email is required.")
+        elif '@' not in email:
+            errors.append("Enter a valid email address.")
+        elif User.objects.exclude(id=user.id).filter(email=email).exists():
+            errors.append("Email is already in use by another account.")
+        else:
+            user.email = email
+
+        # Validate phone
+        if not phone:
+            errors.append("Phone number is required.")
+        elif not phone.isdigit():
+            errors.append("Phone number must contain only digits.")
+        elif len(phone) != 10:
+            errors.append("Phone number must be 10 digits.")
+        elif not phone.startswith("05"):
+            errors.append("Phone number must start with 05.")
+        elif User.objects.exclude(id=user.id).filter(phone=phone).exists():
+            errors.append("Phone number is already used by another user.")
+        else:
+            user.phone = phone
+
+        if errors:
+            return JsonResponse({
+                'status': 'error',
+                'errors': errors
+            })
+
+        try:
+            user.save()
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Profile updated successfully!'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'errors': ['Failed to update profile. Please try again.']
+            }, status=500)
+
+    return redirect('owner_dashboard:profile')
+  
+@csrf_exempt  
+def update_address(request):
+    if not request.user.is_workshop_owner:
+        return redirect('landing:main')
+
+    if request.method != 'POST':
+         return redirect('owner_dashboard:profile')
+
+    user = request.user
+    street = request.POST.get('street', '').strip()
+    city = request.POST.get('city', '').strip()
+    region = request.POST.get('region', '').strip()
+    country = request.POST.get('country', '').strip()
+    postal_code = request.POST.get('postal_code', '').strip()
+    latitude = request.POST.get('latitude', '').strip() or None
+    longitude = request.POST.get('longitude', '').strip() or None
+
+    # Validate required fields
+    if not all([street, city, country]):
+        return JsonResponse({
+            'status': 'error',
+            'errors': ['Street, City and Country are required fields.']
+        })
+
+    try:
+        if latitude is not None:
+            latitude = float(latitude)
+            if not (-90 <= latitude <= 90):
+                raise ValueError("Latitude must be between -90 and 90")
+        
+        if longitude is not None:
+            longitude = float(longitude)
+            if not (-180 <= longitude <= 180):
+                raise ValueError("Longitude must be between -180 and 180")
+
+        if user.address:
+            address = user.address
+        else:
+            address = Address()
+            user.address = address
+
+        address.street = street
+        address.city = city
+        address.region = region
+        address.country = country
+        address.postal_code = postal_code
+        address.latitude = latitude
+        address.longitude = longitude
+
+        address.save()
+        user.save()
+
+        return JsonResponse({'status': 'success'})
+    
+    except ValueError as e:
+        return JsonResponse({'status': 'error', 'errors': [str(e)]}, status=400)
+    
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'errors': [f"Error saving address: {str(e)}"]}, status=500)
+
+@csrf_exempt
+def change_password(request):
+    if not request.user.is_workshop_owner:
+        return redirect('landing:main')
+
+    if request.method != 'POST':
+         return redirect('owner_dashboard:profile')
+    
+    errors = []
+    
+    current_password = request.POST.get('current_password')
+    new_password = request.POST.get('new_password')
+    confirm_password = request.POST.get('confirm_password')
+
+    if not request.user.check_password(current_password):
+        errors.append( "Current password is incorrect.")
+        
+    if len(new_password) < 8:
+        errors.append("New password must be at least 8 characters long.")
+        
+    if new_password != confirm_password:
+        errors.append("New password and confirmation do not match.")
+     
+    if errors:
+       return JsonResponse({
+           'status': 'error',
+           'errors': errors
+       })
+    
+    request.user.set_password(new_password)
+    request.user.save()
+    update_session_auth_hash(request, request.user)  # Keeps user logged in after password change
+    
+    return JsonResponse({'status': 'success'})
+
+
 
 def workshop_management(request):
     if not request.user.is_workshop_owner:
@@ -142,7 +319,7 @@ def workshop_management(request):
             address=the_address
         )
 
-        return JsonResponse({"status": "success", "message": "Workshop registered successfully!"})  # ✅ إرجاع رسالة نجاح
+        return JsonResponse({"status": "success", "message": "Workshop registered successfully!"})
 
     try:
         workshop = Workshop.objects.get(owner=request.user)
@@ -164,6 +341,7 @@ def delete_workshop(request):
       # Delete workshop view logic
     if not request.user.is_workshop_owner:
         return redirect('landing:main')
+     
     if request.method == 'POST':
         workshop_id = request.POST.get('id')  
         try:

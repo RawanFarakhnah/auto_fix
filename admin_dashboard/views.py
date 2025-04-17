@@ -65,65 +65,104 @@ def profile(request):
     
     return render(request, 'admin_dashboard/my_profile.html')
 
+
 def profile_update(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
-       return redirect('landing:main')
-    
-    if request.method != 'POST':
-        return redirect('admin_dashboard:profile')
-    
-    if request.method == "POST":
-        user = request.user
-        user.first_name = request.POST.get('first_name', user.first_name)
-        user.last_name = request.POST.get('last_name', user.last_name)
-        phone = request.POST.get('phone', '')
-        
-        # Validate phone number format
-        phone_errors = []
+        return redirect('landing:main')
 
+    if request.method == 'POST':
+        user = request.user
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        email = request.POST.get('email', '').strip()
+        phone = request.POST.get('phone', '').strip()
+
+        errors = []
+
+        # Validate first name
+        if not first_name:
+            errors.append("First name is required.")
+        elif len(first_name) > 30:
+            errors.append("First name cannot exceed 30 characters.")
+        else:
+            user.first_name = first_name
+
+        # Validate last name
+        if not last_name:
+            errors.append("Last name is required.")
+        elif len(last_name) > 30:
+            errors.append("Last name cannot exceed 30 characters.")
+        else:
+            user.last_name = last_name
+
+        # Validate email
+        if not email:
+            errors.append("Email is required.")
+        elif '@' not in email:
+            errors.append("Enter a valid email address.")
+        elif User.objects.exclude(id=user.id).filter(email=email).exists():
+            errors.append("Email is already in use by another account.")
+        else:
+            user.email = email
+
+        # Validate phone
         if not phone:
-            phone_errors.append("Phone number is required.")
+            errors.append("Phone number is required.")
         elif not phone.isdigit():
-            phone_errors.append("Phone number must contain only digits.")
+            errors.append("Phone number must contain only digits.")
         elif len(phone) != 10:
-            phone_errors.append("Phone number must be 10 digits.")
+            errors.append("Phone number must be 10 digits.")
         elif not phone.startswith("05"):
-            phone_errors.append("Phone number must start with 05.")
-        
-        if phone_errors:
-            messages.error(request, " ".join(phone_errors))
+            errors.append("Phone number must start with 05.")
+        elif User.objects.exclude(id=user.id).filter(phone=phone).exists():
+            errors.append("Phone number is already used by another user.")
         else:
             user.phone = phone
+
+        if errors:
+            return JsonResponse({
+                'status': 'error',
+                'errors': errors
+            })
+
+        try:
             user.save()
-            messages.success(request, "Profile updated successfully")
-        
-        return redirect('admin_dashboard:profile')
-    
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Profile updated successfully!'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'errors': ['Failed to update profile. Please try again.']
+            }, status=500)
+
+    return redirect('admin_dashboard:profile')
+  
 def update_address(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
-       return redirect('landing:main')
-    
+        return redirect('landing:main')
+
     if request.method != 'POST':
-        return redirect('admin_dashboard:profile')
-    
+         return redirect('admin_dashboard:profile')
+
     user = request.user
     street = request.POST.get('street', '').strip()
     city = request.POST.get('city', '').strip()
     region = request.POST.get('region', '').strip()
     country = request.POST.get('country', '').strip()
     postal_code = request.POST.get('postal_code', '').strip()
-    
-    # Make coordinates optional with default None
     latitude = request.POST.get('latitude', '').strip() or None
     longitude = request.POST.get('longitude', '').strip() or None
-    
+
     # Validate required fields
     if not all([street, city, country]):
-        messages.error(request, "Street, City and Country are required fields")
-        return redirect('admin_dashboard:profile')
-    
+        return JsonResponse({
+            'status': 'error',
+            'errors': ['Street, City and Country are required fields.']
+        })
+
     try:
-        # Convert coordinates if provided
         if latitude is not None:
             latitude = float(latitude)
             if not (-90 <= latitude <= 90):
@@ -133,68 +172,65 @@ def update_address(request):
             longitude = float(longitude)
             if not (-180 <= longitude <= 180):
                 raise ValueError("Longitude must be between -180 and 180")
-            
-        # Create or update address
+
         if user.address:
             address = user.address
-            address.street = street
-            address.city = city
-            address.region = region
-            address.country = country
-            address.postal_code = postal_code
-            if latitude: address.latitude = latitude
-            if longitude: address.longitude = longitude
         else:
-            address = Address.objects.create(
-                street=street,
-                city=city,
-                region=region,
-                country=country,
-                postal_code=postal_code,
-                latitude=latitude,
-                longitude=longitude
-            )
+            address = Address()
             user.address = address
-        
+
+        address.street = street
+        address.city = city
+        address.region = region
+        address.country = country
+        address.postal_code = postal_code
+        address.latitude = latitude
+        address.longitude = longitude
+
         address.save()
         user.save()
-        messages.success(request, "Address updated successfully")
-        
-    except ValueError as e:
-        messages.error(request, str(e))
-    except Exception as e:
-        messages.error(request, f"Error saving address: {str(e)}")
+
+        return JsonResponse({'status': 'success'})
     
-    return redirect('admin_dashboard:profile')
+    except ValueError as e:
+        return JsonResponse({'status': 'error', 'errors': [str(e)]}, status=400)
+    
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'errors': [f"Error saving address: {str(e)}"]}, status=500)
 
 def change_password(request):
-    if not request.user.is_superuser:
+    if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect('landing:main')
 
-    if request.method == 'POST':
-        current_password = request.POST.get('current_password')
-        new_password = request.POST.get('new_password')
-        confirm_password = request.POST.get('confirm_password')
+    if request.method != 'POST':
+         return redirect('admin_dashboard:profile')
+    
+    errors = []
+    
+    current_password = request.POST.get('current_password')
+    new_password = request.POST.get('new_password')
+    confirm_password = request.POST.get('confirm_password')
 
-        if not request.user.check_password(current_password):
-            messages.error(request, "Current password is incorrect.")
-            return redirect('admin_dashboard:profile')
-
-        if len(new_password) < 8:
-            messages.error(request, "New password must be at least 8 characters long.")
-            return redirect('admin_dashboard:profile')
-
-        if new_password != confirm_password:
-            messages.error(request, "New password and confirmation do not match.")
-            return redirect('admin_dashboard:profile')
-
-        request.user.set_password(new_password)
-        request.user.save()
-        update_session_auth_hash(request, request.user)  # Keeps user logged in after password change
-        messages.success(request, "Password changed successfully.")
-        return redirect('admin_dashboard:profile')
-
-    return redirect('admin_dashboard:profile')
+    if not request.user.check_password(current_password):
+        errors.append( "Current password is incorrect.")
+        
+    if len(new_password) < 8:
+        errors.append("New password must be at least 8 characters long.")
+        
+    if new_password != confirm_password:
+        errors.append("New password and confirmation do not match.")
+     
+    if errors:
+       return JsonResponse({
+           'status': 'error',
+           'errors': errors
+       })
+    
+    request.user.set_password(new_password)
+    request.user.save()
+    update_session_auth_hash(request, request.user)  # Keeps user logged in after password change
+    
+    return JsonResponse({'status': 'success'})
 
 def create_user(request):
     if request.user.is_authenticated and request.user.is_superuser:    

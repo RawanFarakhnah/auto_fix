@@ -4,6 +4,10 @@ from owner_dashboard import views
 app_name = 'owner_dashboard'
 urlpatterns = [  
     path('owner/dashboard/', views.dashboard, name='dashboard'),
+    path('owner/profile/', views.profile, name='profile'),
+    path('owner/profile/profile_update/', views.profile_update, name='profile_update'),
+    path('owner/profile/update_address/', views.update_address, name='update_address'),
+    path('owner/profile/change-password/', views.change_password, name='change_password'),
 
     # Workshop Management
     path('owner/workshop/', views.workshop_management, name='workshop'),

@@ -49,13 +49,14 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="main-content flex-grow-1 p-4">
+     <!-- Main Content -->
+     <main class="main-content flex-grow-1 p-4">
         <div class="dashboard-header mb-4">
             <h1>My Profile</h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
-                        <a href="{% url 'user_dashboard:dashboard' %}" class="active-link text-decoration-none" 
+                        <a href="{% url 'admin_dashboard:dashboard' %}" class="active-link text-decoration-none" 
                             style="border-color: #ff6600; color: #ff6600">
                           Dashboard
                         </a>
@@ -147,7 +148,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div>
                                 <h6 class="mb-1">Password</h6>
-                                <small class="text-muted">Last changed 3 months ago</small>
+                                <small class="text-muted">Changed your password</small>
                             </div>
                             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
                                 Change
@@ -166,9 +167,10 @@
                         <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form method="post" action="{% url 'admin_dashboard:profile_update' %}">
+                    <form method="post" id="profileForm" action="{% url 'admin_dashboard:profile_update' %}">
                         {% csrf_token %}
                         <div class="modal-body">
+                            <div class="alert alert-danger d-none" id="edit-profile-errors"></div>
                             <div class="mb-3">
                                 <label for="firstName" class="form-label">First Name</label>
                                 <input type="text" id="firstName" name="first_name" class="form-control" value="{{ user.first_name }}" required>
@@ -203,16 +205,17 @@
                         <h5 class="modal-title" id="editAddressModalLabel">{% if user.address %}Edit Address{% else %}Add Address{% endif %}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{% url 'admin_dashboard:update_address' %}" method="post">
+                    <form action="{% url 'admin_dashboard:update_address' %}" id="addressForm" method="post">
                         {% csrf_token %}
                         <div class="modal-body">
+                            <div class="alert alert-danger d-none" id="edit-address-errors"></div>
                            <div class="mb-3">
                                <label class="form-label">Street</label>
-                               <input type="text" class="form-control" name="street" placeholder="Main Street" value="{{ user.address.street|default:'' }}">
+                               <input type="text" class="form-control" name="street" required placeholder="Main Street" value="{{ user.address.street|default:'' }}">
                            </div>
                            <div class="mb-3">
                                <label class="form-label">City</label>
-                               <input type="text" class="form-control" name="city" placeholder="Ramallah" value="{{ user.address.city|default:'' }}">
+                               <input type="text" class="form-control" name="city" required placeholder="Ramallah" value="{{ user.address.city|default:'' }}">
                            </div>
                            <div class="mb-3">
                                <label class="form-label">Region</label>
@@ -220,7 +223,7 @@
                            </div>
                            <div class="mb-3">
                                <label class="form-label">Country</label>
-                               <input type="text" class="form-control" name="country" placeholder="Palestine" value="{{ user.address.country|default:'' }}">
+                               <input type="text" class="form-control" name="country" required placeholder="Palestine" value="{{ user.address.country|default:'' }}">
                            </div>
                            <div class="mb-3">
                                <label class="form-label">Postal Code</label>
@@ -249,6 +252,7 @@
                     <form id="passwordForm" method="post" action="{% url 'admin_dashboard:change_password' %}">
                         {% csrf_token %}
                         <div class="modal-body">
+                            <div class="alert alert-danger d-none" id="password-errors"></div>
                             <div class="mb-3">
                                 <label for="currentPassword" class="form-label">Current Password</label>
                                 <input type="password" class="form-control" id="currentPassword" name="current_password" required>
@@ -278,6 +282,8 @@
 </div>
 {% endblock %}
 
+{% endblock %}
+
 {% block extra_js %}
 <script>
 $(document).ready(function() {
@@ -289,6 +295,216 @@ $(document).ready(function() {
         $('.menu a').removeClass('active-link');
         $(this).addClass('active-link');
     });
+
+    // Profile form submission with AJAX
+    $('#profileForm').on('submit', function (e) {
+        e.preventDefault();
+
+        const $form = $(this);
+        const $submitBtn = $form.find('button[type="submit"]');
+        const $errorBox = $('#edit-profile-errors');
+
+        // Reset error box and disable button
+        $errorBox.addClass('d-none').html('');
+        $submitBtn.prop('disabled', true).html(`
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...
+        `);
+
+        // Basic client-side validation
+        if (!$form[0].checkValidity()) {
+            $form[0].reportValidity();
+            resetButton();
+            return;
+        }
+
+        $.ajax({
+            url: $form.attr('action'),
+            type: 'POST',
+            data: $form.serialize(),
+            dataType: 'json',
+            success: function (response) {
+                if (response.status === 'success') {
+                    setTimeout(() => {
+                        $('#editProfileModal').modal('hide');
+                        location.reload();
+                    }, 1500);
+                } else if (response.status === 'error') {
+                    showErrors(response.errors);
+                }
+            },
+            error: function (xhr) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    showErrors(response.errors || 'An unexpected error occurred.');
+                } catch {
+                    showErrors('An error occurred while processing your request.');
+                }
+            },
+            complete: resetButton
+        });
+
+        function showErrors(errors) {
+            let html = '<ul>';
+
+            if (Array.isArray(errors)) {
+                errors.forEach(err => { html += `<li>${err}</li>`; });
+            } else {
+                html += `<li>${errors}</li>`;
+            }
+
+            html += '</ul>';
+            $errorBox.removeClass('d-none').html(html);
+        }
+
+        function resetButton() {
+            $submitBtn.prop('disabled', false).text('Save Changes');
+        }
+    });
+
+    // Clear errors when modal is hidden
+    $('#editProfileModal').on('hidden.bs.modal', function () {
+        $('#edit-profile-errors').addClass('d-none').html('');
+    });
+
+    $('#addressForm').on('submit', function (e) {
+        e.preventDefault();
+
+        const $form = $(this);
+        const $submitBtn = $form.find('button[type="submit"]');
+        const $errorBox = $('#edit-address-errors');
+
+        // Reset error box and disable button
+        $errorBox.addClass('d-none').html('');
+        $submitBtn.prop('disabled', true).html(`
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...
+        `);
+
+        // Basic client-side validation
+        if (!$form[0].checkValidity()) {
+            $form[0].reportValidity();
+            resetButton();
+            return;
+        }
+
+        $.ajax({
+            url: $form.attr('action'),
+            type: 'POST',
+            data: $form.serialize(),
+            dataType: 'json',
+            success: function (response) {
+                if (response.status === 'success') {
+                    setTimeout(() => {
+                        $('#editAddressModal').modal('hide');
+                        location.reload();
+                    }, 1500);
+                } else if (response.status === 'error') {
+                    showErrors(response.errors);
+                }
+            },
+            error: function (xhr) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    showErrors(response.errors || 'An unexpected error occurred.');
+                } catch {
+                    showErrors('An error occurred while processing your request.');
+                }
+            },
+            complete: resetButton
+        });
+
+        function showErrors(errors) {
+            let html = '<ul>';
+
+            if (Array.isArray(errors)) {
+                errors.forEach(err => { html += `<li>${err}</li>`; });
+            } else {
+                html += `<li>${errors}</li>`;
+            }
+
+            html += '</ul>';
+            $errorBox.removeClass('d-none').html(html);
+        }
+
+        function resetButton() {
+            $submitBtn.prop('disabled', false).text('Save Changes');
+        }
+    });
+
+    // Clear errors when modal is hidden
+    $('#editAddressModal').on('hidden.bs.modal', function () {
+        $('#edit-address-errors').addClass('d-none').html('');
+    });
+
+    $('#passwordForm').on('submit', function (e) {
+        e.preventDefault();
+
+        const $form = $(this);
+        const $submitBtn = $form.find('button[type="submit"]');
+        const $errorBox = $('#password-errors');
+
+        // Reset error box and disable button
+        $errorBox.addClass('d-none').html('');
+        $submitBtn.prop('disabled', true).html(`
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...
+        `);
+
+        // Basic client-side validation
+        if (!$form[0].checkValidity()) {
+            $form[0].reportValidity();
+            resetButton();
+            return;
+        }
+
+        $.ajax({
+            url: $form.attr('action'),
+            type: 'POST',
+            data: $form.serialize(),
+            dataType: 'json',
+            success: function (response) {
+                if (response.status === 'success') {
+                    setTimeout(() => {
+                        $('#changePasswordModal').modal('hide');
+                        location.reload();
+                    }, 1500);
+                } else if (response.status === 'error') {
+                    showErrors(response.errors);
+                }
+            },
+            error: function (xhr) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    showErrors(response.errors || 'An unexpected error occurred.');
+                } catch {
+                    showErrors('An error occurred while processing your request.');
+                }
+            },
+            complete: resetButton
+        });
+
+        function showErrors(errors) {
+            let html = '<ul>';
+
+            if (Array.isArray(errors)) {
+                errors.forEach(err => { html += `<li>${err}</li>`; });
+            } else {
+                html += `<li>${errors}</li>`;
+            }
+
+            html += '</ul>';
+            $errorBox.removeClass('d-none').html(html);
+        }
+
+        function resetButton() {
+            $submitBtn.prop('disabled', false).text('Save Changes');
+        }
+    });
+
+
+    // Clear errors when modal is hidden
+    $('#changePasswordModal').on('hidden.bs.modal', function () {
+        $('#password-errors').addClass('d-none').html('');
+    });
+   
 });
 </script>
 {% endblock %}

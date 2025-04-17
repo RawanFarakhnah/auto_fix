@@ -10,12 +10,12 @@ from cars.models import Car
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
-from django.http import JsonResponse
 import datetime
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.utils.timezone import make_naive
 from django.db.models import Avg
+from django.contrib.auth import update_session_auth_hash
 
 
 # get user model
@@ -74,6 +74,173 @@ def profile(request):
         return render(request, 'user_dashboard/my_profile.html')
 
     return redirect('landing:main')
+
+
+def profile_update(request):
+    if not (request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser)):
+        return redirect('landing:main')
+
+    if request.method == 'POST':
+        user = request.user
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        email = request.POST.get('email', '').strip()
+        phone = request.POST.get('phone', '').strip()
+
+        errors = []
+
+        # Validate first name
+        if not first_name:
+            errors.append("First name is required.")
+        elif len(first_name) > 30:
+            errors.append("First name cannot exceed 30 characters.")
+        else:
+            user.first_name = first_name
+
+        # Validate last name
+        if not last_name:
+            errors.append("Last name is required.")
+        elif len(last_name) > 30:
+            errors.append("Last name cannot exceed 30 characters.")
+        else:
+            user.last_name = last_name
+
+        # Validate email
+        if not email:
+            errors.append("Email is required.")
+        elif '@' not in email:
+            errors.append("Enter a valid email address.")
+        elif User.objects.exclude(id=user.id).filter(email=email).exists():
+            errors.append("Email is already in use by another account.")
+        else:
+            user.email = email
+
+        # Validate phone
+        if not phone:
+            errors.append("Phone number is required.")
+        elif not phone.isdigit():
+            errors.append("Phone number must contain only digits.")
+        elif len(phone) != 10:
+            errors.append("Phone number must be 10 digits.")
+        elif not phone.startswith("05"):
+            errors.append("Phone number must start with 05.")
+        elif User.objects.exclude(id=user.id).filter(phone=phone).exists():
+            errors.append("Phone number is already used by another user.")
+        else:
+            user.phone = phone
+
+        if errors:
+            return JsonResponse({
+                'status': 'error',
+                'errors': errors
+            })
+
+        try:
+            user.save()
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Profile updated successfully!'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'errors': ['Failed to update profile. Please try again.']
+            }, status=500)
+
+    return redirect('user_dashboard:profile')
+  
+def update_address(request):
+    if not (request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser)):
+        return redirect('landing:main')
+
+    if request.method != 'POST':
+         return redirect('user_dashboard:profile')
+
+    user = request.user
+    street = request.POST.get('street', '').strip()
+    city = request.POST.get('city', '').strip()
+    region = request.POST.get('region', '').strip()
+    country = request.POST.get('country', '').strip()
+    postal_code = request.POST.get('postal_code', '').strip()
+    latitude = request.POST.get('latitude', '').strip() or None
+    longitude = request.POST.get('longitude', '').strip() or None
+
+    # Validate required fields
+    if not all([street, city, country]):
+        return JsonResponse({
+            'status': 'error',
+            'errors': ['Street, City and Country are required fields.']
+        })
+
+    try:
+        if latitude is not None:
+            latitude = float(latitude)
+            if not (-90 <= latitude <= 90):
+                raise ValueError("Latitude must be between -90 and 90")
+        
+        if longitude is not None:
+            longitude = float(longitude)
+            if not (-180 <= longitude <= 180):
+                raise ValueError("Longitude must be between -180 and 180")
+
+        if user.address:
+            address = user.address
+        else:
+            address = Address()
+            user.address = address
+
+        address.street = street
+        address.city = city
+        address.region = region
+        address.country = country
+        address.postal_code = postal_code
+        address.latitude = latitude
+        address.longitude = longitude
+
+        address.save()
+        user.save()
+
+        return JsonResponse({'status': 'success'})
+    
+    except ValueError as e:
+        return JsonResponse({'status': 'error', 'errors': [str(e)]}, status=400)
+    
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'errors': [f"Error saving address: {str(e)}"]}, status=500)
+
+def change_password(request):
+    if not (request.user.is_authenticated and not ( request.user.is_workshop_owner or request.user.is_superuser)):
+        return redirect('landing:main')
+
+    if request.method != 'POST':
+         return redirect('user_dashboard:profile')
+    
+    errors = []
+    
+    current_password = request.POST.get('current_password')
+    new_password = request.POST.get('new_password')
+    confirm_password = request.POST.get('confirm_password')
+
+    if not request.user.check_password(current_password):
+        errors.append( "Current password is incorrect.")
+        
+    if len(new_password) < 8:
+        errors.append("New password must be at least 8 characters long.")
+        
+    if new_password != confirm_password:
+        errors.append("New password and confirmation do not match.")
+     
+    if errors:
+       return JsonResponse({
+           'status': 'error',
+           'errors': errors
+       })
+    
+    request.user.set_password(new_password)
+    request.user.save()
+    update_session_auth_hash(request, request.user)  # Keeps user logged in after password change
+    
+    return JsonResponse({'status': 'success'})
 
 def vehicles(request):
     if request.user.is_authenticated and not (request.user.is_workshop_owner or request.user.is_superuser):

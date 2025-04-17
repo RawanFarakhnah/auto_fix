@@ -24,6 +24,9 @@
             <a href="{% url 'owner_dashboard:dashboard' %}">
                 <i class="fas fa-chart-line me-2"></i>Dashboard
             </a>
+            <a href="{% url 'owner_dashboard:profile' %}">
+                <i class="fas fa-user me-2"></i>My Profile
+            </a>
             <a href="{% url 'owner_dashboard:workshop' %}" class="active-link">
                 <i class="fas fa-warehouse me-2"></i>My Workshop
             </a>
@@ -169,7 +172,7 @@
             </div>
             
             <form method="post" enctype="multipart/form-data" id="registerWorkshopModal">
-                <div id="workshop-errors"></div>
+                <div class="alert alert-danger" id="workshop-errors"></div>
                 <div class="modal-body">
                     {% csrf_token %}
                     <div class="row">

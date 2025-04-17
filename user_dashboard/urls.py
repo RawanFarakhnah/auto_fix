@@ -6,6 +6,10 @@ urlpatterns = [
    
     path('user/dashboard/', views.user_dashboard, name='dashboard'),
     path('user/profile', views.profile, name='profile'),
+    path('user/profile/profile_update/', views.profile_update, name='profile_update'),
+    path('user/profile/update_address/', views.update_address, name='update_address'),
+    path('user/profile/change-password/', views.change_password, name='change_password'),
+
     
     path('user/vehicles', views.vehicles, name='vehicles'),
     path('user/vehicles/add_vehicle', views.add_vehicle, name='add_vehicle'),
