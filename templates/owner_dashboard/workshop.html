@@ -239,7 +239,7 @@
             </div>
             
             <form method="post" action="{% url 'owner_dashboard:edit_workshop' %}" id="edit-workshop-form">
-                <div id="edit-workshop-errors"></div>
+                <div class="alert alert-danger" id="edit-workshop-errors"></div>
                 <div class="modal-body">
                     {% csrf_token %}
                     <div class="row">

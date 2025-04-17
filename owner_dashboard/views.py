@@ -278,13 +278,17 @@ def workshop_management(request):
 
         if not name or not name.isalpha():
             errors['name'] = "Workshop name is required , and must be only characters!"
-        if not phone or not phone.isdigit():
-            errors['phone'] = "Phone number must contain only digits!"
-        if not phone or len(phone) != 10:
-            errors['phone'] = "Phone number must be 10 digits!"
-        if not str(phone).startswith("05"):
-             errors['phone'] = "Phone number must start with 05"
 
+        # Validate phone
+        if not phone:
+           errors['phone'] = ("Phone number is required.")
+        elif not phone.isdigit():
+            errors['phone'] = ("Phone number must contain only digits.")
+        elif len(phone) != 10:
+            errors['phone'] = ("Phone number must be 10 digits.")
+        elif not phone.startswith("05"):
+            errors['phone'] = ("Phone number must start with 05.")
+    
         if not description or len(description) < 10:
             errors['description'] = "Description must be at least 10 characters long!"
         if not street:
@@ -380,12 +384,18 @@ def edit_workshop(request):
         phone = request.POST.get('phone', '').strip()
         description = request.POST.get('description', '').strip()
 
-
-        if not name or not name.isalpha():
-            errors['name'] = "Workshop name is required , and must contain only characters!"
-        
-        if not phone or not phone.isdigit():
-            errors['phone'] = "Phone number must contain only digits!"
+        name = name.strip()  # remove leading/trailing whitespace
+        if not name or not name.replace(" ", "").isalpha():
+          errors['name'] = "Workshop name is required , and must contain only characters!"
+ 
+        if not phone:
+           errors['phone'] = ("Phone number is required.")
+        elif not phone.isdigit():
+            errors['phone'] = ("Phone number must contain only digits.")
+        elif len(phone) != 10:
+            errors['phone'] = ("Phone number must be 10 digits.")
+        elif not phone.startswith("05"):
+            errors['phone'] = ("Phone number must start with 05.")
         
         if not description or len(description) < 10:
             errors['description'] = "Description must be at least 10 characters long!"
@@ -430,8 +440,10 @@ def add_service(request):
         price = request.POST.get('price')
         duration = request.POST.get('duration')
 
-        if not name or not name.isalpha():
-            errors['name'] = "Service name is required , and must contain only characters!"
+        name = name.strip()  # remove leading/trailing whitespace
+        if not name or not name.replace(" ", "").isalpha():
+          errors['name'] = "Service name is required , and must contain only characters!"
+            
         if not price or float(price) <= 0:
             errors['price'] = "Price must be greater than zero!"
         if not duration or int(duration) <= 0:
@@ -504,7 +516,9 @@ def bookings_management(request):
     # Bookings management view logic
     if not request.user.is_workshop_owner:
         return redirect('landing:main')
+    
     workshop = Workshop.objects.filter(owner = request.user).first()
+
     bookings = Booking.objects.filter(workshop=workshop)
     status = request.GET.get('status', '')
     from_date = request.GET.get('from_date', '')
@@ -516,9 +530,18 @@ def bookings_management(request):
         bookings = bookings.filter(appointment_date__gte=from_date)
     if to_date:
         bookings = bookings.filter(appointment_date__lte=to_date)
+
+
+    paginator = Paginator(bookings, 7)
+
+    page_number = request.GET.get('page') 
+    page_obj = paginator.get_page(page_number)  
+
     context = {
-        'bookings': bookings,
+        'bookings': page_obj.object_list,  
+        'page_obj': page_obj, 
     }
+
     return render(request,'owner_dashboard/bookings.html',context)
 
 def confirm_booking(request,booking_id):

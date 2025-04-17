@@ -71,7 +71,7 @@
             <div class="card-body">
                 {% if services %}
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Service</th>
@@ -103,13 +103,13 @@
                                 </td>
                                 <td>
                                     <div class="d-flex gap-2">
-                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" 
+                                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" 
                                                 data-bs-target="#editServiceModal{{ service.id }}">
-                                            <i class="fas fa-edit"></i>
+                                            Update
                                         </button>
-                                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" 
+                                        <button class="btn btn-dark btn-sm" data-bs-toggle="modal" 
                                                 data-bs-target="#deleteServiceModal{{ service.id }}">
-                                            <i class="fas fa-trash"></i>
+                                                Delete
                                         </button>
                                     </div>
                                 </td>
@@ -169,7 +169,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                            <a href="{% url 'owner_dashboard:delete_service' service.id %}" class="btn btn-danger">Delete Service</a>
+                                            <a href="{% url 'owner_dashboard:delete_service' service.id %}" class="btn btn-dark">Delete Service</a>
                                         </div>
                                     </div>
                                 </div>
