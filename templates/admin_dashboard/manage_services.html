@@ -136,7 +136,7 @@ $(document).ready(function() {
     $('.btn-delete').click(function () {
         const serviceId = $(this).data('id');
 
-        if (confirm('Are you sure you want to delete this service?')) {
+        
             $.ajax({
                 url: '/admin_dashboard/admin/manage_services/delete/' + serviceId + '/',
                 type: 'POST',
@@ -144,18 +144,19 @@ $(document).ready(function() {
                     'X-CSRFToken': '{{ csrf_token }}'
                 },
                 success: function (response) {
-                    if (response.status === 'deleted') {
-                        $('#service-' + serviceId).fadeOut(300, function () {
-                            $(this).remove();
-                        });
-                    }
+                   
+                    setTimeout(() => {
+                        
+                        location.reload();
+                    }, 1500);
+ 
                 },
                 error: function (xhr, status, error) {
                     console.error("Error deleting service:", error);
                     alert('An error occurred while deleting the service.');
                 }
             });
-        }
+        
     });
 });
 </script>

@@ -384,27 +384,35 @@ def manage_workshops(request):
     workshops = Workshop.objects.all()
     return render(request, 'admin_dashboard/manage_workshops.html', {'workshops': workshops})
   
+
+
 def create_workshop(request):
     if request.method == 'POST':
         name = request.POST.get('name')
         phone = request.POST.get('phone')
         address_id = request.POST.get('address_id')
+        owner_id = request.POST.get('owner_id') 
         image = request.FILES.get('image')
 
-        if address_id:  
+        if address_id and owner_id:  
             Workshop.objects.create(
                 name=name,
                 phone=phone,
                 address_id=address_id,
+                owner_id=owner_id,
                 image=image)
             
             return redirect('admin_dashboard:manage_workshops')
         else:
-            return HttpResponse("Address is required", status=400)
-  
-    addresses = Address.objects.all()
-    return render(request, 'admin_dashboard/create_workshop.html', {'addresses': addresses})
+            return HttpResponse("Address and Owner are required", status=400)
 
+    addresses = Address.objects.all()
+    owners = User.objects.filter(is_workshop_owner=True)
+  
+    return render(request, 'admin_dashboard/create_workshop.html', {
+        'addresses': addresses,
+        'owners': owners
+    })
 
 from django.db.models import Q
 
@@ -521,19 +529,18 @@ def create_service(request):
 
         return redirect('admin_dashboard:manage_services') 
       
+
+
 @csrf_exempt
 def delete_service(request, service_id):
     if request.user.is_authenticated and request.user.is_superuser:
         if request.method == 'POST':
             service = get_object_or_404(Service, id=service_id)
             service.delete()
-            return JsonResponse({'status': 'deleted'})
-        return JsonResponse({'status': 'error'}, status=400)
-    return JsonResponse({
-            'success': False,
-            'error': "Unautorized User",
-            'redirect_url': reverse('landing:main')
-            })
+            
+            return redirect('admin_dashboard:manage_services')
+        return redirect('admin_dashboard:manage_services')
+    
 
 def edit_service(request, service_id):
     
