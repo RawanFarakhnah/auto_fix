@@ -88,7 +88,42 @@
         {% endblock %}
     </div>
 </main>
-<div id="chat-container">
+<div id="chat-container" class="position-fixed bottom-0 end-0 mb-3 me-3" style="z-index: 1000;">
+    <!-- Chat Box -->
+    <div id="chat-box" class="hidden bg-white rounded shadow-lg border border-orange" 
+         style="width: 320px; height: 400px; position: absolute; bottom: 50px; right: 0;">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center bg-orange text-white p-2 rounded-top">
+            <h6 class="mb-0">AutoFix AI Assistant</h6>
+            <button class="close-btn btn btn-sm btn-outline-light" onclick="clearText()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <!-- Messages -->
+        <div id="messages" class="messages-box p-2 flex-grow-1 overflow-auto"></div>
+        
+        <!-- Input Area -->
+        <div class="user-chat p-2 border-top">
+            <div class="input-group">
+                <input type="text" id="user-input" class="form-control border-orange" 
+                       placeholder="Type a message...">
+                <button id="send-btn" class="btn btn-orange">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chat Bubble -->
+    <div id="chat-bubble" class="bg-orange text-white rounded-pill shadow cursor-pointer d-flex align-items-center">
+        <div class="d-flex align-items-center px-3 py-2">
+            <i class="fas fa-robot me-2"></i>
+            <p class="mb-0 fw-medium">Chat With Our AI</p>
+        </div>
+    </div>
+</div>
+<!-- <div id="chat-container">
     <div id="chat-box" class="hidden">
       <button class="close-btn" onclick="clearText()">close</button>
       <div id="messages" class="messages-box"></div>
@@ -100,7 +135,7 @@
     <div id="chat-bubble">
       <p>Chat With Our AI</p>
     </div>
-</div>
+</div> -->
 
 <script src="{% static 'js/ai_script.js' %}"></script>
 <script src="{% static 'js/notification.js' %}"></script>
