@@ -1,0 +1,253 @@
+/* Dashboard Layout */
+.wrapper {
+  display: flex;
+  min-height: 80vh;
+  background-color: #f8f9fa;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #343a40;
+  color: #fff;
+  border-radius: 8px;
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+
+.sidebar .menu a {
+  color: #ddd;
+  padding: 10px 15px;
+  display: block;
+  border-radius: 4px;
+  transition: all 0.3s;
+  text-decoration: none;
+  margin-bottom: 5px;
+}
+
+.sidebar .menu a:hover,
+.sidebar .menu .active-link {
+  background-color: #ff6600;
+  color: #fff;
+  transform: translateX(5px);
+}
+
+.sidebar .menu a i {
+  width: 20px;
+  text-align: center;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding-left: 20px;
+}
+
+/* User Profile */
+.user-profile {
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.user-profile .avatar {
+  color: #ff6600;
+}
+
+/* Stats Cards */
+.stats-cards .card {
+  background: #fff;
+  border: none;
+  border-radius: 8px;
+  transition: transform 0.3s;
+}
+
+.stats-cards .card:hover {
+  transform: translateY(-5px);
+}
+
+.stats-cards .card-body {
+  padding: 20px;
+}
+
+/* Buttons */
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.btn.btn-outline-primary {
+  border: 2px solid #ff6600;
+  color: #ff6600;
+  background-color: transparent;
+  transition: all 0.3s ease-in-out;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(255, 102, 0, 0.2);
+}
+
+.btn.btn-outline-primary:hover {
+  background-color: #ff6600;
+  color: white;
+  border-color: #e65c00;
+  box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3);
+  transform: translateY(-1px);
+}  
+
+.btn.btn-warning {
+  background-color: #ff6600 !important;
+  color: white;
+  border-color: #ff6600 !important;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn.btn-warning:hover {
+  background-color: #e65c00 !important; /* Slightly darker orange */
+  border-color: #e65c00 !important;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Card Headers */
+.card-header {
+  background-color: white;
+  border-bottom: 1px solid rgba(0,0,0,0.125);
+}
+
+.badge.bg-warning{
+  background-color: #e65c00 !important; /* Slightly darker orange */
+  border-color: #e65c00 !important;
+  color: #fff;
+}
+
+/* Tables */
+.table {
+  margin-bottom: 0;
+}
+
+.table th {
+  border-top: 0;
+}
+
+/* Workshop Image */
+.workshop-image {
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .wrapper {
+      flex-direction: column;
+  }
+  
+  .sidebar {
+      width: 100%;
+      margin-bottom: 20px;
+      position: static;
+  }
+  
+  .main-content {
+      padding-left: 0;
+  }
+  
+  .stats-cards .col-md-3 {
+      flex: 0 0 50%;
+      max-width: 50%;
+  }
+}
+
+@media (max-width: 576px) {
+  .stats-cards .col-md-3 {
+      flex: 0 0 100%;
+      max-width: 100%;
+  }
+  
+  .workshop-info .col-md-4, 
+  .workshop-info .col-md-8 {
+      flex: 0 0 100%;
+      max-width: 100%;
+  }
+}
+
+/* Chart Canvas */
+canvas {
+  width: 100% !important;
+  height: 300px !important;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+  .admin-sidebar {
+      width: var(--sidebar-collapsed-width);
+      padding: 1rem 0.5rem;
+  }
+  
+  .admin-main {
+      margin-left: var(--sidebar-collapsed-width);
+  }
+  
+  .sidebar-header {
+      padding: 0 0 1rem;
+  }
+  
+  .user-avatar, .user-greeting, .user-role, .nav-item span {
+      display: none;
+  }
+  
+  .nav-item {
+      justify-content: center;
+      padding: 0.75rem;
+  }
+  
+  .nav-item i {
+      font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+      grid-template-columns: 1fr 1fr;
+  }
+  
+  .chart-container {
+      grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .stats-grid {
+      grid-template-columns: 1fr;
+  }
+  
+  .admin-main {
+      padding: 1rem;
+  }
+  
+  .main-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+  }
+}
+
+ /* Badge styling */
+ #notification-badge {
+  font-size: 0.65rem;
+  padding: 0.35em 0.65em;
+  min-width: 20px;
+  display: none; /* Hidden by default */
+  transform: translate(10%, -50%);
+}
+
+/* Simple pulse animation */
+@keyframes pulse {
+  0% { transform: translate(10%, -50%) scale(1); }
+  50% { transform: translate(10%, -50%) scale(1.2); }
+  100% { transform: translate(10%, -50%) scale(1); }
+}
+
+.new-notification {
+  animation: pulse 0.5s ease 2;
+}

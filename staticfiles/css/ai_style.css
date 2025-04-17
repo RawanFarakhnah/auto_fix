@@ -1,0 +1,98 @@
+ /* Custom Orange Color */
+ .bg-orange { background-color: #ff6600 !important; }
+ .btn-orange { 
+     background-color: #ff6600 !important; 
+     color: white !important;
+ }
+ .border-orange { border-color: #ff6600 !important; }
+ .text-orange { color: #ff6600 !important; }
+ 
+ /* Chat Container */
+ #chat-box {
+     display: flex;
+     flex-direction: column;
+ }
+ 
+ #chat-box.hidden {
+     display: none !important;
+ }
+ 
+ /* Messages */
+ .messages-box {
+     scrollbar-width: thin;
+     scrollbar-color: #ff6600 #f8f9fa;
+ }
+ 
+ .messages-box::-webkit-scrollbar {
+     width: 6px;
+ }
+ 
+ .messages-box::-webkit-scrollbar-track {
+     background: #f8f9fa;
+ }
+ 
+ .messages-box::-webkit-scrollbar-thumb {
+     background-color: #ff6600;
+     border-radius: 6px;
+ }
+ 
+ /* Message Bubbles */
+ .message {
+     max-width: 80%;
+     padding: 8px 12px;
+     border-radius: 15px;
+     font-size: 14px;
+     line-height: 1.4;
+     margin-bottom: 8px;
+ }
+ 
+ .message.user {
+     align-self: flex-end;
+     background-color: #6c757d;
+     color: white;
+     border-bottom-right-radius: 5px;
+ }
+ 
+ .message.ai {
+     align-self: flex-start;
+     background-color: #f0f0f0;
+     color: #333;
+     border-bottom-left-radius: 5px;
+ }
+ 
+ .message.ai.system {
+     background-color: #ffe0cc;
+     font-style: italic;
+     font-size: 13px;
+ }
+ 
+ /* Chat Bubble */
+ #chat-bubble:hover {
+     transform: scale(1.05);
+     transition: transform 0.2s ease;
+ }
+ 
+ /* Input Area */
+ #user-input:focus {
+     box-shadow: 0 0 0 0.25rem rgba(255, 102, 0, 0.25);
+     border-color: #ff6600;
+ }
+ 
+ #send-btn:hover {
+     background-color: #e65c00 !important;
+ }
+ 
+ /* Responsive */
+ @media (max-width: 576px) {
+     #chat-box {
+         width: 280px !important;
+         height: 70vh !important;
+         bottom: 60px !important;
+         right: 10px !important;
+     }
+     
+     #chat-container {
+         right: 10px !important;
+         bottom: 10px !important;
+     }
+ }

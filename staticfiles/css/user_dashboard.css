@@ -1,0 +1,288 @@
+/* Admin Dashboard CSS - Matching Owner Dashboard Style */
+.wrapper {
+  display: flex;
+  min-height: 80vh;
+  background-color: #f8f9fa;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #343a40;
+  color: #fff;
+  border-radius: 8px;
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+  margin: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar .menu a {
+  color: #ddd;
+  padding: 10px 15px;
+  display: block;
+  border-radius: 4px;
+  transition: all 0.3s;
+  text-decoration: none;
+  margin-bottom: 5px;
+}
+
+.sidebar .menu a:hover,
+.sidebar .menu .active-link {
+  background-color: #ff6600;
+  color: #fff;
+  transform: translateX(5px);
+}
+
+.sidebar .menu a i {
+  width: 20px;
+  text-align: center;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+}
+
+/* User Profile - Matching Owner Dashboard */
+.user-profile {
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  text-align: center;
+}
+
+.user-profile .avatar {
+  color: #ff6600;
+}
+
+.user-profile .welcome {
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+/* Stats Cards - Matching Owner Dashboard */
+.stats-cards .card {
+  background: #fff;
+  border: none;
+  border-radius: 8px;
+  transition: transform 0.3s;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.stats-cards .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.stats-cards .card-body {
+  padding: 20px;
+}
+
+.stats-cards .text-muted {
+  font-size: 0.85rem;
+  color: #6c757d !important;
+}
+
+.stats-cards h3 {
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+/* Cards - Matching Owner Dashboard */
+.card {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+  margin-bottom: 20px;
+}
+
+.card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  background-color: white;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  padding: 15px 20px;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+/* Form Elements - Matching Owner Dashboard */
+.form-select {
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  padding: 5px 10px;
+  font-size: 0.85rem;
+}
+
+.border-orange {
+  border-color: #ff6600 !important;
+}
+
+/* Tables - Matching Owner Dashboard */
+.table {
+  margin-bottom: 0;
+}
+
+.table th {
+  border-top: 0;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #6c757d;
+  background-color: #f8f9fa;
+}
+
+.table td {
+  vertical-align: middle;
+  padding: 12px 15px;
+}
+
+/* Badges - Matching Owner Dashboard Buttons */
+.badge {
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+/* Buttons - Exact Match from Owner Dashboard */
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease-in-out;
+}
+
+.btn.btn-outline-primary {
+  border: 2px solid #ff6600;
+  color: #ff6600;
+  background-color: transparent;
+  box-shadow: 0 2px 4px rgba(255, 102, 0, 0.2);
+}
+
+.btn.btn-outline-primary:hover {
+  background-color: #ff6600;
+  color: white;
+  border-color: #e65c00;
+  box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+
+.btn.btn-warning {
+  background-color: #ff6600 !important;
+  color: white;
+  border-color: #ff6600 !important;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn.btn-warning:hover {
+  background-color: #e65c00 !important; /* Slightly darker orange */
+  border-color: #e65c00 !important;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.badge.bg-orange{
+  background-color: #e65c00;
+  color: white;
+}
+
+.bg-white {
+  background-color: white !important;
+}
+
+.text-orange{
+  color: #e65c00 !important;
+}
+
+/* Responsive Adjustments - Matching Owner Dashboard */
+@media (max-width: 768px) {
+  .wrapper {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    margin-bottom: 20px;
+    position: static;
+    margin: 0;
+    border-radius: 0;
+  }
+  
+  .main-content {
+    padding-left: 0;
+  }
+  
+  .stats-cards .col-md-3 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 576px) {
+  .stats-cards .col-md-3 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
+  .table-responsive {
+    border: 0;
+  }
+}
+
+/* Chart Canvas */
+canvas {
+  width: 100% !important;
+  max-height: 250px;
+}
+
+
+.page-item .custom-page-link {
+  color: #ff6600;
+  border: 1px solid #ff6600;
+  border-radius: 8px;
+  margin: 0 3px;
+  transition: all 0.3s ease-in-out;
+}
+
+.page-item .custom-page-link:hover {
+  background-color: #ff6600;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(255, 102, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+.page-item.active .custom-page-link {
+  background-color: #ff6600 !important;
+  border-color: #ff6600 !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+.page-item.disabled .custom-page-link {
+  color: #ccc;
+  border-color: #ccc;
+  cursor: not-allowed;
+}
+
+ /* Badge styling */
+ #notification-badge {
+  font-size: 0.65rem;
+  padding: 0.35em 0.65em;
+  min-width: 20px;
+  display: none; /* Hidden by default */
+  transform: translate(10%, -50%);
+}
+
+/* Simple pulse animation */
+@keyframes pulse {
+  0% { transform: translate(10%, -50%) scale(1); }
+  50% { transform: translate(10%, -50%) scale(1.2); }
+  100% { transform: translate(10%, -50%) scale(1); }
+}
+
+.new-notification {
+  animation: pulse 0.5s ease 2;
+}
