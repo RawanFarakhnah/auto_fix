@@ -107,19 +107,6 @@
   transform: translateY(-2px);
 }
 
-.badge.bg-orange{
-  background-color: #e65c00;
-  color: white;
-}
-
-.bg-white {
-  background-color: white !important;
-}
-
-.text-orange{
-  color: #e65c00 !important;
-}
-
 /* Card Headers */
 .card-header {
   background-color: white;
@@ -245,31 +232,22 @@ canvas {
   }
 }
 
-
-.page-item .custom-page-link {
-  color: #ff6600;
-  border: 1px solid #ff6600;
-  border-radius: 8px;
-  margin: 0 3px;
-  transition: all 0.3s ease-in-out;
+ /* Badge styling */
+ #notification-badge {
+  font-size: 0.65rem;
+  padding: 0.35em 0.65em;
+  min-width: 20px;
+  display: none; /* Hidden by default */
+  transform: translate(10%, -50%);
 }
 
-.page-item .custom-page-link:hover {
-  background-color: #ff6600;
-  color: #fff;
-  box-shadow: 0 2px 6px rgba(255, 102, 0, 0.3);
-  transform: translateY(-1px);
+/* Simple pulse animation */
+@keyframes pulse {
+  0% { transform: translate(10%, -50%) scale(1); }
+  50% { transform: translate(10%, -50%) scale(1.2); }
+  100% { transform: translate(10%, -50%) scale(1); }
 }
 
-.page-item.active .custom-page-link {
-  background-color: #ff6600 !important;
-  border-color: #ff6600 !important;
-  color: white !important;
-  font-weight: bold;
-}
-
-.page-item.disabled .custom-page-link {
-  color: #ccc;
-  border-color: #ccc;
-  cursor: not-allowed;
+.new-notification {
+  animation: pulse 0.5s ease 2;
 }

@@ -41,13 +41,17 @@
             <img src="{% static 'img/dark_logo.png' %}" alt="AutoFix" width="30" height="30">
             AutoFix
         </a>
-                        <!-- this code for the notifications :  -->
-        <a {% if request.user.is_workshop_owner %} href="{% url 'owner_dashboard:notifications' %}" {% elif request.user.is_superuser %} href="{% url 'admin_dashboard:notifications' %}" {% else %} href="{% url 'user_dashboard:notifications' %}" {% endif %} id="notifications-btn" class="btn btn-outline-primary position-relative">
-            <i class="fa fa-bell"></i>
-            <span id="notification-badge" class="position-absolute fs-6 top-0 start-100 translate-middle badge bg-danger" style="display: none;">
-                0
-            </span>
-        </a>
+        
+        <!-- Keep your existing HTML exactly as is -->
+        <a {% if request.user.is_workshop_owner %} href="{% url 'owner_dashboard:notifications' %}" 
+            {% elif request.user.is_superuser %} href="{% url 'admin_dashboard:notifications' %}" 
+            {% else %} href="{% url 'user_dashboard:notifications' %}" {% endif %} 
+            id="notifications-btn" class="btn btn-outline-primary position-relative mx-2">
+             <i class="fa fa-bell"></i>
+             <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-orange">
+                 0
+             </span>
+       </a>
 
         <div class="collapse navbar-collapse" id="navbarMain">
             <ul class="navbar-nav ms-auto">
@@ -97,10 +101,7 @@
       <p>Chat With Our AI</p>
     </div>
 </div>
-<!-- Footer -->
-<!-- <footer class="text-center py-4 base-footer">
-    <p>&copy; {% now "Y" %} AutoFix. All Rights Reserved.</p>
-</footer> -->
+
 <script src="{% static 'js/ai_script.js' %}"></script>
 <script src="{% static 'js/notification.js' %}"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

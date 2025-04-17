@@ -1,49 +1,25 @@
-document.getElementById("notifications-btn").addEventListener("click", function () {
-    let container = document.getElementById("notifications-container");
+document.addEventListener('DOMContentLoaded', function() {
+    const notificationBtn = document.getElementById('notifications-btn');
+    const badge = document.getElementById('notification-badge');
     
-   
-    container.style.display = container.style.display === "none" ? "block" : "none";
-
-    fetch("/bookings/bookings/notifications/")  
-        .then(response => response.json())
-        .then(data => {
-            container.innerHTML = "";  
-
-            let badge = document.getElementById("notification-badge");
-
-          
-            if (data.unread_count > 0) {
-                badge.innerText = data.unread_count;
-                badge.style.display = "inline";  
-            } else {
-                badge.style.display = "none";  
-            }
-            if (data.notifications && data.notifications.length > 0) {
-                data.notifications.forEach(notification => {
-                    let div = document.createElement("div");
-                    div.classList.add("notification-item");
-                    div.innerText = notification.message;
-                    container.appendChild(div);
-                });
-            } else {
-                container.innerHTML = "<p>No notifications to show</p>";
-            }
-        })
-        .catch(error => console.error("Error fetching notifications", error));
+    // Function to update notification count
+    function updateNotificationCount() {
+        fetch("/bookings/bookings/notifications/")
+            .then(response => response.json())
+            .then(data => {
+                if (data.unread_count > 0) {
+                    badge.textContent = data.unread_count > 9 ? '9+' : data.unread_count;
+                    badge.style.display = 'inline-block';
+                    badge.classList.add('new-notification');
+                    setTimeout(() => badge.classList.remove('new-notification'), 1000);
+                } else {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(error => console.error("Error:", error));
+    }
+    
+    // Check for new notifications every 30 seconds
+    updateNotificationCount(); // Initial check
+    setInterval(updateNotificationCount, 30000);
 });
-
-
-setInterval(() => {
-    fetch("/bookings/bookings/notifications/")
-        .then(response => response.json())
-        .then(data => {
-            let badge = document.getElementById("notification-badge");
-            if (data.unread_count > 0) {
-                badge.innerText = data.unread_count;
-                badge.style.display = "inline";  
-            } else {
-                badge.style.display = "none";  
-            }
-        })
-        .catch(error => console.error("Error fetching notification count", error));
-}, 20000);

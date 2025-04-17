@@ -266,3 +266,23 @@ canvas {
   border-color: #ccc;
   cursor: not-allowed;
 }
+
+ /* Badge styling */
+ #notification-badge {
+  font-size: 0.65rem;
+  padding: 0.35em 0.65em;
+  min-width: 20px;
+  display: none; /* Hidden by default */
+  transform: translate(10%, -50%);
+}
+
+/* Simple pulse animation */
+@keyframes pulse {
+  0% { transform: translate(10%, -50%) scale(1); }
+  50% { transform: translate(10%, -50%) scale(1.2); }
+  100% { transform: translate(10%, -50%) scale(1); }
+}
+
+.new-notification {
+  animation: pulse 0.5s ease 2;
+}
