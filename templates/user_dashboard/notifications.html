@@ -75,8 +75,10 @@
                         <div class="list-group-item {% if not notification.is_read %}bg-light{% endif %}">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="me-3">
-                                    <div class="icon-circle bg-{% if notification.is_read %}secondary{% else %}orange{% endif %}">
-                                        <i class="fas fa-{% if 'appointment' in notification.message %}calendar-alt{% elif 'reminder' in notification.message %}exclamation-circle{% else %}info-circle{% endif %} text-white"></i>
+                                    <div class="icon-circle {% if notification.is_read %}bg-secondary{% else %}bg-white{% endif %}">
+                                        <i class="fas fa-{% if 'appointment' in notification.message %}calendar-alt
+                                                      {% elif 'reminder' in notification.message %}exclamation-circle
+                                                      {% else %}info-circle{% endif %} text-orange"></i>
                                     </div>
                                 </div>
                                 <div class="flex-grow-1">
@@ -102,39 +104,39 @@
                 {% endif %}
             </div>
             
-            <div class="card-footer bg-white">
+            <div class="card-footer bg-white border-top-0">
                 {% if page_obj.has_other_pages %}
                 <nav aria-label="Notification pagination">
                     <ul class="pagination justify-content-center mb-0">
                         {% if page_obj.has_previous %}
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                                <a class="page-link custom-page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
                             </li>
                         {% else %}
                             <li class="page-item disabled">
-                                <span class="page-link">Previous</span>
+                                <span class="page-link custom-page-link">Previous</span>
                             </li>
                         {% endif %}
             
                         {% for num in page_obj.paginator.page_range %}
                             {% if page_obj.number == num %}
                                 <li class="page-item active">
-                                    <span class="page-link">{{ num }}</span>
+                                    <span class="page-link custom-page-link">{{ num }}</span>
                                 </li>
                             {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    <a class="page-link custom-page-link" href="?page={{ num }}">{{ num }}</a>
                                 </li>
                             {% endif %}
                         {% endfor %}
             
                         {% if page_obj.has_next %}
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                <a class="page-link custom-page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
                             </li>
                         {% else %}
                             <li class="page-item disabled">
-                                <span class="page-link">Next</span>
+                                <span class="page-link custom-page-link">Next</span>
                             </li>
                         {% endif %}
                     </ul>

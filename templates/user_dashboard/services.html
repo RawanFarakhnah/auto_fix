@@ -89,22 +89,24 @@
                                             <td >{{ bookings_service.appointment_date|date:"M d, Y" }}</td>
                                             <td>{{ bookings_service.service.name }}</td>
                                             <td>{{ bookings_service.workshop.name }}</td>
-                                            <td>{{ bookings_service.car.make }} {{ service.car.model }}</td>
+                                            <td>{{ bookings_service.car.make }} {{ bookings_service.car.model }}</td>
                                             <td>${{ bookings_service.service.price }}</td>
                                             <td>
                                                 <button class="btn btn-sm btn-outline-primary view-service-details" data-id="{{ bookings_service.service.id }}">Details</button>
-                                                <div class="modal fade" id="serviceDetailModal" tabindex="-1" aria-hidden="true">
-                                                    <div class="modal-dialog modal-lg">
-                                                      <div class="modal-content">
-                                                        <div class="modal-header">
-                                                          <h5 class="modal-title">Service Details</h5>
-                                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body" id="serviceDetailBody">
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                  </div>
+
+                                               <!-- Service Detail Modal (placed once) -->
+                                               <div class="modal fade" id="serviceDetailModal" tabindex="-1" aria-hidden="true">
+                                                   <div class="modal-dialog modal-lg">
+                                                     <div class="modal-content">
+                                                       <div class="modal-header">
+                                                         <h5 class="modal-title">Service Details</h5>
+                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                       </div>
+                                                       <div class="modal-body" id="serviceDetailBody">
+                                                       </div>
+                                                     </div>
+                                                   </div>
+                                               </div>
                                                   
                                             </td>
                                         </tr>
@@ -129,66 +131,66 @@
                         <h5 class="mb-0">Recommended Services</h5>
                     </div>
                     <div class="card-body">
-                        <div class="list-group">
-                            {% for service in recomended_services %}
-                            <div class="list-group-item border-0">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="mb-1">{{service.name}}</h6>
-                                        <small class="text-muted">{{service.description}}</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <hr style="color: #ff6600; padding:3px;">
-                            {% endfor %}
-                              
-                        </div>
+                        {% if recomended_services %}
+                           <div class="list-group">
+                               {% for service in recomended_services %}
+                               <div class="list-group-item border-start border-4 mb-2 rounded">
+                                   <div class="d-flex flex-column">
+                                       <h6 class="mb-1 fw-semibold text-dark">{{ service.name }}</h6>
+                                       <small class="text-muted">{{ service.description }}</small>
+                                   </div>
+                               </div>
+                               {% endfor %}
+                           </div>
+                        {% else %}
+                           <div class="text-center py-4 text-muted">
+                               <i class="fas fa-info-circle fa-2x mb-2"></i>
+                               <p>No recommended services at the moment.</p>
+                           </div>
+                        {% endif %}
                     </div>
+                    
                 </div>
             </div>
         </div>
     </main>
 </div>
 {% endblock %}
-
 {% block extra_js %}
 <script>
 $(document).ready(function() {
     // Initialize tooltips
     $('[data-bs-toggle="tooltip"]').tooltip();
     
-    // Sidebar active link management
+    // Sidebar active link
     $('.menu a').on('click', function() {
         $('.menu a').removeClass('active-link');
         $(this).addClass('active-link');
     });
-});
 
-// this code to show the details of the service : 
-
-$(document).on('click', '.view-service-details', function () {
-    let serviceId = $(this).data('id');
-    
-    $.ajax({
-        url: `/user_dashboard/user/services/${serviceId}/details`,
-        method: 'GET',
-        success: function (data) {
-            let html = `
-                <p><strong>Name:</strong> ${data.name}</p>
-                <p><strong>Description:</strong> ${data.description}</p>
-                <p><strong>Price:</strong> $${data.price}</p>
-                <p><strong>Workshop:</strong> ${data.workshop}</p>
-            `;
-            $('#serviceDetailBody').html(html);
-            $('#serviceDetailModal').modal('show');
-        },
-        error: function () {
-            alert('Failed to load service details.');
-        }
+    // View Service Details
+    $(document).on('click', '.view-service-details', function () {
+        let serviceId = $(this).data('id');
+        $.ajax({
+            url: `/user_dashboard/user/services/${serviceId}/details`,
+            method: 'GET',
+            success: function (data) {
+                let html = `
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>Name:</strong> ${data.name}</li>
+                    <li class="list-group-item"><strong>Description:</strong> ${data.description}</li>
+                    <li class="list-group-item"><strong>Price:</strong> $${data.price}</li>
+                    <li class="list-group-item"><strong>Workshop:</strong> ${data.workshop}</li>
+                </ul>
+                `;
+                $('#serviceDetailBody').html(html);
+                $('#serviceDetailModal').modal('show');
+            },
+            error: function () {
+                alert('Failed to load service details.');
+            }
+        });
     });
 });
-
-
-
 </script>
 {% endblock %}
