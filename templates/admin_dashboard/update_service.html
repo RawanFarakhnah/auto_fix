@@ -68,35 +68,33 @@
         <h5 class="mb-0">Service Information</h5>
       </div>
       <div class="card-body">
-        <form action="{% url 'admin_dashboard:create_service' %}" method="post" enctype="multipart/form-data">
+        <form id="updateServiceForm" action="{% url 'admin_dashboard:update_service' service.id %}" method="POST">
+ 
+ 
           {% csrf_token %}
-
-          <div class="mb-3">
-            <label class="form-label" style="color: #ff6600;">Service Name:</label>
-            <input type="text" id="name" name="name" class="form-control" placeholder="Service Name" required>
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <input type="text" id="name" value="{{ service.name }}" class="form-control" placeholder="service"
+                     style="border-color: #ff6600; color: #ff6600" required />
+            </div>
+            <div class="col-md-6">
+              <input type="text" id="price" value="{{ service.price }}" class="form-control" placeholder="price"
+                     style="border-color: #ff6600; color: #ff6600" required />
+            </div>
           </div>
-
+   
           <div class="mb-3">
-            <label class="form-label" style="color: #ff6600;">Price:</label>
-            <input type="number" id="price" name="price" class="form-control" placeholder="Price" required>
+            <textarea id="description" class="form-control" placeholder="description" style="border-color: #ff6600; color: #ff6600" required>{{ service.description }}</textarea>
           </div>
-
+   
           <div class="mb-3">
-            <label class="form-label" style="color: #ff6600;">Description:</label>
-            <input type="text" id="description" name="description" class="form-control" placeholder="Description" required>
+            <input type="text" id="duration" value="{{ service.duration }}" class="form-control" placeholder="duration"
+                   style="border-color: #ff6600; color: #ff6600" required />
           </div>
-
-          <div class="mb-3">
-            <label class="form-label" style="color: #ff6600;">Duration (min):</label>
-            <input type="number" id="duration" name="duration" class="form-control" placeholder="Duration (min)" required>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label" style="color: #ff6600;">Workshop ID:</label>
-            <input type="number" id="workshop_id" name="workshop_id" class="form-control" placeholder="Workshop ID" required>
-          </div>
-
-          <button type="submit" class="btn-custom" style="background-color: #ff6600; color: white;">Add Service</button>
+   
+          <button type="button" id="update-service-btn" class="btn-custom" style="background-color: #ff6600; color: white;">
+          update
+          </button>
         </form>
       </div>
     </div>

@@ -100,26 +100,25 @@
                    placeholder="05xxxxxxxx" style="border-color: #ff6600; color: #ff6600;" required />
           </div>
 
-          <!-- User Role Selection -->
           <div class="mb-4">
             <label class="form-label fw-bold" style="color: #ff6600;">Select User Role</label>
-
+           
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="role" id="role_user" value="user"
-                     {% if user_obj.role == 'user' %}checked{% endif %}>
-              <label class="form-check-label" for="role_user">Regular User</label>
+                <input class="form-check-input" type="radio" name="role" id="role_user" value="user"
+                    {% if user_obj.is_superuser == False and user_obj.is_workshop_owner == False %}checked{% endif %}>
+                <label class="form-check-label" for="role_user">Regular User</label>
             </div>
-
+           
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="role" id="role_workshop" value="workshop"
-                     {% if user_obj.role == 'workshop' %}checked{% endif %}>
-              <label class="form-check-label" for="role_workshop">Workshop Owner</label>
+                <input class="form-check-input" type="radio" name="role" id="role_workshop" value="workshop"
+                    {% if user_obj.is_workshop_owner %}checked{% endif %}>
+                <label class="form-check-label" for="role_workshop">Workshop Owner</label>
             </div>
-
+           
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="role" id="role_admin" value="admin"
-                     {% if user_obj.role == 'admin' %}checked{% endif %}>
-              <label class="form-check-label" for="role_admin">Admin</label>
+                <input class="form-check-input" type="radio" name="role" id="role_admin" value="admin"
+                    {% if user_obj.is_superuser %}checked{% endif %}>
+                <label class="form-check-label" for="role_admin">Admin</label>
             </div>
           </div>
 
