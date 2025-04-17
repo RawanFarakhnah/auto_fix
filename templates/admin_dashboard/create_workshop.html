@@ -1,75 +1,119 @@
 {% extends 'base2.html' %}
-{% block title %} User Dashboard {% endblock %}
+
+{% block title %}Create Workshop{% endblock %}
+
 {% load static bootstrap5 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}" />
+<link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="wrapper d-flex">
+
+  <!-- Sidebar -->
   <aside class="sidebar p-3 shadow-sm">
-    <h4 class="welcome mb-4">Welcome, {{ request.user.get_short_name }}</h4>
+    <div class="user-profile mb-4 text-center">
+      <div class="avatar mb-2">
+        <i class="fas fa-user-shield fa-3x"></i>
+      </div>
+      <h5 class="welcome mb-1">Welcome, {{ request.user.get_short_name }}</h5>
+      <small class="text-muted">Administrator</small>
+    </div>
+
     <nav class="menu d-flex flex-column gap-2">
-      <a href="{% url 'admin_dashboard:dashboard' %}" class="text-white text-decoration-none">Dashboard</a>
-      <a href="{% url 'admin_dashboard:manage_users' %}" class="text-white text-decoration-none">Manage Users</a>
-      <a href="{% url 'admin_dashboard:manage_workshops'%}" class="active-link text-white text-decoration-none">Manage
-        Workshops</a>
-      <a href="{% url 'admin_dashboard:manage_services' %}" class="text-white text-decoration-none">Manage Services</a>
+      <a href="{% url 'admin_dashboard:dashboard' %}" class="text-white text-decoration-none">
+        <i class="fas fa-chart-line me-2"></i>Dashboard
+      </a>
+      <a href="{% url 'admin_dashboard:manage_users' %}" class="text-white text-decoration-none">
+        <i class="fas fa-users me-2"></i>Manage Users
+      </a>
+      <a href="{% url 'admin_dashboard:manage_workshops' %}" class="active-link text-white text-decoration-none">
+        <i class="fas fa-warehouse me-2"></i>Workshops
+      </a>
+      <a href="{% url 'admin_dashboard:manage_services' %}" class="text-white text-decoration-none">
+        <i class="fas fa-tools me-2"></i>Services
+      </a>
+      <a href="{% url 'accounts:logout' %}" class="text-danger text-decoration-none">
+        <i class="fas fa-sign-out-alt me-2"></i>Logout
+      </a>
     </nav>
   </aside>
+
   <!-- Main Content -->
-  <main class="main-content flex-grow-1 p-4">
-    <h6>
-      <a href="{% url 'admin_dashboard:manage_workshops' %}" class="active-link text-decoration-none"
-        style="border-color: #ff6600; color: #ff6600">
-        << Back to Manage Workshops</a>
-    </h6>
+  <main class="main-content flex-grow-1 p-4 w-100">
+    <div class="dashboard-header mb-4">
+      <h1>Create Workshop</h1>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{% url 'admin_dashboard:manage_workshops' %}" class="active-link text-decoration-none"
+               style="border-color: #ff6600; color: #ff6600;">Manage Workshops</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Create</li>
+        </ol>
+      </nav>
+    </div>
 
-    <div class="form-container">
-      <form action="{% url 'admin_dashboard:create_workshop' %}" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="mb-3">
-          <label class="form-label">Name:</label>
-          <input type="text" name="name" class="form-control" />
-        </div>
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-white">
+        <h5 class="mb-0">Workshop Details</h5>
+      </div>
+      <div class="card-body">
+        <form action="{% url 'admin_dashboard:create_workshop' %}" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
 
-        <div class="mb-3">
-          <label class="form-label">Phone:</label>
-          <input type="tel" name="phone" name="phone" placeholder="05xxxxxxxx" class="form-control" />
-        </div>
+          <div class="mb-3">
+            <input type="text" name="name" class="form-control" placeholder="Workshop Name"
+                   style="border-color: #ff6600; color: #ff6600;" required />
+          </div>
 
-        <div class="mb-3">
-          <label>Address:</label><br />
-          <select name="address_id" class="form-select">
-            {% for address in addresses %}
-            <option value="{{ address.id }}">
-              {{ address.city }} - {{ address.street }}
-            </option>
-            {% endfor %}
-          </select><br />
-        </div>
-        <div>
-          <label for="owner">Select Owner:</label>
-          <select name="owner_id" id="owner">
-            <option value="">-- Select an Owner --</option>
-            {% for owner in owners %}
-            <option value="{{ owner.id }}">{{ owner.first_name }} {{ owner.last_name }}</option>
-            {% endfor %}
-          </select><br/>
+          <div class="mb-3">
+            <input type="tel" name="phone" class="form-control" placeholder="05xxxxxxxx"
+                   style="border-color: #ff6600; color: #ff6600;" required />
+          </div>
 
-        </div>
+          <div class="mb-3">
+            <select name="address_id" class="form-select" required style="border-color: #ff6600; color: #ff6600;">
+              <option value="">-- Select Address --</option>
+              {% for address in addresses %}
+              <option value="{{ address.id }}">{{ address.city }} - {{ address.street }}</option>
+              {% endfor %}
+            </select>
+          </div>
 
-        <div class="mb-3">
-          <label class="form-label">Image:</label>
-          <input type="file" name="image" class="form-control" />
-        </div>
+          <div class="mb-3">
+            <select name="owner_id" class="form-select" required style="border-color: #ff6600; color: #ff6600;">
+              <option value="">-- Select Owner --</option>
+              {% for owner in owners %}
+              <option value="{{ owner.id }}">{{ owner.first_name }} {{ owner.last_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
 
-        <button type="submit" class="btn btn-warning text-white" style="background-color: #ff6600;">Create</button>
-      </form>
+          <div class="mb-4">
+            <input type="file" name="image" class="form-control" required style="border-color: #ff6600; color: #ff6600;" />
+          </div>
+
+          <button class="btn-custom" type="submit" style="background-color: #ff6600; color: white; padding: 10px 20px; border-radius: 5px; border: none;">
+            Create Workshop
+          </button>
+        </form>
+      </div>
     </div>
   </main>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  $(document).ready(function () {
+    $('.menu a').on('click', function () {
+      $('.menu a').removeClass('active-link');
+      $(this).addClass('active-link');
+    });
+  });
+</script>
 {% endblock %}
