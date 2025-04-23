@@ -28,7 +28,7 @@ def main(request):
     context = {
         "reviews" : Review.objects.all()[:3]      
     }
-    return render(request, 'landing\main.html',context)
+    return render(request, 'landing/main.html',context)
 
 
 
