@@ -27,6 +27,17 @@ A Django-based web platform that helps car owners manage their vehicles, find ne
 
 ---
 
+## 👨‍👩‍👧‍👦 Team & Acknowledgments
+
+We deeply thank **Axsos Academy**, our mentor, and TA for their incredible support and guidance throughout the journey.
+
+### 👩‍💻 Project Creators
+- [Rawan Farakhna](https://www.linkedin.com/in/rawanfarakhna/)
+- [Mujahed Qasem](https://www.linkedin.com/in/mujahed-qasem/)
+- [Yasmeena Bassam](https://www.linkedin.com/in/yasmeena-bassam-yousef-a8b4b1346/)
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -37,7 +48,7 @@ A Django-based web platform that helps car owners manage their vehicles, find ne
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/auto-fix.git
+git clone https://github.com/RawanFarakhnah/auto-fix.git
 cd auto-fix
 
 # Set up virtual environment
@@ -95,32 +106,50 @@ auto_fix/
 ├── accounts/
 │   ├── models.py
 │   ├── views.py
-│   ├── forms.py
-├── workshops/
+├── admin_dashboard/
 │   ├── models.py
 │   ├── views.py
-│   ├── forms.py
-├── diagnosis/
-│   ├── models.py
-│   ├── views.py
-│   ├── ai_chat.py
-├── maintenance/
-│   ├── models.py
-│   ├── reminders.py
-├── reviews/
+├── ai_diagnosis/
 │   ├── models.py
 │   ├── views.py
 ├── auto_fix/
 │   ├── settings/
 │   ├── urls.py
 │   └── wsgi.py
+├── bookings/
+│   ├── models.py
+│   ├── views.py
+├── cars/
+│   ├── models.py
+│   ├── views.py
+├── landing/
+│   ├── models.py
+│   ├── views.py
+├── locations/
+│   ├── models.py
+│   ├── views.py
+├── media/
+│   ├── workshops_images/
+├── owner_dashboard/
+│   ├── models.py
+│   ├── views.py
+├── reviews/
+│   ├── models.py
+│   ├── views.py
+├── user_dashboard/
+│   ├── models.py
+│   ├── views.py
+├── workshops/
+│   ├── models.py
+│   ├── views.py
 ├── templates/
 │   ├── base.html
+│   ├── base2.html
 │   ├── accounts/
-│   ├── workshops/
-│   ├── diagnosis/
-│   ├── reviews/
-│   └── maintenance/
+│   ├── admin_dashboard/
+│   ├── landing/
+│   ├── owner_dashboard/
+│   └── user_dashboard/
 ├── static/
 │   ├── css/
 │   ├── js/
@@ -149,4 +178,19 @@ auto_fix/
 - **Authentication:** Django Allauth
 - **AI Logic:** Custom Python AI models (extendable)
 
+---
+
+## 🙌 Special Thanks
+
+We extend our deepest gratitude to **Axsos Academy** for providing a transformative learning journey.  
+A heartfelt thank you to our **instructor** and **teaching assistant** for their continuous guidance, encouragement, and knowledge-sharing throughout this project.  
+This platform is a testament to the power of learning through collaboration.
+
+---
+
+## 👩‍💻 Team Members
+
+- **Rawan Farakhnah**  
+- **[Teammate Name #2]**  
+- **[Teammate Name #3]**  
 ---
