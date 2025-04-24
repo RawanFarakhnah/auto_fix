@@ -23,11 +23,13 @@ A Django-based web platform that helps car owners manage their vehicles, find ne
 
 ---
 
-## 👨‍👩‍👧‍👦 Team & Acknowledgments
+## 🙌 Special Thanks
 
-We deeply thank **Axsos Academy**, our mentor, and TA for their incredible support and guidance throughout the journey.
+We extend our deepest gratitude to **Axsos Academy** for providing a transformative learning journey.  
+A heartfelt thank you to our **instructor** and **teaching assistant** for their continuous guidance, encouragement, and knowledge-sharing throughout this project.  
+This platform is a testament to the power of learning through collaboration.
 
-### 👩‍💻 Project Creators
+### 👩‍💻 Team Members
 - [Rawan Farakhna](https://www.linkedin.com/in/rawanfarakhna/)
 - [Mujahed Qasem](https://www.linkedin.com/in/mujahed-qasem/)
 - [Yasmeena Bassam](https://www.linkedin.com/in/yasmeena-bassam-yousef-a8b4b1346/)
@@ -174,19 +176,4 @@ auto_fix/
 - **Authentication:** Django Allauth
 - **AI Logic:** Custom Python AI models (extendable)
 
----
-
-## 🙌 Special Thanks
-
-We extend our deepest gratitude to **Axsos Academy** for providing a transformative learning journey.  
-A heartfelt thank you to our **instructor** and **teaching assistant** for their continuous guidance, encouragement, and knowledge-sharing throughout this project.  
-This platform is a testament to the power of learning through collaboration.
-
----
-
-## 👩‍💻 Team Members
-
-- **Rawan Farakhnah**  
-- **[Teammate Name #2]**  
-- **[Teammate Name #3]**  
 ---
