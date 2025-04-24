@@ -2,3 +2,82 @@ body {
     background-color: #f4f4f4; 
     font-family: 'Cairo', sans-serif;
 }
+
+.btn.btn-warning {
+    background-color: #ff6600 !important;
+    color: white;
+    border-color: #ff6600 !important;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn.btn-warning:hover {
+    background-color: #e65c00 !important; /* Slightly darker orange */
+    border-color: #e65c00 !important;
+    color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+  }
+
+  
+.flash-images {
+    position: relative;
+    width: 100%;
+    height: 60vh;
+    overflow: hidden;
+}
+
+.flash-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.flash-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; 
+    object-fit: contain; 
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    z-index: 0;
+}
+.flash-images {
+    position: relative;
+    width: 100%;
+    height: 80vh; 
+    overflow: hidden;
+}
+
+
+
+.flash-image.active {
+    opacity: 1;
+    z-index: 1;
+}
+
+/* Cards below image */
+.card-row-container {
+    position: relative;
+    top: -80px;
+    z-index: 2;
+    padding: 0 1rem;
+}
+
+/* Card styles */
+.feature-card {
+    border-radius: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+body{
+background-color:rgb(230, 225, 225);
+}

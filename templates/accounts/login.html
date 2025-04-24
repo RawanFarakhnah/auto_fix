@@ -1,9 +1,23 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Login | AutoFix{% endblock %}
+{% block title %}Login | AutoFix {% endblock %}
+{% block extra_css %}
+<style>
+    .img-box-custome{
+    position: relative;
+    height: 0px;
+}
+.img-login{
+   position: absolute;
+   top: -35px;
+   left: -12px;
+}
+</style>
+{% endblock %}
 
 {% block content %}
+
 <section class="login-section py-5" style="background-color: #f8f9fa;">
     <div class="container">
         <div class="row justify-content-center align-items-center">
@@ -11,10 +25,12 @@
                 <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
                     <div class="row g-0">
                         <!-- Image Side -->
-                        <div class="col-md-6 d-none d-md-block">
-                            <div class="img-box h-100 w-100">
-                                <img src="{% static 'img/login2.png' %}" width="400px" height="1px"  alt="Login Image" >
-                            </div>
+                        <div class="col-md-6 d-none d-md-block img-box-custome">
+                           
+                                <img src="{% static 'img/login2.webp' %}" 
+                                 width="400px" height="165px"
+                                 alt="Login Image" class="img-cover img-login" >
+                           
                         </div>
 
                         <!-- Form Side -->

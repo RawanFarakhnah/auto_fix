@@ -172,7 +172,7 @@
             </div>
             
             <form method="post" enctype="multipart/form-data" id="registerWorkshopModal">
-                <div class="alert alert-danger" id="workshop-errors"></div>
+                <div class="alert alert-danger d-none" id="register-workshop-errors"></div>
                 <div class="modal-body">
                     {% csrf_token %}
                     <div class="row">
@@ -193,23 +193,23 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Street Address</label>
-                                <input type="text" class="form-control" name="street" required>
+                                <input type="text" class="form-control" placeholder="Main Street" name="street" required >
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">City</label>
-                                <input type="text" class="form-control" name="city" required>
+                                <input type="text" class="form-control" placeholder="Ramallah" name="city" required >
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Region/State</label>
-                                <input type="text" class="form-control" name="region" required>
+                                <input type="text" class="form-control" placeholder="West Bank" name="region" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Country</label>
-                                <input type="text" class="form-control" name="country" required>
+                                <input type="text" class="form-control" placeholder="Palestine" name="country" required >
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Postal Code</label>
-                                <input type="text" class="form-control" name="postal_code" required>
+                                <input type="text" class="form-control" placeholder="00972" name="postal_code" required>
                             </div>
                         </div>
                     </div>
@@ -239,7 +239,7 @@
             </div>
             
             <form method="post" action="{% url 'owner_dashboard:edit_workshop' %}" id="edit-workshop-form">
-                <div class="alert alert-danger" id="edit-workshop-errors"></div>
+                <div class="alert alert-danger d-none" id="edit-workshop-errors"></div>
                 <div class="modal-body">
                     {% csrf_token %}
                     <div class="row">
@@ -359,8 +359,7 @@ $(document).ready(function() {
 // delete workshop 
 $(document).on("click", "#delete-workshop", function() {
     let workshopId = $(this).data("id");  
-    console.log('it works');
-    
+       
     $.ajax({
         type: "POST",
         url: "{% url 'owner_dashboard:delete_workshop' %}",
@@ -386,6 +385,10 @@ $(document).on("submit", "#registerWorkshopModal form", function(event) {
     event.preventDefault();  
 
     let formData = new FormData(this);
+    const $errorBox = $('#register-workshop-errors');
+
+    // Reset error box and disable button
+    $errorBox.addClass('d-none').html('');
 
     $.ajax({
         type: "POST",
@@ -394,44 +397,92 @@ $(document).on("submit", "#registerWorkshopModal form", function(event) {
         processData: false,
         contentType: false,
         success: function(response) {
-            let errorContainer = $("#workshop-errors");
-            errorContainer.html("");
-
-            if (response.status === "error") {
-                Object.entries(response.messages).forEach(([key, msg]) => {
-                    errorContainer.append(`<div class="alert alert-danger">${msg}</div>`);  // ✅ عرض الأخطاء داخل المودال
-                });
-            } else {
-                $("#registerWorkshopModal").modal("hide");  
-                location.reload();  
+            if (response.status === 'success') {
+                    setTimeout(() => {
+                        $('#registerWorkshopModal').modal('hide');
+                        location.reload();
+                    }, 1500);
+                } else if (response.status === 'error') {
+                    showErrors(response.messages);
+                }
             }
-        }
     });
+
+    function showErrors(errors) {
+    let html = '<ul>';
+    console.log(errors);
+
+    if (Array.isArray(errors) && errors.length > 0 && typeof errors[0] === 'object') {
+        // Get the first object inside the array
+        const errorObject = errors[0];
+
+        // Loop through the object entries (key-value pairs)
+        Object.entries(errorObject).forEach(([key, msg]) => {
+            html += `<li>${msg}</li>`;
+        });
+    } else if (typeof errors === 'object' && errors !== null) {
+        Object.entries(errors).forEach(([key, msg]) => {
+            html += `<li>${msg}</li>`;
+        });
+    } else {
+        html += `<li>${errors}</li>`;
+    }
+
+    html += '</ul>';
+    $errorBox.removeClass('d-none').html(html);
+  }
+
 });
 // this code for the edit workshop : 
 $(document).on("submit", "#edit-workshop-form", function(event) {
     event.preventDefault(); 
 
     let formData = $(this).serialize();
-    
+    const $errorBox = $('#edit-workshop-errors');
+
+    // Reset error box and disable button
+    $errorBox.addClass('d-none').html('');
+
     $.ajax({
         type: "POST",
         url: "/owner_dashboard/owner/workshop/edit/",
         data: formData,
         success: function(response) {
-            if (response.status === "error") {
-                let errorContainer = $("#edit-workshop-errors");
-                errorContainer.html("");  
-                
-                Object.values(response.messages).forEach(msg => {
-                    errorContainer.append(`<div class="alert alert-danger">${msg}</div>`); 
-                });
-            } else {
-                $("#editWorkshopModal").modal("hide");  
-                location.reload();  
+            if (response.status === 'success') {
+                    setTimeout(() => {
+                        $('#editWorkshopModal').modal('hide');
+                        location.reload();
+                    }, 1500);
+                } else if (response.status === 'error') {
+                    showErrors(response.messages);
+                }
             }
-        }
     });
+
+    function showErrors(errors) {
+    let html = '<ul>';
+    console.log(errors);
+
+    if (Array.isArray(errors) && errors.length > 0 && typeof errors[0] === 'object') {
+        // Get the first object inside the array
+        const errorObject = errors[0];
+
+        // Loop through the object entries (key-value pairs)
+        Object.entries(errorObject).forEach(([key, msg]) => {
+            html += `<li>${msg}</li>`;
+        });
+    } else if (typeof errors === 'object' && errors !== null) {
+        Object.entries(errors).forEach(([key, msg]) => {
+            html += `<li>${msg}</li>`;
+        });
+    } else {
+        html += `<li>${errors}</li>`;
+    }
+
+    html += '</ul>';
+    $errorBox.removeClass('d-none').html(html);
+  }
+
 });
 
 </script>

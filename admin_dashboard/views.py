@@ -269,8 +269,7 @@ def edit_user(request, user_id):
     if request.user.is_authenticated and request.user.is_superuser:
         try:
             user = User.objects.get(id=user_id)
-            # Pass role data to the template
-
+           
             role = 'user'
             if user.is_superuser:
                 role = 'admin'
@@ -279,20 +278,25 @@ def edit_user(request, user_id):
             
             return render(request, 'admin_dashboard/update_user.html', {
                 'user_obj': user,
-                'role': role,  # Ensure this is passed for role selection in the form
+                'role': role,
             })
         except User.DoesNotExist:
             return redirect('admin_dashboard:manage_users')
     return redirect('landing:main')
 
-@csrf_exempt
 def update_user(request, user_id):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        return JsonResponse({
+            'success': False,
+            'redirect_url': reverse('landing:dashboard')
+        })
+
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'User not found'})
+
     if request.method == "POST":
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'User not found'})
-        
         role = request.POST.get('role')
         is_superuser = False
         is_workshop_owner = False
@@ -302,30 +306,40 @@ def update_user(request, user_id):
         elif role == 'workshop':
             is_workshop_owner = True
 
-        # Update user attributes
+        # Simulated validation (replace with your actual logic)
+        errors = {}
+        if not request.POST.get('first_name'):
+            errors['first_name'] = "First name is required"
+        if not request.POST.get('last_name'):
+            errors['last_name'] = "Last name is required"
+        if not request.POST.get('email'):
+            errors['email'] = "Email is required"
+
+        if errors:
+            return render(request, 'admin_dashboard/update_user.html', {
+                'errors': errors,
+                'user_obj': user,
+                'postData': request.POST
+            })
+
+        # Update fields
         user.first_name = request.POST.get('first_name')
         user.last_name = request.POST.get('last_name')
         user.email = request.POST.get('email')
-        user.phone = request.POST.get('phone', '')  # Default to empty string if no phone provided
-        
-        # Set role-related flags
+        user.phone = request.POST.get('phone', '')
+
         user.is_superuser = is_superuser
         user.is_workshop_owner = is_workshop_owner
-        
+
         user.save()
 
         return JsonResponse({
             'success': True,
-            'user_id': user.id,
-            'full_name': user.get_full_name(),
-            'email': user.email,
             'redirect_url': reverse('admin_dashboard:manage_users')
         })
 
-    return JsonResponse({
-       'success': True,
-       'message': "User updated successfully",
-       'redirect_url': reverse('landing:dashboard')
+    return render(request, 'admin_dashboard/update_user.html', {
+        'user_obj': user
     })
 
 @csrf_exempt

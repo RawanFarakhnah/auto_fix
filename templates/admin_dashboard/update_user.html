@@ -74,92 +74,59 @@
       <div class="card-body">
         <form id="updateUserForm" action="{% url 'admin_dashboard:update_user' user_obj.id %}" method="post">
           {% csrf_token %}
-
-          <div class="row g-2 mb-3">
-            <div class="col-md-6">
-              <input type="text" name="first_name" value="{{ user_obj.first_name }}"
-                     class="form-control {% if errors.first_name %}is-invalid{% endif %}"
-                     placeholder="First Name" style="border-color: #ff6600; color: #ff6600;" required />
-            </div>
-            <div class="col-md-6">
-              <input type="text" name="last_name" value="{{ user_obj.last_name }}"
-                     class="form-control {% if errors.last_name %}is-invalid{% endif %}"
-                     placeholder="Last Name" style="border-color: #ff6600; color: #ff6600;" required />
-            </div>
+      
+          <div class="row mb-3">
+              <div class="col-md-6">
+                  <label class="form-label">First Name</label>
+                  <input type="text" class="form-control {% if errors.first_name %}is-invalid{% endif %}"
+                         name="first_name" value="{{ postData.first_name|default:user_obj.first_name }}" required>
+              </div>
+              <div class="col-md-6">
+                  <label class="form-label">Last Name</label>
+                  <input type="text" class="form-control {% if errors.last_name %}is-invalid{% endif %}"
+                         name="last_name" value="{{ postData.last_name|default:user_obj.last_name }}" required>
+              </div>
+          </div>
+      
+          <div class="row mb-3">
+              <div class="col-md-6">
+                  <label class="form-label">Email</label>
+                  <input type="email" class="form-control {% if errors.email %}is-invalid{% endif %}"
+                         name="email" value="{{ postData.email|default:user_obj.email }}" required>
+              </div>
+              <div class="col-md-6">
+                  <label class="form-label">Phone Number</label>
+                  <input type="tel" class="form-control {% if errors.phone %}is-invalid{% endif %}"
+                         name="phone" value="{{ postData.phone|default:user_obj.phone }}">
+              </div>
           </div>
 
           <div class="mb-3">
-            <input type="email" name="email" value="{{ user_obj.email }}"
-                   class="form-control {% if errors.email %}is-invalid{% endif %}"
-                   placeholder="Email" style="border-color: #ff6600; color: #ff6600;" required />
+            <label class="form-label fw-bold">Select User Role</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="role" id="role_user" value="user"
+                  {% if user_obj.is_superuser == False and user_obj.is_workshop_owner == False %}checked{% endif %}>
+              <label class="form-check-label" for="role_user">Regular User</label>
+             </div>
+            
+             <div class="form-check">
+                 <input class="form-check-input" type="radio" name="role" id="role_workshop" value="workshop"
+                     {% if user_obj.is_workshop_owner %}checked{% endif %}>
+                 <label class="form-check-label" for="role_workshop">Workshop Owner</label>
+             </div>
+            
+             <div class="form-check">
+                 <input class="form-check-input" type="radio" name="role" id="role_admin" value="admin"
+                     {% if user_obj.is_superuser %}checked{% endif %}>
+                 <label class="form-check-label" for="role_admin">Admin</label>
+             </div>
           </div>
 
-          <div class="mb-3">
-            <input type="tel" name="phone" value="{{ user_obj.phone }}"
-                   class="form-control {% if errors.phone %}is-invalid{% endif %}"
-                   placeholder="05xxxxxxxx" style="border-color: #ff6600; color: #ff6600;" required />
-          </div>
-
-          <div class="mb-4">
-            <label class="form-label fw-bold" style="color: #ff6600;">Select User Role</label>
-           
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="role" id="role_user" value="user"
-                    {% if user_obj.is_superuser == False and user_obj.is_workshop_owner == False %}checked{% endif %}>
-                <label class="form-check-label" for="role_user">Regular User</label>
-            </div>
-           
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="role" id="role_workshop" value="workshop"
-                    {% if user_obj.is_workshop_owner %}checked{% endif %}>
-                <label class="form-check-label" for="role_workshop">Workshop Owner</label>
-            </div>
-           
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="role" id="role_admin" value="admin"
-                    {% if user_obj.is_superuser %}checked{% endif %}>
-                <label class="form-check-label" for="role_admin">Admin</label>
-            </div>
-          </div>
-
-          <button class="btn-custom" type="submit" class="btn btn-warning">
-            Update User
-          </button>
-        </form>
+          <button type="submit" class="btn btn-warning">Update User</button>
       </div>
     </div>
   </main>
 </div>
-
-<!-- JavaScript to prevent redirect and refresh the page -->
-<script>
-  $(document).ready(function() {
-    $('#updateUserForm').on('submit', function(e) {
-      e.preventDefault();  // Prevent form from submitting normally
-
-      var formData = $(this).serialize();  // Serialize form data
-
-      $.ajax({
-        url: $(this).attr('action'),  // The URL to send the form data to
-        type: 'POST',
-        data: formData,
-        success: function(response) {
-          // Handle the response
-          if (response.success) {
-            // Optionally show success message here
-            alert('User updated successfully!');
-            // Reload the page to reflect changes
-            location.reload();
-          }
-        },
-        error: function(xhr, status, error) {
-          alert('There was an error updating the user.');
-        }
-      });
-    });
-  });
-</script>
-
 {% endblock %}
 
 {% block extra_js %}
@@ -170,6 +137,32 @@
       $('.menu a').removeClass('active-link');
       $(this).addClass('active-link');
     });
+     
+    $('#updateUserForm').on('submit', function(e) {
+    e.preventDefault();
+
+    var formData = $(this).serialize();
+
+    $.ajax({
+        url: $(this).attr('action'),
+        type: 'POST',
+        data: formData,
+        success: function(data) {
+            if (data.success) {
+                setTimeout(() => {
+                    window.location.href = data.redirect_url;
+                }, 1500);
+            } else {
+                alert("Error: " + (data.error || "Check form validation."));
+            }
+        },
+        error: function() {
+            alert("An error occurred. Please try again later.");
+        }
+    });
+   });
+
+   
   });
 </script>
 {% endblock %}
