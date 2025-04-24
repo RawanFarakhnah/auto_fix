@@ -1,7 +1,3 @@
-Here's a tailored **README.md** file for your **Auto Fix** project, following the structure and style of the "Sufi Moments" sample you provided:
-
----
-
 # Auto Fix 🚗🔧
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
